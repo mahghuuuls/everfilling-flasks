@@ -24,12 +24,18 @@ import net.minecraftforge.items.SlotItemHandler;
  */
 public final class FlaskContainer extends Container {
 
-    /** Where the Flask slot draws, the center slot of the placeholder background. */
-    public static final int FLASK_SLOT_X = 80;
+    /** Where the Flask slot draws, left of the infusion grid. */
+    public static final int FLASK_SLOT_X = 26;
     public static final int FLASK_SLOT_Y = 35;
 
+    /** Where the infusion grid's top-left slot draws: the background's three-by-three. */
+    public static final int GRID_X = 62;
+    public static final int GRID_Y = 17;
+
     private static final int FLASK_SLOT_INDEX = 0;
-    private static final int PLAYER_INVENTORY_START = 1;
+    private static final int GRID_START = 1;
+    private static final int GRID_END = GRID_START + FlaskStackState.GRID_SIZE;
+    private static final int PLAYER_INVENTORY_START = GRID_END;
     private static final int HOTBAR_START = PLAYER_INVENTORY_START + 27;
     private static final int SLOT_COUNT = HOTBAR_START + 9;
 
@@ -39,6 +45,16 @@ public final class FlaskContainer extends Container {
         this.data = data;
         addSlotToContainer(new FlaskSlot(playerInventory.player, data.slot(),
                 FLASK_SLOT_X, FLASK_SLOT_Y));
+        // The grid slots sit over the stateless handler, so a Flask swap swaps their contents
+        // and no slot ever remembers a departed stack. Plain SlotItemHandler is enough: its
+        // validity and take checks are the handler's simulated insert and extract.
+        IngredientGridHandler grid = new IngredientGridHandler(data);
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
+                addSlotToContainer(new SlotItemHandler(grid, row * 3 + column,
+                        GRID_X + column * 18, GRID_Y + row * 18));
+            }
+        }
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
                 addSlotToContainer(new Slot(playerInventory, 9 + row * 9 + column,
@@ -80,8 +96,17 @@ public final class FlaskContainer extends Container {
             if (!player.world.isRemote) {
                 Diagnostics.slotChanged(player, before, ItemStack.EMPTY);
             }
+        } else if (index < GRID_END) {
+            // Out of the grid, into the player's inventory.
+            if (!mergeItemStack(moved, PLAYER_INVENTORY_START, SLOT_COUNT, false)) {
+                return ItemStack.EMPTY;
+            }
         } else {
-            if (!mergeItemStack(moved, FLASK_SLOT_INDEX, FLASK_SLOT_INDEX + 1, false)) {
+            // From the player's inventory: a Flask goes to the Flask slot; an ingredient goes
+            // to the grid. The merge's empty-slot pass consults each slot's validity and limit,
+            // so non-ingredients, a missing Flask, and the one-per-slot rule all refuse there.
+            if (!mergeItemStack(moved, FLASK_SLOT_INDEX, FLASK_SLOT_INDEX + 1, false)
+                    && !mergeItemStack(moved, GRID_START, GRID_END, false)) {
                 return ItemStack.EMPTY;
             }
         }

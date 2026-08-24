@@ -26,6 +26,13 @@ class IngredientRegistryTest {
         Bootstrap.register();
     }
 
+    @org.junit.jupiter.api.BeforeEach
+    void clearBefore() {
+        // Before as well as after: another test class may have registered the same items into
+        // the shared static registry, and first-wins would silently swap this class's fixtures.
+        IngredientRegistry.clearForTests();
+    }
+
     @AfterEach
     void clearRegistry() {
         IngredientRegistry.clearForTests();

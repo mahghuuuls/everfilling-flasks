@@ -67,6 +67,17 @@ public final class FlaskPlayerData {
         return slot;
     }
 
+    /**
+     * Something outside the controller changed what the equipped Flask is worth — today the
+     * infusion grid being edited in the screen. The cached effective values are stale and the
+     * owner should hear about it now, not on the one-second cadence. Harmless on a client-side
+     * copy, where neither field is ever read.
+     */
+    public void noteExternalChange() {
+        cachedEffective = null;
+        syncDirty = true;
+    }
+
     public ItemStack equippedFlask() {
         return slot.getStackInSlot(0);
     }

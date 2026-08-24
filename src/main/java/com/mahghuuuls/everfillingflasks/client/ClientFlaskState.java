@@ -89,6 +89,16 @@ public final class ClientFlaskState {
         }
     }
 
+    /** The server's summed ingredient costs for the equipped Flask; display only. */
+    public static int potencyUsed() {
+        return last == null ? 0 : last.potencyUsed();
+    }
+
+    /** The server's potency budget for the equipped Flask; display only. */
+    public static int potency() {
+        return last == null ? 0 : last.potency();
+    }
+
     /** Client ticks since the local player's last interruption; large when none is recent. */
     public static int ticksSinceInterrupt() {
         return ticksSinceInterrupt;

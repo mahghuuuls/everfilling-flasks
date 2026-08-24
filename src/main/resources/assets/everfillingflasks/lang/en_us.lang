@@ -13,3 +13,5 @@ everfillingflasks.key.category=Everfilling Flasks
 
 everfillingflasks.button.flask=Flask
 everfillingflasks.screen.title=Flask
+everfillingflasks.screen.potency=Potency: %d / %d
+everfillingflasks.screen.overCapacity=Over capacity!
