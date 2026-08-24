@@ -115,15 +115,12 @@ public final class FlaskMechanics {
     }
 
     /**
-     * The drink-start rule: a valid Flask with a charge, not already drinking, and either the
-     * Flask heals nothing (a pure-hook Flask works at any health) or the player is hurt.
+     * The drink-start rule: a valid Flask with a charge, and not already drinking. Health does
+     * not matter: a full-health drink is allowed and simply wastes its heal, because an add-on
+     * Flask can carry a completion effect a player wants at any health.
      */
-    public static boolean canStartDrink(boolean validFlask, int charges, boolean alreadyDrinking,
-                                        float healPercentage, float health, float maxHealth) {
-        if (!validFlask || charges < 1 || alreadyDrinking) {
-            return false;
-        }
-        return healPercentage <= 0.0F || health < maxHealth;
+    public static boolean canStartDrink(boolean validFlask, int charges, boolean alreadyDrinking) {
+        return validFlask && charges >= 1 && !alreadyDrinking;
     }
 
     /**

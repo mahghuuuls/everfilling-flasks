@@ -24,6 +24,10 @@ public class CommonProxy {
     public void handleFlaskState(com.mahghuuuls.everfillingflasks.network.FlaskStateMessage message) {
     }
 
+    /** Receives a drink-visual broadcast; client-only for the same reason as the state above. */
+    public void handleDrinkVisual(com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage message) {
+    }
+
     /**
      * Whether this player is the local client player mid-drink, for the client halves of the
      * action guards. The server overrides nothing here: its guards read the capability, and

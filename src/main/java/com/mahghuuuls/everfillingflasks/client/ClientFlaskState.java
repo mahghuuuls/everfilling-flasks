@@ -2,7 +2,9 @@ package com.mahghuuuls.everfillingflasks.client;
 
 import com.mahghuuuls.everfillingflasks.api.FlaskSnapshot;
 import com.mahghuuuls.everfillingflasks.flask.FlaskMechanics;
+import com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage;
 import com.mahghuuuls.everfillingflasks.network.FlaskStateMessage;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -22,6 +24,25 @@ public final class ClientFlaskState {
     private static FlaskStateMessage last;
     private static int ticksSinceMessage;
 
+    /**
+     * Other players' drink visuals from the broadcast, keyed by entity id, with a lifetime so a
+     * lost stop message cannot leave someone drinking forever: entries die on their own once the
+     * announced duration is well past.
+     */
+    private static final java.util.Map<Integer, Visual> VISUALS =
+            new java.util.HashMap<Integer, Visual>();
+
+    private static final class Visual {
+        final ItemStack flask;
+        final int drinkTicks;
+        int age;
+
+        Visual(ItemStack flask, int drinkTicks) {
+            this.flask = flask;
+            this.drinkTicks = drinkTicks;
+        }
+    }
+
     // Instantiable only for the event-bus registration in ClientProxy; state stays static.
     ClientFlaskState() {
     }
@@ -33,11 +54,50 @@ public final class ClientFlaskState {
         last = message;
     }
 
+    /** A drink-visual broadcast landing; main thread via the proxy. */
+    public static void acceptVisual(DrinkVisualMessage message) {
+        if (message.drinking() && !message.flask().isEmpty()) {
+            VISUALS.put(message.entityId(), new Visual(message.flask(), message.drinkTicks()));
+        } else {
+            VISUALS.remove(message.entityId());
+        }
+    }
+
+    /** Whether this player should be drawn drinking, local mirror or broadcast. */
+    public static boolean isDrinkingVisually(EntityPlayer player) {
+        return !visualFlask(player).isEmpty();
+    }
+
+    /** The Flask to draw in this player's hand, or empty when they are not drawn drinking. */
+    public static ItemStack visualFlask(EntityPlayer player) {
+        if (net.minecraft.client.Minecraft.getMinecraft().player == player) {
+            FlaskSnapshot state = snapshot();
+            return state.drinking() ? state.flask() : ItemStack.EMPTY;
+        }
+        Visual visual = VISUALS.get(player.getEntityId());
+        return visual == null ? ItemStack.EMPTY : visual.flask;
+    }
+
     /** Called every client tick from the proxy's registered handler. */
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && last != null) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+        if (last != null) {
             ticksSinceMessage++;
+        }
+        if (!VISUALS.isEmpty()) {
+            java.util.Iterator<Visual> visuals = VISUALS.values().iterator();
+            while (visuals.hasNext()) {
+                Visual visual = visuals.next();
+                visual.age++;
+                // Twice the announced duration is generous: a stop message normally ends the
+                // visual; this is the safety net for one lost in a dimension change.
+                if (visual.age > visual.drinkTicks * 2 + 40) {
+                    visuals.remove();
+                }
+            }
         }
     }
 
@@ -46,6 +106,7 @@ public final class ClientFlaskState {
     public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         last = null;
         ticksSinceMessage = 0;
+        VISUALS.clear();
     }
 
     /** The current read-only view. Without a server message yet: an empty snapshot. */

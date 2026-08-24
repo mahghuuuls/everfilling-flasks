@@ -25,5 +25,7 @@ public final class PacketHandler {
                 FlaskStateMessage.class, nextId++, Side.CLIENT);
         CHANNEL.registerMessage(FlaskKeyMessage.Handler.class,
                 FlaskKeyMessage.class, nextId++, Side.SERVER);
+        CHANNEL.registerMessage(DrinkVisualMessage.Handler.class,
+                DrinkVisualMessage.class, nextId++, Side.CLIENT);
     }
 }

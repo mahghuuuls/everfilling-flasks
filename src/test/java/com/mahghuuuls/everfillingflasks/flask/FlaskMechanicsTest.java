@@ -133,22 +133,16 @@ class FlaskMechanicsTest {
     @Test
     void drinkStartRequiresAValidFlaskWithACharge() {
         org.junit.jupiter.api.Assertions.assertFalse(
-                FlaskMechanics.canStartDrink(false, 4, false, 0.3F, 10.0F, 20.0F));
+                FlaskMechanics.canStartDrink(false, 4, false));
         org.junit.jupiter.api.Assertions.assertFalse(
-                FlaskMechanics.canStartDrink(true, 0, false, 0.3F, 10.0F, 20.0F));
+                FlaskMechanics.canStartDrink(true, 0, false));
         org.junit.jupiter.api.Assertions.assertFalse(
-                FlaskMechanics.canStartDrink(true, 4, true, 0.3F, 10.0F, 20.0F));
+                FlaskMechanics.canStartDrink(true, 4, true));
+        // Health is deliberately not a parameter any more: a full-health drink is allowed and
+        // simply wastes its heal. This signature is the guarantee; re-adding a health check
+        // would have to change it and fail this compile.
         org.junit.jupiter.api.Assertions.assertTrue(
-                FlaskMechanics.canStartDrink(true, 1, false, 0.3F, 10.0F, 20.0F));
-    }
-
-    @Test
-    void fullHealthBlocksOnlyFlasksThatHeal() {
-        // The zero-heal exemption: a pure-hook Flask works at full health.
-        org.junit.jupiter.api.Assertions.assertFalse(
-                FlaskMechanics.canStartDrink(true, 4, false, 0.3F, 20.0F, 20.0F));
-        org.junit.jupiter.api.Assertions.assertTrue(
-                FlaskMechanics.canStartDrink(true, 4, false, 0.0F, 20.0F, 20.0F));
+                FlaskMechanics.canStartDrink(true, 1, false));
     }
 
     @Test

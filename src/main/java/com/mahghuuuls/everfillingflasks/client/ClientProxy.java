@@ -19,6 +19,20 @@ public class ClientProxy extends CommonProxy {
         MinecraftForge.EVENT_BUS.register(new ClientFlaskState());
         MinecraftForge.EVENT_BUS.register(new FlaskKeyHandler());
         MinecraftForge.EVENT_BUS.register(new DefaultFlaskHud());
+        MinecraftForge.EVENT_BUS.register(
+                new com.mahghuuuls.everfillingflasks.client.render.FirstPersonDrinkRenderer());
+        MinecraftForge.EVENT_BUS.register(
+                new com.mahghuuuls.everfillingflasks.client.render.DrinkPoseHandler());
+        // Both skin geometries have their own renderer; each gets its own layer instance,
+        // installed once here at init so a resource reload cannot double them.
+        for (net.minecraft.client.renderer.entity.RenderPlayer renderPlayer
+                : Minecraft.getMinecraft().getRenderManager().getSkinMap().values()) {
+            renderPlayer.addLayer(
+                    new com.mahghuuuls.everfillingflasks.client.render.ThirdPersonDrinkLayer(
+                            renderPlayer));
+            com.mahghuuuls.everfillingflasks.client.render.HeldItemLayerInstaller
+                    .install(renderPlayer);
+        }
     }
 
     @Override
@@ -28,6 +42,16 @@ public class ClientProxy extends CommonProxy {
             @Override
             public void run() {
                 ClientFlaskState.accept(message);
+            }
+        });
+    }
+
+    @Override
+    public void handleDrinkVisual(final com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage message) {
+        Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+            @Override
+            public void run() {
+                ClientFlaskState.acceptVisual(message);
             }
         });
     }

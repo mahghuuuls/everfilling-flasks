@@ -98,10 +98,8 @@ public final class DrinkController {
         // Frozen for the whole drink: a modifier change mid-drink alters nothing committed.
         EffectiveFlask effective = computeEffective(player, flask);
         int charges = FlaskStackState.charges(flask);
-        if (!FlaskMechanics.canStartDrink(true, charges, data.drinking,
-                effective.healPercentage(), player.getHealth(), player.getMaxHealth())) {
-            Diagnostics.drinkRefused(player, data.drinking ? "already drinking"
-                    : charges < 1 ? "no charges" : "already at full health");
+        if (!FlaskMechanics.canStartDrink(true, charges, data.drinking)) {
+            Diagnostics.drinkRefused(player, data.drinking ? "already drinking" : "no charges");
             return;
         }
         data.drinking = true;
@@ -109,6 +107,7 @@ public final class DrinkController {
         data.drinkEffective = effective;
         data.drinkStack = flask;
         applySlowdown(player);
+        sendDrinkVisual(player, true, effective.drinkTicks(), flask);
         playDrinkSound(player);
         Diagnostics.drinkStarted(player, effective.drinkTicks(), effective.healPercentage(),
                 effective.hitThreshold());
@@ -158,6 +157,19 @@ public final class DrinkController {
         data.drinkEffective = null;
         data.drinkStack = ItemStack.EMPTY;
         removeSlowdown(player);
+        sendDrinkVisual(player, false, 0, ItemStack.EMPTY);
+    }
+
+    /** The third-person broadcast: watchers plus the drinker, on start and on any end. */
+    private static void sendDrinkVisual(EntityPlayerMP player, boolean drinking, int drinkTicks,
+                                        ItemStack flask) {
+        com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage message =
+                new com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage(
+                        player.getEntityId(), drinking, drinkTicks, flask);
+        PacketHandler.CHANNEL.sendToAllTracking(message, player);
+        // The drinker's own copy: their first person reads the state mirror instead, so this
+        // exists as the fallback identity for their third-person view if the state message lags.
+        PacketHandler.CHANNEL.sendTo(message, player);
     }
 
     private static void drinkTick(EntityPlayerMP player, FlaskPlayerData data) {
@@ -409,6 +421,8 @@ public final class DrinkController {
                     effective.hitThreshold());
             Diagnostics.stateSent(player, charges, effective.maxCharges(), data.liveProgress);
         }
+        // The drinker's own copy: their first person reads the state mirror instead, so this
+        // exists as the fallback identity for their third-person view if the state message lags.
         PacketHandler.CHANNEL.sendTo(message, player);
         data.lastSyncTick = now;
         data.syncDirty = false;
