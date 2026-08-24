@@ -28,6 +28,77 @@ public final class Diagnostics {
                 player.getName(), describe(flask));
     }
 
+    public static void chargeRestored(EntityPlayer player, int charges, int maxCharges) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("{}: charge restored {}/{}",
+                player.getName(), charges, maxCharges);
+    }
+
+    public static void rechargePaused(EntityPlayer player, int progressTicks, int rechargeTicks) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("{}: recharge paused (inhibited) at {}/{} ticks",
+                player.getName(), progressTicks, rechargeTicks);
+    }
+
+    public static void rechargeResumed(EntityPlayer player, int progressTicks, int rechargeTicks) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("{}: recharge resumed at {}/{} ticks",
+                player.getName(), progressTicks, rechargeTicks);
+    }
+
+    public static void drinkRefused(EntityPlayer player, String reason) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("{}: drink refused: {}", player.getName(), reason);
+    }
+
+    public static void drinkStarted(EntityPlayer player, int drinkTicks, float healPercentage,
+                                    float hitThreshold) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info(
+                "{}: drink started (duration {} ticks, heal {}%, hit threshold {})",
+                player.getName(), drinkTicks, Math.round(healPercentage * 100.0F), hitThreshold);
+    }
+
+    public static void drinkCancelled(EntityPlayer player, String reason) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("{}: drink cancelled: {}", player.getName(), reason);
+    }
+
+    public static void drinkCompleted(EntityPlayer player, int charges, int maxCharges,
+                                      float healed) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info(
+                "{}: drink completed ({}/{} charges left, healed {} half-hearts)",
+                player.getName(), charges, maxCharges, healed);
+    }
+
+    /**
+     * One line per state message while recharging, which the sync cadence bounds to one per
+     * second; the campaign counts these lines as the no-per-tick-networking evidence.
+     */
+    public static void stateSent(EntityPlayer player, int charges, int maxCharges,
+                                 int progressTicks) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("{}: state sent ({}/{} charges, progress {})",
+                player.getName(), charges, maxCharges, progressTicks);
+    }
+
     public static void slotChanged(EntityPlayer player, ItemStack from, ItemStack to) {
         if (!enabled()) {
             return;

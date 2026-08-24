@@ -129,4 +129,49 @@ class FlaskMechanicsTest {
     void healAmountIsMaxHealthTimesPercentage() {
         assertEquals(6.0F, FlaskMechanics.healAmount(20.0F, 0.30F), 1.0E-6F);
     }
+
+    @Test
+    void drinkStartRequiresAValidFlaskWithACharge() {
+        org.junit.jupiter.api.Assertions.assertFalse(
+                FlaskMechanics.canStartDrink(false, 4, false, 0.3F, 10.0F, 20.0F));
+        org.junit.jupiter.api.Assertions.assertFalse(
+                FlaskMechanics.canStartDrink(true, 0, false, 0.3F, 10.0F, 20.0F));
+        org.junit.jupiter.api.Assertions.assertFalse(
+                FlaskMechanics.canStartDrink(true, 4, true, 0.3F, 10.0F, 20.0F));
+        org.junit.jupiter.api.Assertions.assertTrue(
+                FlaskMechanics.canStartDrink(true, 1, false, 0.3F, 10.0F, 20.0F));
+    }
+
+    @Test
+    void fullHealthBlocksOnlyFlasksThatHeal() {
+        // The zero-heal exemption: a pure-hook Flask works at full health.
+        org.junit.jupiter.api.Assertions.assertFalse(
+                FlaskMechanics.canStartDrink(true, 4, false, 0.3F, 20.0F, 20.0F));
+        org.junit.jupiter.api.Assertions.assertTrue(
+                FlaskMechanics.canStartDrink(true, 4, false, 0.0F, 20.0F, 20.0F));
+    }
+
+    @Test
+    void interpolationAddsElapsedTicksToTheLastKnownProgress() {
+        // Would fail if the addition were dropped or the arguments swapped.
+        assertEquals(150, FlaskMechanics.interpolateProgress(100, 50, false, false, 1200));
+    }
+
+    @Test
+    void interpolationFreezesWhilePaused() {
+        // Would fail if the paused flag were ignored and elapsed ticks still added.
+        assertEquals(100, FlaskMechanics.interpolateProgress(100, 50, true, false, 1200));
+    }
+
+    @Test
+    void interpolationFreezesAtMaximumCharges() {
+        assertEquals(0, FlaskMechanics.interpolateProgress(0, 500, false, true, 1200));
+    }
+
+    @Test
+    void interpolationNeverClaimsAChargeTheServerHasNotGranted() {
+        // Caps at one tick short of the threshold; a cap at the threshold itself would let a
+        // display show a full icon the server may still deny.
+        assertEquals(1199, FlaskMechanics.interpolateProgress(1150, 500, false, false, 1200));
+    }
 }

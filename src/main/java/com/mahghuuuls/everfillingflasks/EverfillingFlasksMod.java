@@ -51,6 +51,7 @@ public class EverfillingFlasksMod {
         }
         FlaskPlayerCapability.register();
         PacketHandler.register();
+        com.mahghuuuls.everfillingflasks.flask.InternalFlaskApiBridge.install();
     }
 
     @Mod.EventHandler

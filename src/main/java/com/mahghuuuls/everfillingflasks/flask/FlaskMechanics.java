@@ -113,4 +113,30 @@ public final class FlaskMechanics {
     public static float healAmount(float maxHealth, float effectiveHealPercentage) {
         return maxHealth * effectiveHealPercentage;
     }
+
+    /**
+     * The drink-start rule: a valid Flask with a charge, not already drinking, and either the
+     * Flask heals nothing (a pure-hook Flask works at any health) or the player is hurt.
+     */
+    public static boolean canStartDrink(boolean validFlask, int charges, boolean alreadyDrinking,
+                                        float healPercentage, float health, float maxHealth) {
+        if (!validFlask || charges < 1 || alreadyDrinking) {
+            return false;
+        }
+        return healPercentage <= 0.0F || health < maxHealth;
+    }
+
+    /**
+     * The client's guess at recharge progress between server updates: the last known value plus
+     * elapsed ticks, frozen while paused or at maximum charges, and capped just short of the
+     * threshold so a display never claims a charge the server has not granted.
+     */
+    public static int interpolateProgress(int knownProgress, int ticksSinceKnown, boolean paused,
+                                          boolean atMaxCharges, int rechargeTicks) {
+        if (paused || atMaxCharges) {
+            return Math.min(knownProgress, Math.max(0, rechargeTicks - 1));
+        }
+        return Math.min(knownProgress + Math.max(0, ticksSinceKnown),
+                Math.max(0, rechargeTicks - 1));
+    }
 }

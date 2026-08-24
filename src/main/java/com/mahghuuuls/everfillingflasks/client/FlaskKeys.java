@@ -7,8 +7,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
 /**
- * The Use Flask key binding. Registered from the client proxy; drinking input handling arrives
- * in a later slice. This class exists now so the item tooltip can name the actual bound key.
+ * The Use Flask key binding, registered from the client proxy. FlaskKeyHandler watches it for
+ * edges, and the item tooltip names the bound key through here.
  */
 @SideOnly(Side.CLIENT)
 public final class FlaskKeys {

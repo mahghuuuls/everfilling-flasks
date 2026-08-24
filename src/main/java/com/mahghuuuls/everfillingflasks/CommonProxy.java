@@ -16,4 +16,20 @@ public class CommonProxy {
     public String useFlaskKeyName() {
         return "?";
     }
+
+    /**
+     * Receives a Flask state message. Only a client has anywhere to put one; the server
+     * registers the message type but never receives it, so this default is unreachable.
+     */
+    public void handleFlaskState(com.mahghuuuls.everfillingflasks.network.FlaskStateMessage message) {
+    }
+
+    /**
+     * Whether this player is the local client player mid-drink, for the client halves of the
+     * action guards. The server overrides nothing here: its guards read the capability, and
+     * this default keeps client state out of every server code path.
+     */
+    public boolean isLocalPlayerDrinking(net.minecraft.entity.player.EntityPlayer player) {
+        return false;
+    }
 }

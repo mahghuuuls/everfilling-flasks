@@ -21,5 +21,9 @@ public final class PacketHandler {
         int nextId = 0;
         CHANNEL.registerMessage(OpenFlaskScreenMessage.Handler.class,
                 OpenFlaskScreenMessage.class, nextId++, Side.SERVER);
+        CHANNEL.registerMessage(FlaskStateMessage.Handler.class,
+                FlaskStateMessage.class, nextId++, Side.CLIENT);
+        CHANNEL.registerMessage(FlaskKeyMessage.Handler.class,
+                FlaskKeyMessage.class, nextId++, Side.SERVER);
     }
 }

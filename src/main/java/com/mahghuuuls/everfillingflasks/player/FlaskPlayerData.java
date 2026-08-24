@@ -1,13 +1,15 @@
 package com.mahghuuuls.everfillingflasks.player;
 
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
+import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.ItemStackHandler;
 
 /**
- * Everything Flask-shaped that belongs to one player: the Flask slot, and the once-only
- * starting-Flask flag. Transient drinking state joins this class in a later slice.
+ * Everything Flask-shaped that belongs to one player: the Flask slot, the once-only
+ * starting-Flask flag, and the transient recharge and drinking bookkeeping the controller
+ * keeps between ticks.
  *
  * <p>NBT layout, an architectural contract: {@code { slot: <ItemStackHandler NBT>, granted:
  * byte }}.
@@ -16,6 +18,50 @@ public final class FlaskPlayerData {
 
     private final FlaskSlotHandler slot = new FlaskSlotHandler();
     private boolean startingFlaskGranted;
+
+    // Server-side recharge bookkeeping, owned by DrinkController and deliberately transient:
+    // live progress ticks between NBT flushes, the stack instance being tracked so a slot change
+    // is detected by reference, and the flush/sync clocks. None of it persists; a reload starts
+    // from the stack's stored NBT. Clocks start at zero, not Long.MIN_VALUE: the cadence
+    // predicates treat a clock ahead of the world time as due, so no sentinel arithmetic can
+    // overflow into a never-firing comparison.
+    ItemStack trackedStack = ItemStack.EMPTY;
+    com.mahghuuuls.everfillingflasks.flask.EffectiveFlask cachedEffective;
+    int liveProgress;
+    boolean liveValid;
+    boolean rechargePaused;
+    boolean syncDirty = true;
+    long lastFlushTick;
+    long lastSyncTick;
+    long lastEffectiveRefreshTick;
+
+    // Transient drinking state, owned by DrinkController and never persisted: a restart
+    // means idle. The effective values are frozen at drink start so a mid-drink modifier change
+    // cannot stretch or shorten a drink already committed to.
+    boolean drinking;
+    int drinkElapsed;
+    com.mahghuuuls.everfillingflasks.flask.EffectiveFlask drinkEffective;
+    ItemStack drinkStack = ItemStack.EMPTY;
+
+    /** Whether this player is mid-drink; the guards and renderers key off this alone. */
+    public boolean drinking() {
+        return drinking;
+    }
+
+    /**
+     * Writes the live recharge progress into the equipped stack's NBT right now. Callers are
+     * the moments the stack's stored state is about to be read or copied by someone else:
+     * logout, the death/End clone, and the shift-click merge, which copies the stack rather
+     * than moving the instance.
+     */
+    public void flushLiveProgress() {
+        // Into the tracked stack, never the slot's current content: between a container click
+        // and the next tick's reconciliation the two can differ, and writing the live value of
+        // one Flask into another would duplicate recharge progress.
+        if (liveValid && !trackedStack.isEmpty()) {
+            FlaskStackState.setProgress(trackedStack, liveProgress);
+        }
+    }
 
     public FlaskSlotHandler slot() {
         return slot;

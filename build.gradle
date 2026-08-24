@@ -402,3 +402,45 @@ if (propertyBool('publish_to_curseforge')) {
 
 apply from: 'gradle/scripts/publishing.gradle'
 apply from: 'gradle/scripts/extra.gradle'
+
+// A development-only fixture add-on in its own source set, compiled against the built jar so it
+// exercises the mod the way a third-party add-on would, and packaged into a separate jar under
+// build/tmp so nothing in build/libs can be mistaken for it. Only runClient loads it. The shape
+// follows the harness arrangement proven in this build family; the reasoning lives with it.
+sourceSets {
+    devmod
+}
+
+dependencies {
+    devmodCompileOnly files(tasks.named('jar'))
+}
+
+sourceSets.devmod.compileClasspath += files({
+    def injected = sourceSets.findByName('injectedTags')
+    def base = sourceSets.main.compileClasspath
+    return injected == null ? base : base - injected.output
+})
+
+def devmodJar = tasks.register('devmodJar', Jar) {
+    archiveClassifier = 'devmod'
+    from sourceSets.devmod.output
+    destinationDirectory = layout.buildDirectory.dir('tmp/devmodJar')
+}
+
+tasks.named('assemble').configure {
+    dependsOn devmodJar
+}
+
+tasks.named('runClient', JavaExec).configure {
+    classpath devmodJar
+
+    // `gradlew runClient -PdevmodModifiers=true` arms the off-hand-stick bonus fixture;
+    // `-PdevmodThrowing=true` arms the always-failing modifier source. Project properties
+    // forwarded as system properties because -D would land on Gradle's JVM, not Minecraft's.
+    if (project.hasProperty('devmodModifiers')) {
+        systemProperty 'eff.devfixtures.modifiers', project.property('devmodModifiers')
+    }
+    if (project.hasProperty('devmodThrowing')) {
+        systemProperty 'eff.devfixtures.throwing', project.property('devmodThrowing')
+    }
+}

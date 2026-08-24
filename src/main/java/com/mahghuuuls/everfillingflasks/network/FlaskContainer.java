@@ -33,7 +33,10 @@ public final class FlaskContainer extends Container {
     private static final int HOTBAR_START = PLAYER_INVENTORY_START + 27;
     private static final int SLOT_COUNT = HOTBAR_START + 9;
 
+    private final FlaskPlayerData data;
+
     public FlaskContainer(InventoryPlayer playerInventory, FlaskPlayerData data) {
+        this.data = data;
         addSlotToContainer(new FlaskSlot(playerInventory.player, data.slot(),
                 FLASK_SLOT_X, FLASK_SLOT_Y));
         for (int row = 0; row < 3; row++) {
@@ -62,6 +65,13 @@ public final class FlaskContainer extends Container {
         ItemStack moved = slot.getStack();
         ItemStack before = moved.copy();
         if (index == FLASK_SLOT_INDEX) {
+            // The merge copies the stack instead of moving the instance, so the live recharge
+            // progress must be written into it first or the player receives a stale Flask.
+            if (!player.world.isRemote) {
+                data.flushLiveProgress();
+                moved = slot.getStack();
+                before = moved.copy();
+            }
             if (!mergeItemStack(moved, PLAYER_INVENTORY_START, SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
             }
