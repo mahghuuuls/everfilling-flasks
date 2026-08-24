@@ -23,3 +23,6 @@ build
 # other
 eclipse
 run
+
+# launchwrapper output from the agent test harness
+logs

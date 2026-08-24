@@ -1,6 +1,8 @@
 package com.mahghuuuls.everfillingflasks;
 
+import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,4 +24,12 @@ import org.apache.logging.log4j.Logger;
 public class EverfillingFlasksMod {
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        ConfigSnapshot.refresh();
+        for (String warning : ConfigSnapshot.current().clampWarnings()) {
+            LOGGER.warn(warning);
+        }
+    }
 }
