@@ -48,8 +48,9 @@ public final class ModifierRegistry {
             } catch (Throwable failure) {
                 if (FAILED_SOURCES.add(source.getClass().getName())) {
                     EverfillingFlasksMod.LOGGER.error(
-                            "Flask modifier source {} failed; its bonuses are skipped for the rest"
-                                    + " of this session", source.getClass().getName(), failure);
+                            "Flask modifier source {} failed; its bonuses are dropped for this"
+                                    + " computation, it stays registered, and this is logged once",
+                            source.getClass().getName(), failure);
                 }
             }
         }

@@ -7,6 +7,7 @@ import com.mahghuuuls.everfillingflasks.client.ClientFlaskState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -50,6 +51,7 @@ public final class DefaultFlaskHud {
                 HudRegistry.reportReplacementFailure(failure);
             }
             reserveRow();
+            restoreVanillaOverlayState();
             return;
         }
         if (HudRegistry.replacementRegistered()) {
@@ -60,6 +62,18 @@ public final class DefaultFlaskHud {
         }
         drawDefault(state, event.getResolution());
         reserveRow();
+        restoreVanillaOverlayState();
+    }
+
+    /**
+     * The overlay elements after HEALTH (food, armor, air) assume the vanilla icon sheet is
+     * still bound and draw without rebinding it. Leaving our texture bound makes the hunger
+     * bar sample a 9x9 flask picture and vanish, and the color left by text or rect drawing
+     * would tint the next bar, so every path that drew anything restores both.
+     */
+    private static void restoreVanillaOverlayState() {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(Gui.ICONS);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private void drawDefault(FlaskSnapshot state, ScaledResolution resolution) {
