@@ -17,4 +17,10 @@ public final class InternalFlaskApiBridge extends FlaskApiBridge {
     protected void registerModifierSourceNow(FlaskModifierSource source) {
         ModifierRegistry.register(source);
     }
+
+    @Override
+    protected void registerIngredientNow(net.minecraft.item.Item item,
+                                         com.mahghuuuls.everfillingflasks.api.IngredientDefinition definition) {
+        IngredientRegistry.register(item, definition);
+    }
 }

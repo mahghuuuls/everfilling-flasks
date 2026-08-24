@@ -29,6 +29,8 @@ public final class FlaskStateMessage implements IMessage {
     private int drinkProgressTicks;
     private int drinkTicks;
     private float hitThreshold;
+    private int potencyUsed;
+    private int potency;
 
     public FlaskStateMessage() {
     }
@@ -36,7 +38,7 @@ public final class FlaskStateMessage implements IMessage {
     public FlaskStateMessage(boolean hasFlask, ItemStack flask, int charges, int maxCharges,
                              int progressTicks, int rechargeTicks, boolean rechargePaused,
                              boolean drinking, int drinkProgressTicks, int drinkTicks,
-                             float hitThreshold) {
+                             float hitThreshold, int potencyUsed, int potency) {
         this.drinking = drinking;
         this.drinkProgressTicks = drinkProgressTicks;
         this.drinkTicks = drinkTicks;
@@ -48,10 +50,13 @@ public final class FlaskStateMessage implements IMessage {
         this.rechargeTicks = rechargeTicks;
         this.rechargePaused = rechargePaused;
         this.hitThreshold = hitThreshold;
+        this.potencyUsed = potencyUsed;
+        this.potency = potency;
     }
 
     public static FlaskStateMessage empty() {
-        return new FlaskStateMessage(false, ItemStack.EMPTY, 0, 0, 0, 1, false, false, 0, 1, 0.0F);
+        return new FlaskStateMessage(false, ItemStack.EMPTY, 0, 0, 0, 1, false, false, 0, 1,
+                0.0F, 0, 0);
     }
 
     public boolean hasFlask() {
@@ -99,6 +104,16 @@ public final class FlaskStateMessage implements IMessage {
         return hitThreshold;
     }
 
+    /** Summed potency costs of the placed ingredients, for the screen's potency display. */
+    public int potencyUsed() {
+        return potencyUsed;
+    }
+
+    /** The equipped Flask's potency budget. */
+    public int potency() {
+        return potency;
+    }
+
     @Override
     public void fromBytes(ByteBuf buf) {
         hasFlask = buf.readBoolean();
@@ -112,6 +127,8 @@ public final class FlaskStateMessage implements IMessage {
         drinkProgressTicks = buf.readInt();
         drinkTicks = buf.readInt();
         hitThreshold = buf.readFloat();
+        potencyUsed = buf.readInt();
+        potency = buf.readInt();
     }
 
     @Override
@@ -127,6 +144,8 @@ public final class FlaskStateMessage implements IMessage {
         buf.writeInt(drinkProgressTicks);
         buf.writeInt(drinkTicks);
         buf.writeFloat(hitThreshold);
+        buf.writeInt(potencyUsed);
+        buf.writeInt(potency);
     }
 
     public static final class Handler implements IMessageHandler<FlaskStateMessage, IMessage> {

@@ -135,14 +135,16 @@ public final class ConfigSnapshot {
         private final int rechargeTicks;
         private final int drinkTicks;
         private final float hitThreshold;
+        private final int potency;
 
         TierConfig(int maxCharges, float healPercentage, int rechargeTicks, int drinkTicks,
-                   float hitThreshold) {
+                   float hitThreshold, int potency) {
             this.maxCharges = maxCharges;
             this.healPercentage = healPercentage;
             this.rechargeTicks = rechargeTicks;
             this.drinkTicks = drinkTicks;
             this.hitThreshold = hitThreshold;
+            this.potency = potency;
         }
 
         static TierConfig from(String keyPrefix, FlaskConfig.TierValues values, List<String> warnings) {
@@ -153,7 +155,8 @@ public final class ConfigSnapshot {
                     clampInt(values.rechargeTicks, 1, 72000, keyPrefix + ".rechargeTicks", warnings),
                     clampInt(values.drinkTicks, 1, 1200, keyPrefix + ".drinkTicks", warnings),
                     (float) clampDouble(values.hitThreshold, 0.0, 1000.0,
-                            keyPrefix + ".hitThreshold", warnings));
+                            keyPrefix + ".hitThreshold", warnings),
+                    clampInt(values.potency, 0, 1000, keyPrefix + ".potency", warnings));
         }
 
         public int maxCharges() {
@@ -174,6 +177,10 @@ public final class ConfigSnapshot {
 
         public float hitThreshold() {
             return hitThreshold;
+        }
+
+        public int potency() {
+            return potency;
         }
     }
 }

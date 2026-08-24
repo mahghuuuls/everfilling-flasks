@@ -25,8 +25,8 @@ class FlaskStateMessageTest {
     @Test
     void aFullStateSurvivesTheRoundTrip() {
         ItemStack flask = new ItemStack(Items.GLASS_BOTTLE);
-        FlaskStateMessage sent =
-                new FlaskStateMessage(true, flask, 2, 4, 840, 1200, true, true, 12, 30, 1.5F);
+        FlaskStateMessage sent = new FlaskStateMessage(true, flask, 2, 4, 840, 1200, true, true,
+                12, 30, 1.5F, 6, 10);
         FlaskStateMessage received = new FlaskStateMessage();
         io.netty.buffer.ByteBuf buf = Unpooled.buffer();
         sent.toBytes(buf);
@@ -43,6 +43,8 @@ class FlaskStateMessageTest {
         assertEquals(12, received.drinkProgressTicks());
         assertEquals(30, received.drinkTicks());
         assertEquals(1.5F, received.hitThreshold(), 1.0E-6F);
+        assertEquals(6, received.potencyUsed());
+        assertEquals(10, received.potency());
         assertEquals(0, buf.readableBytes(), "every written byte must be consumed");
     }
 

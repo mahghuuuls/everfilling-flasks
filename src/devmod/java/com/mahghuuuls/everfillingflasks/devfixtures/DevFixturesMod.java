@@ -23,6 +23,9 @@ import org.apache.logging.log4j.Logger;
  * recharge speed, and +1 maximum charge.</li>
  * <li>{@code -Deff.devfixtures.throwing=true}: one source that always throws, for watching the
  * isolation contain it.</li>
+ * <li>{@code -Deff.devfixtures.ingredient=true}: registers the vanilla gold nugget as a Flask
+ * Ingredient through the public API: cost 2, +25 percent healing, proving the REQ-031
+ * number and the add-on registration path.</li>
  * </ul>
  *
  * <p>Registration happens in init, one phase after the core mod's preInit, deliberately: it
@@ -44,6 +47,26 @@ public class DevFixturesMod {
         if (Boolean.getBoolean("eff.devfixtures.throwing")) {
             FlaskApi.registerModifierSource(new AlwaysThrows());
             LOGGER.info("Fixture throwing modifier source active");
+        }
+        if (Boolean.getBoolean("eff.devfixtures.ingredient")) {
+            FlaskApi.registerIngredient(Items.GOLD_NUGGET, new GoldNuggetIngredient());
+            LOGGER.info("Fixture ingredient active: gold nugget, cost 2, +25 percent healing");
+        }
+    }
+
+    /** The API-registered ingredient fixture, exactly REQ-031's example numbers. */
+    static final class GoldNuggetIngredient
+            implements com.mahghuuuls.everfillingflasks.api.IngredientDefinition {
+
+        @Override
+        public int potencyCost(net.minecraft.item.ItemStack ingredient) {
+            return 2;
+        }
+
+        @Override
+        public void contribute(net.minecraft.item.ItemStack ingredient, EntityPlayer player,
+                               FlaskBonuses bonuses) {
+            bonuses.healing(0.25F);
         }
     }
 

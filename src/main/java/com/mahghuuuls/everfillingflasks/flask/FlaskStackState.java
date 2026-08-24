@@ -3,6 +3,8 @@ package com.mahghuuuls.everfillingflasks.flask;
 import com.mahghuuuls.everfillingflasks.Tags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 
 /**
  * The only class that touches a Flask stack's stored state.
@@ -19,6 +21,11 @@ public final class FlaskStackState {
     static final String TAG_ROOT = Tags.MOD_ID;
     static final String TAG_CHARGES = "charges";
     static final String TAG_PROGRESS = "progress";
+    static final String TAG_INGREDIENTS = "ingredients";
+    private static final String TAG_SLOT = "slot";
+
+    /** The infusion grid's size; the owner-chosen nine slots. */
+    public static final int GRID_SIZE = 9;
 
     private FlaskStackState() {
     }
@@ -43,11 +50,52 @@ public final class FlaskStackState {
         write(stack).setInteger(TAG_PROGRESS, progress);
     }
 
-    /** The equip rule: a Flask placed in the slot starts over. */
+    /**
+     * The equip rule: a Flask placed in the slot starts over. Charges and progress only; the
+     * infusion grid rides along untouched, by the owner's rule that moving a Flask never costs
+     * its ingredients.
+     */
     public static void empty(ItemStack stack) {
         NBTTagCompound state = write(stack);
         state.setInteger(TAG_CHARGES, 0);
         state.setInteger(TAG_PROGRESS, 0);
+    }
+
+    /**
+     * The infusion grid: always {@link #GRID_SIZE} slots, empty stacks for empty slots. A
+     * fresh list every call; mutating it changes nothing until {@link #setIngredients}.
+     */
+    public static NonNullList<ItemStack> ingredients(ItemStack stack) {
+        NonNullList<ItemStack> grid = NonNullList.withSize(GRID_SIZE, ItemStack.EMPTY);
+        NBTTagCompound state = read(stack);
+        if (state == null || !state.hasKey(TAG_INGREDIENTS)) {
+            return grid;
+        }
+        NBTTagList list = state.getTagList(TAG_INGREDIENTS, 10);
+        for (int i = 0; i < list.tagCount(); i++) {
+            NBTTagCompound entry = list.getCompoundTagAt(i);
+            int slot = entry.getByte(TAG_SLOT);
+            if (slot >= 0 && slot < GRID_SIZE) {
+                grid.set(slot, new ItemStack(entry));
+            }
+        }
+        return grid;
+    }
+
+    /** Writes the whole grid; only filled slots are stored. Oversized lists are truncated. */
+    public static void setIngredients(ItemStack stack, NonNullList<ItemStack> grid) {
+        NBTTagList list = new NBTTagList();
+        int limit = Math.min(GRID_SIZE, grid.size());
+        for (int i = 0; i < limit; i++) {
+            ItemStack piece = grid.get(i);
+            if (!piece.isEmpty()) {
+                NBTTagCompound entry = new NBTTagCompound();
+                entry.setByte(TAG_SLOT, (byte) i);
+                piece.writeToNBT(entry);
+                list.appendTag(entry);
+            }
+        }
+        write(stack).setTag(TAG_INGREDIENTS, list);
     }
 
     /** Used only by the starting-Flask grant, which is the one full-by-creation path. */

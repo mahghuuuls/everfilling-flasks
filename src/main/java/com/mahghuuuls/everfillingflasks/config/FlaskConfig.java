@@ -101,6 +101,14 @@ public final class FlaskConfig {
         @Config.RangeDouble(min = 0.0, max = 1000.0)
         public double hitThreshold = 1.0;
 
+        @Config.Name("potency")
+        @Config.Comment({
+                "Ingredient budget of this Flask's infusion grid. Placed ingredients whose",
+                "summed costs exceed it make the Flask unusable until pieces are removed.",
+                "Every tier shares the same default on purpose: tiers differ by charges."})
+        @Config.RangeInt(min = 0, max = 1000)
+        public int potency = 10;
+
         TierValues(int maxCharges) {
             this.maxCharges = maxCharges;
         }

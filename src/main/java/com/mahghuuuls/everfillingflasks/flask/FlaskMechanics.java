@@ -115,12 +115,22 @@ public final class FlaskMechanics {
     }
 
     /**
-     * The drink-start rule: a valid Flask with a charge, and not already drinking. Health does
-     * not matter: a full-health drink is allowed and simply wastes its heal, because an add-on
-     * Flask can carry a completion effect a player wants at any health.
+     * The drink-start rule: a valid Flask with a charge, not already drinking, and not over
+     * capacity. Health does not matter: a full-health drink is allowed and simply wastes its
+     * heal, because an add-on Flask can carry a completion effect a player wants at any health.
      */
-    public static boolean canStartDrink(boolean validFlask, int charges, boolean alreadyDrinking) {
-        return validFlask && charges >= 1 && !alreadyDrinking;
+    public static boolean canStartDrink(boolean validFlask, int charges, boolean alreadyDrinking,
+                                        boolean overCapacity) {
+        return validFlask && charges >= 1 && !alreadyDrinking && !overCapacity;
+    }
+
+    /**
+     * The over-capacity rule, the ingredient system's one genuinely new formula: placed costs
+     * strictly above the potency make the Flask unusable. Exactly full is fine. Recharge is
+     * untouched; only drinking is blocked, and removing pieces restores use at once.
+     */
+    public static boolean overCapacity(int usedPotency, int potency) {
+        return usedPotency > Math.max(0, potency);
     }
 
     /**

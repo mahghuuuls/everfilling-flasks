@@ -38,6 +38,15 @@ public interface FlaskDefinition {
     float hitThreshold(ItemStack stack, EntityPlayer player);
 
     /**
+     * Potency: the ingredient budget of this Flask's infusion grid. Placed ingredients whose
+     * summed costs exceed it make the Flask unusable until pieces are removed. Values below 0
+     * are treated as 0; 0 means no ingredient fits. The built-in tiers all default to 10.
+     */
+    default int potency(ItemStack stack, EntityPlayer player) {
+        return 10;
+    }
+
+    /**
      * Called on the logical server after a drink completes, the charge is spent, and the
      * standard healing is applied. Never called for a cancelled drink. A thrown exception is
      * caught and logged by the core; it cannot corrupt Flask or player state, and it cannot

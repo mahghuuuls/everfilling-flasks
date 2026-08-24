@@ -72,6 +72,52 @@ class FlaskStackStateTest {
     }
 
     @Test
+    void theGridRoundTripsThroughNbtWithSlotsPreserved() {
+        ItemStack s = stack();
+        net.minecraft.util.NonNullList<ItemStack> grid =
+                net.minecraft.util.NonNullList.withSize(FlaskStackState.GRID_SIZE,
+                        ItemStack.EMPTY);
+        grid.set(0, new ItemStack(Items.SUGAR));
+        grid.set(4, new ItemStack(Items.BLAZE_POWDER));
+        grid.set(8, new ItemStack(Items.SUGAR));
+        FlaskStackState.setIngredients(s, grid);
+
+        ItemStack reloaded = new ItemStack(s.serializeNBT());
+        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.ingredients(reloaded);
+        assertEquals(FlaskStackState.GRID_SIZE, read.size());
+        assertEquals(Items.SUGAR, read.get(0).getItem());
+        assertTrue(read.get(1).isEmpty());
+        assertEquals(Items.BLAZE_POWDER, read.get(4).getItem());
+        assertEquals(Items.SUGAR, read.get(8).getItem());
+    }
+
+    @Test
+    void aStackWithNoGridReadsAsAllEmptySlots() {
+        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.ingredients(stack());
+        assertEquals(FlaskStackState.GRID_SIZE, read.size());
+        for (ItemStack piece : read) {
+            assertTrue(piece.isEmpty());
+        }
+    }
+
+    @Test
+    void theEquipEmptyLeavesTheGridUntouched() {
+        // The owner's rule: moving a Flask costs its charges, never its ingredients.
+        ItemStack s = stack();
+        net.minecraft.util.NonNullList<ItemStack> grid =
+                net.minecraft.util.NonNullList.withSize(FlaskStackState.GRID_SIZE,
+                        ItemStack.EMPTY);
+        grid.set(3, new ItemStack(Items.SUGAR));
+        FlaskStackState.setIngredients(s, grid);
+        FlaskStackState.initialiseFull(s, 4);
+
+        FlaskStackState.empty(s);
+
+        assertEquals(0, FlaskStackState.charges(s));
+        assertEquals(Items.SUGAR, FlaskStackState.ingredients(s).get(3).getItem());
+    }
+
+    @Test
     void stateLivesUnderTheModCompoundOnly() {
         ItemStack s = stack();
         FlaskStackState.setCharges(s, 1);

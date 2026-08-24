@@ -131,18 +131,30 @@ class FlaskMechanicsTest {
     }
 
     @Test
-    void drinkStartRequiresAValidFlaskWithACharge() {
+    void drinkStartRequiresAValidFlaskWithAChargeWithinCapacity() {
         org.junit.jupiter.api.Assertions.assertFalse(
-                FlaskMechanics.canStartDrink(false, 4, false));
+                FlaskMechanics.canStartDrink(false, 4, false, false));
         org.junit.jupiter.api.Assertions.assertFalse(
-                FlaskMechanics.canStartDrink(true, 0, false));
+                FlaskMechanics.canStartDrink(true, 0, false, false));
         org.junit.jupiter.api.Assertions.assertFalse(
-                FlaskMechanics.canStartDrink(true, 4, true));
+                FlaskMechanics.canStartDrink(true, 4, true, false));
+        org.junit.jupiter.api.Assertions.assertFalse(
+                FlaskMechanics.canStartDrink(true, 4, false, true));
         // Health is deliberately not a parameter any more: a full-health drink is allowed and
         // simply wastes its heal. This signature is the guarantee; re-adding a health check
         // would have to change it and fail this compile.
         org.junit.jupiter.api.Assertions.assertTrue(
-                FlaskMechanics.canStartDrink(true, 1, false));
+                FlaskMechanics.canStartDrink(true, 1, false, false));
+    }
+
+    @Test
+    void overCapacityIsStrictlyAboveThePotency() {
+        // The REQ-032 boundary: potency 4, costs 5 blocks; exactly full does not.
+        org.junit.jupiter.api.Assertions.assertTrue(FlaskMechanics.overCapacity(5, 4));
+        org.junit.jupiter.api.Assertions.assertFalse(FlaskMechanics.overCapacity(4, 4));
+        org.junit.jupiter.api.Assertions.assertFalse(FlaskMechanics.overCapacity(0, 0));
+        // A negative potency reads as 0, so any placed cost blocks.
+        org.junit.jupiter.api.Assertions.assertTrue(FlaskMechanics.overCapacity(1, -3));
     }
 
     @Test

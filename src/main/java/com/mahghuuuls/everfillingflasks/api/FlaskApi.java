@@ -24,4 +24,16 @@ public final class FlaskApi {
     public static void registerModifierSource(FlaskModifierSource source) {
         FlaskApiBridge.registerModifierSource(source);
     }
+
+    /**
+     * Registers {@code definition} as the Flask Ingredient behavior of {@code item}, making
+     * that item placeable in every Flask's infusion grid. First registration per item wins; a
+     * duplicate is refused with a log line, never an exception. The core provides the grid,
+     * cost accounting, the over-capacity unusable state, effective-value merging, and
+     * post-drink dispatch.
+     */
+    public static void registerIngredient(net.minecraft.item.Item item,
+                                          IngredientDefinition definition) {
+        FlaskApiBridge.registerIngredient(item, definition);
+    }
 }

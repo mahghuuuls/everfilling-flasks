@@ -42,4 +42,9 @@ public final class TierFlaskDefinition implements FlaskDefinition {
     public float hitThreshold(ItemStack stack, EntityPlayer player) {
         return ConfigSnapshot.current().tier(tier).hitThreshold();
     }
+
+    @Override
+    public int potency(ItemStack stack, EntityPlayer player) {
+        return ConfigSnapshot.current().tier(tier).potency();
+    }
 }

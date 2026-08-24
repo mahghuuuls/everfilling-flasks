@@ -6,6 +6,7 @@ import com.mahghuuuls.everfillingflasks.flask.EffectiveFlask;
 import com.mahghuuuls.everfillingflasks.flask.FlaskMechanics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
+import com.mahghuuuls.everfillingflasks.flask.IngredientRegistry;
 import com.mahghuuuls.everfillingflasks.flask.ModifierRegistry;
 import com.mahghuuuls.everfillingflasks.integration.InhibitedCompat;
 import com.mahghuuuls.everfillingflasks.network.FlaskStateMessage;
@@ -98,8 +99,13 @@ public final class DrinkController {
         // Frozen for the whole drink: a modifier change mid-drink alters nothing committed.
         EffectiveFlask effective = computeEffective(player, flask);
         int charges = FlaskStackState.charges(flask);
-        if (!FlaskMechanics.canStartDrink(true, charges, data.drinking)) {
-            Diagnostics.drinkRefused(player, data.drinking ? "already drinking" : "no charges");
+        PotencyState potency = potencyOf(player, flask);
+        if (!FlaskMechanics.canStartDrink(true, charges, data.drinking, potency.overCapacity())) {
+            Diagnostics.drinkRefused(player, data.drinking ? "already drinking"
+                    : potency.overCapacity()
+                            ? "over capacity: " + potency.used + " of " + potency.capacity
+                                    + " potency"
+                            : "no charges");
             return;
         }
         data.drinking = true;
@@ -218,6 +224,10 @@ public final class DrinkController {
         Diagnostics.drinkCompleted(player, charges - 1, effective.maxCharges(), heal);
         completionFeedback(player, flask);
         runCompletionHook(player, flask);
+        // After the Flask's own hook, each placed ingredient's post-drink hook, each isolated.
+        // Reachable only below capacity: an over-capacity Flask cannot start a drink.
+        IngredientRegistry.dispatchDrinkCompleted(
+                FlaskStackState.ingredients(flask), flask, player);
         playDrinkSound(player);
         data.syncDirty = true;
     }
@@ -435,13 +445,46 @@ public final class DrinkController {
 
     private static EffectiveFlask computeEffective(EntityPlayerMP player, ItemStack flask) {
         FlaskDefinition definition = FlaskRegistry.definition(flask);
+        // One accumulator for every source: player modifiers and placed ingredients add their
+        // percentages together before the base is multiplied, the one combination formula.
+        com.mahghuuuls.everfillingflasks.api.FlaskBonuses bonuses =
+                ModifierRegistry.collect(player);
+        PotencyState potency = potencyOf(player, flask);
+        if (!potency.overCapacity()) {
+            // An over-capacity infusion is inert: the Flask is unusable, and its ingredients
+            // grant nothing, so overfilling can never be a way to farm passive bonuses.
+            IngredientRegistry.contribute(FlaskStackState.ingredients(flask), player, bonuses);
+        }
         return FlaskMechanics.effective(
                 definition.maxCharges(flask, player),
                 definition.healPercentage(flask, player),
                 definition.rechargeTicks(flask, player),
                 definition.drinkTicks(flask, player),
                 definition.hitThreshold(flask, player),
-                ModifierRegistry.collect(player));
+                bonuses);
+    }
+
+    /** The grid's cost accounting against this Flask's potency, both floored at 0. */
+    private static PotencyState potencyOf(EntityPlayerMP player, ItemStack flask) {
+        FlaskDefinition definition = FlaskRegistry.definition(flask);
+        int capacity = definition == null ? 0
+                : Math.max(0, definition.potency(flask, player));
+        int used = IngredientRegistry.usedPotency(FlaskStackState.ingredients(flask));
+        return new PotencyState(used, capacity);
+    }
+
+    private static final class PotencyState {
+        final int used;
+        final int capacity;
+
+        PotencyState(int used, int capacity) {
+            this.used = used;
+            this.capacity = capacity;
+        }
+
+        boolean overCapacity() {
+            return FlaskMechanics.overCapacity(used, capacity);
+        }
     }
 
     private static void sendState(EntityPlayerMP player, FlaskPlayerData data, long now) {
@@ -458,15 +501,14 @@ public final class DrinkController {
             int charges = FlaskMechanics.clampCharges(
                     FlaskStackState.charges(flask), effective.maxCharges());
             int drinkTicks = data.drinking ? data.drinkEffective.drinkTicks() : 1;
+            PotencyState potency = potencyOf(player, flask);
             message = new FlaskStateMessage(true, flask,
                     charges, effective.maxCharges(),
                     data.liveProgress, effective.rechargeTicks(), data.rechargePaused,
                     data.drinking, data.drinkElapsed, drinkTicks,
-                    effective.hitThreshold());
+                    effective.hitThreshold(), potency.used, potency.capacity);
             Diagnostics.stateSent(player, charges, effective.maxCharges(), data.liveProgress);
         }
-        // The drinker's own copy: their first person reads the state mirror instead, so this
-        // exists as the fallback identity for their third-person view if the state message lags.
         PacketHandler.CHANNEL.sendTo(message, player);
         data.lastSyncTick = now;
         data.syncDirty = false;
