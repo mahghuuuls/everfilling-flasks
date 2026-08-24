@@ -1,0 +1,15 @@
+itemGroup.everfillingflasks=Everfilling Flasks
+
+item.everfillingflasks.common_flask.name=Common Flask
+item.everfillingflasks.uncommon_flask.name=Uncommon Flask
+item.everfillingflasks.rare_flask.name=Rare Flask
+item.everfillingflasks.epic_flask.name=Epic Flask
+
+everfillingflasks.tooltip.charges=%d / %d charges
+everfillingflasks.tooltip.usage=When equipped, hold [%s] to drink
+
+everfillingflasks.key.use_flask=Use Flask
+everfillingflasks.key.category=Everfilling Flasks
+
+everfillingflasks.button.flask=Flask
+everfillingflasks.screen.title=Flask
