@@ -107,7 +107,8 @@ public final class DrinkController {
         data.drinkEffective = effective;
         data.drinkStack = flask;
         applySlowdown(player);
-        sendDrinkVisual(player, true, effective.drinkTicks(), flask);
+        sendDrinkVisual(player, true, effective.drinkTicks(), flask,
+                com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage.OUTCOME_NONE);
         playDrinkSound(player);
         Diagnostics.drinkStarted(player, effective.drinkTicks(), effective.healPercentage(),
                 effective.hitThreshold());
@@ -146,26 +147,28 @@ public final class DrinkController {
     }
 
     private static void cancelDrink(EntityPlayerMP player, FlaskPlayerData data, String reason) {
-        clearDrinkState(player, data);
+        clearDrinkState(player, data,
+                com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage.OUTCOME_INTERRUPTED);
         Diagnostics.drinkCancelled(player, reason);
         data.syncDirty = true;
     }
 
-    private static void clearDrinkState(EntityPlayerMP player, FlaskPlayerData data) {
+    private static void clearDrinkState(EntityPlayerMP player, FlaskPlayerData data,
+                                        byte outcome) {
         data.drinking = false;
         data.drinkElapsed = 0;
         data.drinkEffective = null;
         data.drinkStack = ItemStack.EMPTY;
         removeSlowdown(player);
-        sendDrinkVisual(player, false, 0, ItemStack.EMPTY);
+        sendDrinkVisual(player, false, 0, ItemStack.EMPTY, outcome);
     }
 
     /** The third-person broadcast: watchers plus the drinker, on start and on any end. */
     private static void sendDrinkVisual(EntityPlayerMP player, boolean drinking, int drinkTicks,
-                                        ItemStack flask) {
+                                        ItemStack flask, byte outcome) {
         com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage message =
                 new com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage(
-                        player.getEntityId(), drinking, drinkTicks, flask);
+                        player.getEntityId(), drinking, drinkTicks, flask, outcome);
         PacketHandler.CHANNEL.sendToAllTracking(message, player);
         // The drinker's own copy: their first person reads the state mirror instead, so this
         // exists as the fallback identity for their third-person view if the state message lags.
@@ -210,11 +213,52 @@ public final class DrinkController {
         if (heal > 0.0F) {
             player.heal(heal);
         }
-        clearDrinkState(player, data);
+        clearDrinkState(player, data,
+                com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage.OUTCOME_COMPLETED);
         Diagnostics.drinkCompleted(player, charges - 1, effective.maxCharges(), heal);
+        completionFeedback(player, flask);
         runCompletionHook(player, flask);
         playDrinkSound(player);
         data.syncDirty = true;
+    }
+
+    /**
+     * The completion burst around the drinker: a soft particle rise and a chime, spawned
+     * server-side so nearby players see and hear it too. Each half can be disabled or replaced
+     * per definition; a throwing definition is logged once and the defaults play, because a
+     * broken add-on must not silence the core's feedback.
+     *
+     * <p>The sound is a vanilla stand-in: no audio tooling exists in this workspace to author
+     * an .ogg, so the closest souls-like vanilla chime is used, recorded for the owner's ears
+     * in campaign C.
+     */
+    private static void completionFeedback(EntityPlayerMP player, ItemStack flask) {
+        boolean effect = true;
+        boolean sound = true;
+        FlaskDefinition definition = FlaskRegistry.definition(flask);
+        if (definition != null) {
+            try {
+                effect = definition.completionEffect(flask, player);
+                sound = definition.completionSound(flask, player);
+            } catch (Throwable failure) {
+                if (FAILED_HOOKS.add(definition.getClass().getName() + "#feedback")) {
+                    com.mahghuuuls.everfillingflasks.EverfillingFlasksMod.LOGGER.error(
+                            "Flask completion feedback of {} failed; the default plays instead",
+                            definition.getClass().getName(), failure);
+                }
+            }
+        }
+        if (effect && player.world instanceof net.minecraft.world.WorldServer) {
+            ((net.minecraft.world.WorldServer) player.world).spawnParticle(
+                    net.minecraft.util.EnumParticleTypes.END_ROD,
+                    player.posX, player.posY + 1.0D, player.posZ,
+                    16, 0.4D, 0.6D, 0.4D, 0.05D);
+        }
+        if (sound) {
+            player.world.playSound(null, player.posX, player.posY, player.posZ,
+                    net.minecraft.init.SoundEvents.BLOCK_END_PORTAL_FRAME_FILL,
+                    net.minecraft.util.SoundCategory.PLAYERS, 0.8F, 1.1F);
+        }
     }
 
     /** Hook isolation: a hook may do anything except break the Flask or the player. */

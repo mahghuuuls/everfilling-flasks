@@ -21,8 +21,8 @@ class DrinkVisualMessageTest {
 
     @Test
     void aStartVisualSurvivesTheRoundTrip() {
-        DrinkVisualMessage sent =
-                new DrinkVisualMessage(42, true, 30, new ItemStack(Items.GLASS_BOTTLE));
+        DrinkVisualMessage sent = new DrinkVisualMessage(42, true, 30,
+                new ItemStack(Items.GLASS_BOTTLE), DrinkVisualMessage.OUTCOME_NONE);
         DrinkVisualMessage received = new DrinkVisualMessage();
         io.netty.buffer.ByteBuf buf = Unpooled.buffer();
         sent.toBytes(buf);
@@ -32,18 +32,21 @@ class DrinkVisualMessageTest {
         assertTrue(received.drinking());
         assertEquals(30, received.drinkTicks());
         assertEquals(Items.GLASS_BOTTLE, received.flask().getItem());
+        assertEquals(DrinkVisualMessage.OUTCOME_NONE, received.outcome());
         assertEquals(0, buf.readableBytes());
     }
 
     @Test
-    void aStopVisualSurvivesTheRoundTrip() {
+    void aStopVisualCarriesItsOutcome() {
         DrinkVisualMessage received = new DrinkVisualMessage();
         io.netty.buffer.ByteBuf buf = Unpooled.buffer();
-        new DrinkVisualMessage(42, false, 0, ItemStack.EMPTY).toBytes(buf);
+        new DrinkVisualMessage(42, false, 0, ItemStack.EMPTY,
+                DrinkVisualMessage.OUTCOME_INTERRUPTED).toBytes(buf);
         received.fromBytes(buf);
 
         assertFalse(received.drinking());
         assertTrue(received.flask().isEmpty());
+        assertEquals(DrinkVisualMessage.OUTCOME_INTERRUPTED, received.outcome());
         assertEquals(0, buf.readableBytes());
     }
 }

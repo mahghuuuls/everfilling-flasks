@@ -24,6 +24,18 @@ public final class ClientFlaskState {
     private static FlaskStateMessage last;
     private static int ticksSinceMessage;
 
+    /** Past this age the interrupted look is long gone; also the "never interrupted" value. */
+    private static final int INTERRUPT_AGE_CAP = 1000;
+
+    /**
+     * The local player's last drink interruption, for the cast bar's fading interrupted look.
+     * The outcome rides the visual message, which the server sends before the state message
+     * in the same tick, so it is pending here until the mirror confirms the drink ended.
+     */
+    private static byte pendingOutcome = DrinkVisualMessage.OUTCOME_NONE;
+    private static float interruptedFill;
+    private static int ticksSinceInterrupt = INTERRUPT_AGE_CAP;
+
     /**
      * Other players' drink visuals from the broadcast, keyed by entity id, with a lifetime so a
      * lost stop message cannot leave someone drinking forever: entries die on their own once the
@@ -50,17 +62,41 @@ public final class ClientFlaskState {
     public static void accept(FlaskStateMessage message) {
         // Runs on the main thread: the proxy marshals the netty callback through
         // addScheduledTask before it reaches here.
+        if (last != null && last.drinking() && !message.drinking()
+                && pendingOutcome == DrinkVisualMessage.OUTCOME_INTERRUPTED) {
+            // The bar freezes at the fill the player last saw, then fades from there.
+            FlaskSnapshot ended = snapshot();
+            interruptedFill = com.mahghuuuls.everfillingflasks.client.hud.CastBar.fill(
+                    ended.drinkProgressTicks(), 0.0F, ended.drinkTicks());
+            ticksSinceInterrupt = 0;
+        }
+        pendingOutcome = DrinkVisualMessage.OUTCOME_NONE;
         ticksSinceMessage = 0;
         last = message;
     }
 
     /** A drink-visual broadcast landing; main thread via the proxy. */
     public static void acceptVisual(DrinkVisualMessage message) {
+        net.minecraft.client.entity.EntityPlayerSP self =
+                net.minecraft.client.Minecraft.getMinecraft().player;
+        if (!message.drinking() && self != null && message.entityId() == self.getEntityId()) {
+            pendingOutcome = message.outcome();
+        }
         if (message.drinking() && !message.flask().isEmpty()) {
             VISUALS.put(message.entityId(), new Visual(message.flask(), message.drinkTicks()));
         } else {
             VISUALS.remove(message.entityId());
         }
+    }
+
+    /** Client ticks since the local player's last interruption; large when none is recent. */
+    public static int ticksSinceInterrupt() {
+        return ticksSinceInterrupt;
+    }
+
+    /** The fill fraction the interrupted drink froze at. Meaningful only while fading. */
+    public static float interruptedFill() {
+        return interruptedFill;
     }
 
     /** Whether this player should be drawn drinking, local mirror or broadcast. */
@@ -87,6 +123,9 @@ public final class ClientFlaskState {
         if (last != null) {
             ticksSinceMessage++;
         }
+        if (ticksSinceInterrupt < INTERRUPT_AGE_CAP) {
+            ticksSinceInterrupt++;
+        }
         if (!VISUALS.isEmpty()) {
             java.util.Iterator<Visual> visuals = VISUALS.values().iterator();
             while (visuals.hasNext()) {
@@ -107,6 +146,8 @@ public final class ClientFlaskState {
         last = null;
         ticksSinceMessage = 0;
         VISUALS.clear();
+        pendingOutcome = DrinkVisualMessage.OUTCOME_NONE;
+        ticksSinceInterrupt = INTERRUPT_AGE_CAP;
     }
 
     /** The current read-only view. Without a server message yet: an empty snapshot. */

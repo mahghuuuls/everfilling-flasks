@@ -45,4 +45,24 @@ public interface FlaskDefinition {
      */
     default void onDrinkCompleted(ItemStack stack, EntityPlayer player) {
     }
+
+    /**
+     * Completion presentation, particle half. Called on the logical server when a drink
+     * completes, before {@link #onDrinkCompleted}. Return {@code true} for the core's default
+     * burst around the drinker; return {@code false} to disable it, or spawn a replacement
+     * here first and then return {@code false}. A thrown exception is caught and logged and
+     * the default plays.
+     */
+    default boolean completionEffect(ItemStack stack, EntityPlayer player) {
+        return true;
+    }
+
+    /**
+     * Completion presentation, sound half, with the same contract as
+     * {@link #completionEffect}: {@code true} for the core's default chime, {@code false} to
+     * disable or after playing a replacement.
+     */
+    default boolean completionSound(ItemStack stack, EntityPlayer player) {
+        return true;
+    }
 }

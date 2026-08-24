@@ -18,19 +18,29 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public final class DrinkVisualMessage implements IMessage {
 
+    /** A start transition; no drink has ended. */
+    public static final byte OUTCOME_NONE = 0;
+    /** The drink ran its full duration; the charge was spent. */
+    public static final byte OUTCOME_COMPLETED = 1;
+    /** The drink ended early for any reason: release, hit, swap, death. */
+    public static final byte OUTCOME_INTERRUPTED = 2;
+
     private int entityId;
     private boolean drinking;
     private int drinkTicks;
     private ItemStack flask = ItemStack.EMPTY;
+    private byte outcome = OUTCOME_NONE;
 
     public DrinkVisualMessage() {
     }
 
-    public DrinkVisualMessage(int entityId, boolean drinking, int drinkTicks, ItemStack flask) {
+    public DrinkVisualMessage(int entityId, boolean drinking, int drinkTicks, ItemStack flask,
+                              byte outcome) {
         this.entityId = entityId;
         this.drinking = drinking;
         this.drinkTicks = drinkTicks;
         this.flask = flask == null ? ItemStack.EMPTY : flask;
+        this.outcome = outcome;
     }
 
     public int entityId() {
@@ -49,12 +59,18 @@ public final class DrinkVisualMessage implements IMessage {
         return flask;
     }
 
+    /** How the drink ended, display-only; {@link #OUTCOME_NONE} on a start transition. */
+    public byte outcome() {
+        return outcome;
+    }
+
     @Override
     public void fromBytes(ByteBuf buf) {
         entityId = buf.readInt();
         drinking = buf.readBoolean();
         drinkTicks = buf.readInt();
         flask = ByteBufUtils.readItemStack(buf);
+        outcome = buf.readByte();
     }
 
     @Override
@@ -63,6 +79,7 @@ public final class DrinkVisualMessage implements IMessage {
         buf.writeBoolean(drinking);
         buf.writeInt(drinkTicks);
         ByteBufUtils.writeItemStack(buf, flask);
+        buf.writeByte(outcome);
     }
 
     public static final class Handler implements IMessageHandler<DrinkVisualMessage, IMessage> {

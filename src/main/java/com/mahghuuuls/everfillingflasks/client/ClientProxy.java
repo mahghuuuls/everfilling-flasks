@@ -20,6 +20,8 @@ public class ClientProxy extends CommonProxy {
         MinecraftForge.EVENT_BUS.register(new FlaskKeyHandler());
         MinecraftForge.EVENT_BUS.register(new DefaultFlaskHud());
         MinecraftForge.EVENT_BUS.register(
+                new com.mahghuuuls.everfillingflasks.client.hud.CastBarRenderer());
+        MinecraftForge.EVENT_BUS.register(
                 new com.mahghuuuls.everfillingflasks.client.render.FirstPersonDrinkRenderer());
         MinecraftForge.EVENT_BUS.register(
                 new com.mahghuuuls.everfillingflasks.client.render.DrinkPoseHandler());

@@ -82,27 +82,10 @@ public final class DefaultFlaskHud {
         int top = resolution.getScaledHeight() - GuiIngameForge.left_height;
 
         if (state.maxCharges() > MAX_ICONS) {
-            String text = state.charges() + " / " + state.maxCharges();
-            if (state.drinking() && state.drinkTicks() > 0) {
-                // The indicator survives text mode as a percentage, so a drink is always
-                // visible whatever the charge count.
-                text = text + "  " + (100 * state.drinkProgressTicks() / state.drinkTicks()) + "%";
-            }
-            mc.fontRenderer.drawStringWithShadow(text, left, top, 0xFFFFFF);
+            // Drink progress is the cast bar's job in every mode; this row only shows charges.
+            mc.fontRenderer.drawStringWithShadow(
+                    state.charges() + " / " + state.maxCharges(), left, top, 0xFFFFFF);
             return;
-        }
-        if (state.drinking() && state.drinkTicks() > 0) {
-            // The commitment bar: a thin line under the icons filling over the drink. Its
-            // absence when idle is what makes a refused drink visibly different from a slow one.
-            // Drawn on the one-pixel gap line under the icons, inside the reserved row, so the
-            // bar never bleeds into the health bar below or shifts the layout.
-            int width = state.maxCharges() * (ICON + 1) - 1;
-            int filledWidth = Math.min(width,
-                    width * state.drinkProgressTicks() / state.drinkTicks());
-            Gui.drawRect(left, top + ICON, left + width, top + ICON + 1, 0xFF303030);
-            if (filledWidth > 0) {
-                Gui.drawRect(left, top + ICON, left + filledWidth, top + ICON + 1, 0xFFEB5050);
-            }
         }
         for (int i = 0; i < state.maxCharges(); i++) {
             int x = left + i * (ICON + 1);
