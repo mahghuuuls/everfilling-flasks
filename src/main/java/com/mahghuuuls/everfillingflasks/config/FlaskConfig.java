@@ -23,6 +23,13 @@ public final class FlaskConfig {
     @Config.Comment("The four built-in Flask tiers. Times are in ticks; 20 ticks are 1 second.")
     public static final Flasks flasks = new Flasks();
 
+    @Config.Name("ingredients")
+    @Config.Comment({
+            "The four built-in Flask Ingredients. cost is potency used per placed piece.",
+            "strength is the effect size: a fraction for the percentage ingredients",
+            "(0.10 is +10 percent per piece), seconds for the Second Wind Petal."})
+    public static final Ingredients ingredients = new Ingredients();
+
     @Config.Name("recipes")
     @Config.Comment("One switch per built-in recipe. false removes that recipe entirely.")
     public static final Recipes recipes = new Recipes();
@@ -114,6 +121,43 @@ public final class FlaskConfig {
         }
     }
 
+    public static final class Ingredients {
+
+        @Config.Name("sunmelonShard")
+        @Config.Comment("+healing per piece; strength 0.10 is +10 percent.")
+        public final IngredientValues sunmelonShard = new IngredientValues(2, 0.10);
+
+        @Config.Name("ironbarkChip")
+        @Config.Comment("+hit threshold per piece; strength 0.20 is +20 percent.")
+        public final IngredientValues ironbarkChip = new IngredientValues(2, 0.20);
+
+        @Config.Name("quicksilverDrop")
+        @Config.Comment("+drink speed per piece; strength 0.20 is +20 percent.")
+        public final IngredientValues quicksilverDrop = new IngredientValues(2, 0.20);
+
+        @Config.Name("secondWindPetal")
+        @Config.Comment("Regeneration after a completed drink; strength is seconds.")
+        public final IngredientValues secondWindPetal = new IngredientValues(3, 5.0);
+    }
+
+    public static final class IngredientValues {
+
+        @Config.Name("cost")
+        @Config.Comment("Potency used per placed piece.")
+        @Config.RangeInt(min = 0, max = 1000)
+        public int cost;
+
+        @Config.Name("strength")
+        @Config.Comment("Effect size; see the ingredient's own comment for its unit.")
+        @Config.RangeDouble(min = 0.0, max = 100.0)
+        public double strength;
+
+        IngredientValues(int cost, double strength) {
+            this.cost = cost;
+            this.strength = strength;
+        }
+    }
+
     public static final class Recipes {
 
         @Config.Name("common")
@@ -127,6 +171,18 @@ public final class FlaskConfig {
 
         @Config.Name("epic")
         public boolean epic = true;
+
+        @Config.Name("sunmelonShard")
+        public boolean sunmelonShard = true;
+
+        @Config.Name("ironbarkChip")
+        public boolean ironbarkChip = true;
+
+        @Config.Name("quicksilverDrop")
+        public boolean quicksilverDrop = true;
+
+        @Config.Name("secondWindPetal")
+        public boolean secondWindPetal = true;
     }
 
     // Deliberately no ConfigChangedEvent handler. The approved contract, printed in every

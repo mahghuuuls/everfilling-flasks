@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "conditions": [
+        {
+            "type": "everfillingflasks:recipe_enabled",
+            "recipe": "quicksilver_drop"
+        }
+    ],
+    "ingredients": [
+        { "item": "minecraft:redstone" },
+        { "item": "minecraft:sugar" },
+        { "item": "minecraft:quartz" }
+    ],
+    "result": {
+        "item": "everfillingflasks:quicksilver_drop",
+        "count": 2
+    }
+}

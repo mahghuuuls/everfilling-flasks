@@ -1,10 +1,12 @@
 package com.mahghuuuls.everfillingflasks.config;
 
 import com.mahghuuuls.everfillingflasks.item.FlaskTier;
+import com.mahghuuuls.everfillingflasks.item.IngredientKind;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,17 +29,20 @@ public final class ConfigSnapshot {
     private final float drinkSlowdown;
     private final boolean diagnostics;
     private final Map<FlaskTier, TierConfig> tiers;
-    private final Map<FlaskTier, Boolean> recipes;
+    private final Map<IngredientKind, IngredientConfig> ingredients;
+    private final Map<String, Boolean> recipes;
     private final List<String> clampWarnings;
 
     private ConfigSnapshot(String startingFlask, boolean keepFlaskOnDeath, float drinkSlowdown,
                            boolean diagnostics, Map<FlaskTier, TierConfig> tiers,
-                           Map<FlaskTier, Boolean> recipes, List<String> clampWarnings) {
+                           Map<IngredientKind, IngredientConfig> ingredients,
+                           Map<String, Boolean> recipes, List<String> clampWarnings) {
         this.startingFlask = startingFlask;
         this.keepFlaskOnDeath = keepFlaskOnDeath;
         this.drinkSlowdown = drinkSlowdown;
         this.diagnostics = diagnostics;
         this.tiers = tiers;
+        this.ingredients = ingredients;
         this.recipes = recipes;
         this.clampWarnings = clampWarnings;
     }
@@ -61,11 +66,28 @@ public final class ConfigSnapshot {
         tiers.put(FlaskTier.RARE, TierConfig.from("flasks.rare", FlaskConfig.flasks.rare, warnings));
         tiers.put(FlaskTier.EPIC, TierConfig.from("flasks.epic", FlaskConfig.flasks.epic, warnings));
 
-        Map<FlaskTier, Boolean> recipes = new EnumMap<FlaskTier, Boolean>(FlaskTier.class);
-        recipes.put(FlaskTier.COMMON, FlaskConfig.recipes.common);
-        recipes.put(FlaskTier.UNCOMMON, FlaskConfig.recipes.uncommon);
-        recipes.put(FlaskTier.RARE, FlaskConfig.recipes.rare);
-        recipes.put(FlaskTier.EPIC, FlaskConfig.recipes.epic);
+        Map<IngredientKind, IngredientConfig> ingredients =
+                new EnumMap<IngredientKind, IngredientConfig>(IngredientKind.class);
+        ingredients.put(IngredientKind.SUNMELON_SHARD, IngredientConfig.from(
+                "ingredients.sunmelonShard", FlaskConfig.ingredients.sunmelonShard, warnings));
+        ingredients.put(IngredientKind.IRONBARK_CHIP, IngredientConfig.from(
+                "ingredients.ironbarkChip", FlaskConfig.ingredients.ironbarkChip, warnings));
+        ingredients.put(IngredientKind.QUICKSILVER_DROP, IngredientConfig.from(
+                "ingredients.quicksilverDrop", FlaskConfig.ingredients.quicksilverDrop, warnings));
+        ingredients.put(IngredientKind.SECOND_WIND_PETAL, IngredientConfig.from(
+                "ingredients.secondWindPetal", FlaskConfig.ingredients.secondWindPetal, warnings));
+
+        // Keyed by the same lowercase names the recipe JSON conditions use, tiers and
+        // ingredients alike, so one condition class covers every switchable recipe.
+        Map<String, Boolean> recipes = new HashMap<String, Boolean>();
+        recipes.put(FlaskTier.COMMON.key(), FlaskConfig.recipes.common);
+        recipes.put(FlaskTier.UNCOMMON.key(), FlaskConfig.recipes.uncommon);
+        recipes.put(FlaskTier.RARE.key(), FlaskConfig.recipes.rare);
+        recipes.put(FlaskTier.EPIC.key(), FlaskConfig.recipes.epic);
+        recipes.put(IngredientKind.SUNMELON_SHARD.key(), FlaskConfig.recipes.sunmelonShard);
+        recipes.put(IngredientKind.IRONBARK_CHIP.key(), FlaskConfig.recipes.ironbarkChip);
+        recipes.put(IngredientKind.QUICKSILVER_DROP.key(), FlaskConfig.recipes.quicksilverDrop);
+        recipes.put(IngredientKind.SECOND_WIND_PETAL.key(), FlaskConfig.recipes.secondWindPetal);
 
         return new ConfigSnapshot(
                 FlaskConfig.general.startingFlask == null ? "" : FlaskConfig.general.startingFlask.trim(),
@@ -74,6 +96,7 @@ public final class ConfigSnapshot {
                         "general.drinkSlowdown", warnings),
                 FlaskConfig.general.diagnostics,
                 Collections.unmodifiableMap(tiers),
+                Collections.unmodifiableMap(ingredients),
                 Collections.unmodifiableMap(recipes),
                 Collections.unmodifiableList(warnings));
     }
@@ -98,8 +121,22 @@ public final class ConfigSnapshot {
         return tiers.get(tier);
     }
 
+    public IngredientConfig ingredient(IngredientKind kind) {
+        return ingredients.get(kind);
+    }
+
     public boolean recipeEnabled(FlaskTier tier) {
-        return recipes.get(tier);
+        return recipeEnabled(tier.key());
+    }
+
+    /**
+     * The switch for one named recipe, tier or ingredient. An unknown name reads as enabled:
+     * a typo in a recipe file must not silently remove content, and the mismatch is visible
+     * in the config file the name fails to match.
+     */
+    public boolean recipeEnabled(String name) {
+        Boolean enabled = recipes.get(name);
+        return enabled == null || enabled;
     }
 
     /** One line per clamped key, for the preInit warning pass. Empty when everything was in range. */
@@ -181,6 +218,33 @@ public final class ConfigSnapshot {
 
         public int potency() {
             return potency;
+        }
+    }
+
+    /** One ingredient's clamped values. */
+    public static final class IngredientConfig {
+
+        private final int cost;
+        private final double strength;
+
+        IngredientConfig(int cost, double strength) {
+            this.cost = cost;
+            this.strength = strength;
+        }
+
+        static IngredientConfig from(String keyPrefix, FlaskConfig.IngredientValues values,
+                                     List<String> warnings) {
+            return new IngredientConfig(
+                    clampInt(values.cost, 0, 1000, keyPrefix + ".cost", warnings),
+                    clampDouble(values.strength, 0.0, 100.0, keyPrefix + ".strength", warnings));
+        }
+
+        public int cost() {
+            return cost;
+        }
+
+        public double strength() {
+            return strength;
         }
     }
 }

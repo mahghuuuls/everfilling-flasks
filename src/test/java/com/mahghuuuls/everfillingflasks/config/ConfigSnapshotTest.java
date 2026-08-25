@@ -43,6 +43,65 @@ class ConfigSnapshotTest {
     }
 
     @Test
+    void ingredientConfigClampsCostAndStrength() {
+        List<String> warnings = new ArrayList<String>();
+        FlaskConfig.IngredientValues values = new FlaskConfig.IngredientValues(-1, 200.0);
+        ConfigSnapshot.IngredientConfig config =
+                ConfigSnapshot.IngredientConfig.from("ingredients.test", values, warnings);
+        assertEquals(0, config.cost());
+        assertEquals(100.0, config.strength(), 1.0E-9);
+        assertEquals(2, warnings.size());
+        assertTrue(warnings.get(0).contains("ingredients.test.cost"));
+        assertTrue(warnings.get(1).contains("ingredients.test.strength"));
+    }
+
+    @Test
+    void recipeSwitchesAnswerByNameAndUnknownNamesStayEnabled() {
+        ConfigSnapshot snapshot = ConfigSnapshot.current();
+        // Defaults: everything on.
+        assertTrue(snapshot.recipeEnabled("common"));
+        assertTrue(snapshot.recipeEnabled("sunmelon_shard"));
+        assertTrue(snapshot.recipeEnabled("second_wind_petal"));
+        // A typo in a recipe file must not silently remove content.
+        assertTrue(snapshot.recipeEnabled("no_such_recipe"));
+    }
+
+    @Test
+    void aDisabledSwitchActuallyAnswersFalse() {
+        // The false path is the only one the fail-open rule cannot mask: a mis-keyed map
+        // (camelCase instead of the recipe key) would make every switch a silent no-op and
+        // only this test would notice.
+        boolean original = FlaskConfig.recipes.sunmelonShard;
+        try {
+            FlaskConfig.recipes.sunmelonShard = false;
+            ConfigSnapshot.refresh();
+            assertFalse(ConfigSnapshot.current().recipeEnabled("sunmelon_shard"));
+            assertTrue(ConfigSnapshot.current().recipeEnabled("ironbark_chip"),
+                    "the other switches are untouched");
+        } finally {
+            FlaskConfig.recipes.sunmelonShard = original;
+            ConfigSnapshot.refresh();
+        }
+    }
+
+    @Test
+    void ingredientDefaultsMatchTheApprovedBalance() {
+        ConfigSnapshot snapshot = ConfigSnapshot.current();
+        assertEquals(0.10, snapshot.ingredient(
+                com.mahghuuuls.everfillingflasks.item.IngredientKind.SUNMELON_SHARD)
+                .strength(), 1.0E-9);
+        assertEquals(0.20, snapshot.ingredient(
+                com.mahghuuuls.everfillingflasks.item.IngredientKind.IRONBARK_CHIP)
+                .strength(), 1.0E-9);
+        assertEquals(0.20, snapshot.ingredient(
+                com.mahghuuuls.everfillingflasks.item.IngredientKind.QUICKSILVER_DROP)
+                .strength(), 1.0E-9);
+        assertEquals(5.0, snapshot.ingredient(
+                com.mahghuuuls.everfillingflasks.item.IngredientKind.SECOND_WIND_PETAL)
+                .strength(), 1.0E-9);
+    }
+
+    @Test
     void tierConfigClampsEveryField() {
         List<String> warnings = new ArrayList<String>();
         FlaskConfig.TierValues values = new FlaskConfig.TierValues(0);

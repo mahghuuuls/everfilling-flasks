@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "conditions": [
+        {
+            "type": "everfillingflasks:recipe_enabled",
+            "recipe": "sunmelon_shard"
+        }
+    ],
+    "ingredients": [
+        { "item": "minecraft:melon" },
+        { "item": "minecraft:glowstone_dust" }
+    ],
+    "result": {
+        "item": "everfillingflasks:sunmelon_shard",
+        "count": 2
+    }
+}

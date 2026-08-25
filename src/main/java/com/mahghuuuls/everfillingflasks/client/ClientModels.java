@@ -23,5 +23,11 @@ public final class ClientModels {
             ModelLoader.setCustomModelResourceLocation(ModItems.flask(tier), 0,
                     new ModelResourceLocation(ModItems.flask(tier).getRegistryName(), "inventory"));
         }
+        for (com.mahghuuuls.everfillingflasks.item.IngredientKind kind
+                : com.mahghuuuls.everfillingflasks.item.IngredientKind.values()) {
+            ModelLoader.setCustomModelResourceLocation(ModItems.ingredient(kind), 0,
+                    new ModelResourceLocation(
+                            ModItems.ingredient(kind).getRegistryName(), "inventory"));
+        }
     }
 }

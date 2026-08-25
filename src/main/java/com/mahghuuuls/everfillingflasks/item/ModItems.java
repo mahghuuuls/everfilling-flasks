@@ -23,6 +23,8 @@ public final class ModItems {
 
     private static final Map<FlaskTier, ItemFlask> FLASKS =
             new EnumMap<FlaskTier, ItemFlask>(FlaskTier.class);
+    private static final Map<IngredientKind, ItemIngredient> INGREDIENTS =
+            new EnumMap<IngredientKind, ItemIngredient>(IngredientKind.class);
 
     public static final CreativeTabs TAB = new CreativeTabs(Tags.MOD_ID) {
         @SideOnly(Side.CLIENT)
@@ -44,9 +46,23 @@ public final class ModItems {
             event.getRegistry().register(item);
             FlaskRegistry.register(item, new TierFlaskDefinition(tier));
         }
+        for (IngredientKind kind : IngredientKind.values()) {
+            ItemIngredient item = new ItemIngredient(kind);
+            item.setCreativeTab(TAB);
+            INGREDIENTS.put(kind, item);
+            event.getRegistry().register(item);
+            // Directly into the internal registry, like the Flasks: the public API's bridge
+            // exists for add-ons, not for the mod's own content.
+            com.mahghuuuls.everfillingflasks.flask.IngredientRegistry.register(item,
+                    new BuiltinIngredientDefinition(kind));
+        }
     }
 
     public static ItemFlask flask(FlaskTier tier) {
         return FLASKS.get(tier);
+    }
+
+    public static ItemIngredient ingredient(IngredientKind kind) {
+        return INGREDIENTS.get(kind);
     }
 }
