@@ -27,6 +27,6 @@ everfillingflasks.tooltip.ingredient.regen=Regeneration for %ds after each compl
 everfillingflasks.key.use_flask=Use Flask
 everfillingflasks.key.category=Everfilling Flasks
 
-everfillingflasks.button.flask=Flask
+everfillingflasks.button.flask=Everfilling Flask
 everfillingflasks.screen.title=Everfilling Flask
 everfillingflasks.screen.overCapacity=Over capacity!
