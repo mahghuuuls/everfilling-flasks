@@ -82,7 +82,9 @@ public final class FlaskScreen extends GuiContainer {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        fontRenderer.drawString(I18n.format("everfillingflasks.screen.title"), 8, 6, 0x404040);
+        // Green with a shadow, the owner's pick: matches the item tooltips' green header.
+        fontRenderer.drawStringWithShadow(
+                I18n.format("everfillingflasks.screen.title"), 8, 6, 0x55FF55);
         // Both gates on purpose: the container's slot content controls what exists (same as
         // the slots' isEnabled), the state message supplies the numbers to show.
         if (!((FlaskContainer) inventorySlots).flaskEquipped()

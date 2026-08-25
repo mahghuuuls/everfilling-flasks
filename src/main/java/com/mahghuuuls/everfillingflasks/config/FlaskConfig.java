@@ -95,9 +95,9 @@ public final class FlaskConfig {
         public double healPercentage = 0.33;
 
         @Config.Name("rechargeTicks")
-        @Config.Comment("Ticks to restore one missing charge. 1200 is one minute.")
+        @Config.Comment("Ticks to restore one missing charge. 600 is 30 seconds.")
         @Config.RangeInt(min = 1, max = 72000)
-        public int rechargeTicks = 1200;
+        public int rechargeTicks = 600;
 
         @Config.Name("drinkTicks")
         @Config.Comment("Ticks the key must be held for one drink. 30 is 1.5 seconds.")

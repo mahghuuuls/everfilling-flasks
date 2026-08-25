@@ -134,7 +134,7 @@ class ConfigSnapshotTest {
         ConfigSnapshot.TierConfig common = defaults.tier(FlaskTier.COMMON);
         assertEquals(2, common.maxCharges());
         assertEquals(0.33F, common.healPercentage(), 1.0E-6F);
-        assertEquals(1200, common.rechargeTicks());
+        assertEquals(600, common.rechargeTicks());
         assertEquals(30, common.drinkTicks());
         assertEquals(1.0F, common.hitThreshold(), 1.0E-6F);
         assertEquals(3, defaults.tier(FlaskTier.UNCOMMON).maxCharges());

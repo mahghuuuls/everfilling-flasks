@@ -77,7 +77,7 @@ replacing the whole HUD:
 - `hudGlassTexture(stack, player)`: your own glass icon (drawn at nine by nine points);
   null keeps the built-in.
 - `hudLiquidTexture(stack, player)`: your own liquid layer, drawn over the glass and cropped
-  bottom-up while a charge refills (keep your liquid pixels in rows 3-7 of 9, like the
+  bottom-up while a charge refills (keep your liquid pixels in rows 1-7 of 9, like the
   built-in mask, because the crop maps progress onto those rows). It is tinted by
   `hudLiquidColor`; with a custom layer,
   -1 means untinted. Null keeps the built-in white mask.
