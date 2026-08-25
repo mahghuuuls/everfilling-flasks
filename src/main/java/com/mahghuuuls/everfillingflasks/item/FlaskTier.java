@@ -5,15 +5,15 @@ import net.minecraft.item.EnumRarity;
 import java.util.Locale;
 
 /**
- * The four built-in Flasks. The tier fixes the registry name, the rarity color, and the default
- * charge count; every number a tier actually uses at runtime comes from the configuration.
+ * The three built-in Flasks (the epic tier was dropped by owner decision, 2026-08-25). The
+ * tier fixes the registry name, the rarity color, and the default charge count; every number a
+ * tier actually uses at runtime comes from the configuration.
  */
 public enum FlaskTier {
 
-    COMMON(EnumRarity.COMMON, 1),
-    UNCOMMON(EnumRarity.UNCOMMON, 2),
-    RARE(EnumRarity.RARE, 3),
-    EPIC(EnumRarity.EPIC, 4);
+    COMMON(EnumRarity.COMMON, 2),
+    UNCOMMON(EnumRarity.UNCOMMON, 3),
+    RARE(EnumRarity.RARE, 4);
 
     private final EnumRarity rarity;
     private final int defaultMaxCharges;

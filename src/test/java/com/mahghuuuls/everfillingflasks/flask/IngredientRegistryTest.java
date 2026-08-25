@@ -61,10 +61,10 @@ class IngredientRegistryTest {
     @Test
     void costsSumAcrossPlacedPiecesAndUnregisteredPiecesAreFree() {
         IngredientRegistry.register(Items.SUGAR, new Fixed(2, 0.1F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(9, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(4, new ItemStack(Items.SUGAR));
-        grid.set(8, new ItemStack(Items.SUGAR));
+        grid.set(5, new ItemStack(Items.SUGAR));
         // Not registered: contributes nothing, costs nothing.
         grid.set(2, new ItemStack(Items.APPLE));
 
@@ -74,7 +74,7 @@ class IngredientRegistryTest {
     @Test
     void negativeCostsAreFlooredAtZero() {
         IngredientRegistry.register(Items.SUGAR, new Fixed(-5, 0.0F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(9, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
 
         assertEquals(0, IngredientRegistry.usedPotency(grid));
@@ -83,7 +83,7 @@ class IngredientRegistryTest {
     @Test
     void ingredientAndPlayerBonusesShareOneAccumulator() {
         IngredientRegistry.register(Items.SUGAR, new Fixed(2, 0.25F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(9, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
 
         // A player modifier already contributed 0.5; the ingredient's 0.25 must ADD to it.
@@ -106,7 +106,7 @@ class IngredientRegistryTest {
         assertFalse(IngredientRegistry.register(null, new Fixed(1, 0.0F)));
         assertFalse(IngredientRegistry.register(Items.APPLE, null));
 
-        NonNullList<ItemStack> grid = NonNullList.withSize(9, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         assertEquals(1, IngredientRegistry.usedPotency(grid), "the first definition's cost");
         assertTrue(IngredientRegistry.isIngredient(new ItemStack(Items.SUGAR)));
@@ -128,7 +128,7 @@ class IngredientRegistryTest {
             }
         });
         IngredientRegistry.register(Items.APPLE, new Fixed(3, 0.2F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(9, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(1, new ItemStack(Items.APPLE));
 

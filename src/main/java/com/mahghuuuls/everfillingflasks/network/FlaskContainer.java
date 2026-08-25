@@ -28,9 +28,9 @@ public final class FlaskContainer extends Container {
     public static final int FLASK_SLOT_X = 26;
     public static final int FLASK_SLOT_Y = 35;
 
-    /** Where the infusion grid's top-left slot draws: the background's three-by-three. */
+    /** Where the infusion row's first slot draws; six slots run right from here. */
     public static final int GRID_X = 62;
-    public static final int GRID_Y = 17;
+    public static final int GRID_Y = 26;
 
     private static final int FLASK_SLOT_INDEX = 0;
     private static final int GRID_START = 1;
@@ -49,11 +49,9 @@ public final class FlaskContainer extends Container {
         // and no slot ever remembers a departed stack. Plain SlotItemHandler is enough: its
         // validity and take checks are the handler's simulated insert and extract.
         IngredientGridHandler grid = new IngredientGridHandler(data);
-        for (int row = 0; row < 3; row++) {
-            for (int column = 0; column < 3; column++) {
-                addSlotToContainer(new SlotItemHandler(grid, row * 3 + column,
-                        GRID_X + column * 18, GRID_Y + row * 18));
-            }
+        for (int column = 0; column < FlaskStackState.GRID_SIZE; column++) {
+            addSlotToContainer(new SlotItemHandler(grid, column,
+                    GRID_X + column * 18, GRID_Y));
         }
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {

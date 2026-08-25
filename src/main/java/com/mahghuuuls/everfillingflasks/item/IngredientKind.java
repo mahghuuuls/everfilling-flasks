@@ -11,8 +11,8 @@ public enum IngredientKind {
 
     /** +healing per piece. Strength is the fraction: 0.10 is +10 percent. */
     SUNMELON_SHARD(2, 0.10, Effect.HEALING),
-    /** +hit threshold per piece. Strength 0.20 is +20 percent. */
-    IRONBARK_CHIP(2, 0.20, Effect.HIT_THRESHOLD),
+    /** +hit threshold per piece. Strength 0.40 is +40 percent (owner buff, 2026-08-25). */
+    IRONBARK_CHIP(2, 0.40, Effect.HIT_THRESHOLD),
     /** +drink speed per piece. Strength 0.20 is +20 percent. */
     QUICKSILVER_DROP(2, 0.20, Effect.DRINK_SPEED),
     /** Regeneration after a completed drink. Strength is the duration in seconds. */

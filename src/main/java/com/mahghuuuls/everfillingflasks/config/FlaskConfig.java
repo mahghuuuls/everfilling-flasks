@@ -20,7 +20,7 @@ public final class FlaskConfig {
     public static final General general = new General();
 
     @Config.Name("flasks")
-    @Config.Comment("The four built-in Flask tiers. Times are in ticks; 20 ticks are 1 second.")
+    @Config.Comment("The three built-in Flask tiers. Times are in ticks; 20 ticks are 1 second.")
     public static final Flasks flasks = new Flasks();
 
     @Config.Name("ingredients")
@@ -67,16 +67,13 @@ public final class FlaskConfig {
     public static final class Flasks {
 
         @Config.Name("common")
-        public final TierValues common = new TierValues(1);
+        public final TierValues common = new TierValues(2);
 
         @Config.Name("uncommon")
-        public final TierValues uncommon = new TierValues(2);
+        public final TierValues uncommon = new TierValues(3);
 
         @Config.Name("rare")
-        public final TierValues rare = new TierValues(3);
-
-        @Config.Name("epic")
-        public final TierValues epic = new TierValues(4);
+        public final TierValues rare = new TierValues(4);
     }
 
     public static final class TierValues {
@@ -87,9 +84,9 @@ public final class FlaskConfig {
         public int maxCharges;
 
         @Config.Name("healPercentage")
-        @Config.Comment("Health restored per drink, as a fraction of maximum health. 0.3 is 30 percent.")
+        @Config.Comment("Health restored per drink, as a fraction of maximum health. 0.33 is 33 percent.")
         @Config.RangeDouble(min = 0.0, max = 1.0)
-        public double healPercentage = 0.30;
+        public double healPercentage = 0.33;
 
         @Config.Name("rechargeTicks")
         @Config.Comment("Ticks to restore one missing charge. 1200 is one minute.")
@@ -128,8 +125,8 @@ public final class FlaskConfig {
         public final IngredientValues sunmelonShard = new IngredientValues(2, 0.10);
 
         @Config.Name("ironbarkChip")
-        @Config.Comment("+hit threshold per piece; strength 0.20 is +20 percent.")
-        public final IngredientValues ironbarkChip = new IngredientValues(2, 0.20);
+        @Config.Comment("+hit threshold per piece; strength 0.40 is +40 percent.")
+        public final IngredientValues ironbarkChip = new IngredientValues(2, 0.40);
 
         @Config.Name("quicksilverDrop")
         @Config.Comment("+drink speed per piece; strength 0.20 is +20 percent.")
@@ -168,9 +165,6 @@ public final class FlaskConfig {
 
         @Config.Name("rare")
         public boolean rare = true;
-
-        @Config.Name("epic")
-        public boolean epic = true;
 
         @Config.Name("sunmelonShard")
         public boolean sunmelonShard = true;

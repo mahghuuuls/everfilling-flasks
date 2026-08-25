@@ -70,7 +70,6 @@ class RecipeJsonTest {
         checkFlaskRecipe("common", 3);
         checkFlaskRecipe("uncommon", 4);
         checkFlaskRecipe("rare", 4);
-        checkFlaskRecipe("epic", 6);
     }
 
     @Test

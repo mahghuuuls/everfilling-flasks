@@ -24,8 +24,12 @@ public final class FlaskStackState {
     static final String TAG_INGREDIENTS = "ingredients";
     private static final String TAG_SLOT = "slot";
 
-    /** The infusion grid's size; the owner-chosen nine slots. */
-    public static final int GRID_SIZE = 9;
+    /**
+     * The infusion grid's size: one row of six, the owner's 2026-08-25 revision (a
+     * three-by-three read as a crafting table). Stored slot indexes at or past this are
+     * dropped on read, which retires any dev-world grid piece from the nine-slot days.
+     */
+    public static final int GRID_SIZE = 6;
 
     private FlaskStackState() {
     }

@@ -79,7 +79,7 @@ class FlaskStackStateTest {
                         ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(4, new ItemStack(Items.BLAZE_POWDER));
-        grid.set(8, new ItemStack(Items.SUGAR));
+        grid.set(5, new ItemStack(Items.SUGAR));
         FlaskStackState.setIngredients(s, grid);
 
         ItemStack reloaded = new ItemStack(s.serializeNBT());
@@ -88,7 +88,30 @@ class FlaskStackStateTest {
         assertEquals(Items.SUGAR, read.get(0).getItem());
         assertTrue(read.get(1).isEmpty());
         assertEquals(Items.BLAZE_POWDER, read.get(4).getItem());
-        assertEquals(Items.SUGAR, read.get(8).getItem());
+        assertEquals(Items.SUGAR, read.get(5).getItem());
+    }
+
+    @Test
+    void aStoredSlotPastTheGridIsDroppedOnRead() {
+        // The nine-to-six revision: an old stored slot index at or past six must vanish
+        // silently, not shift or crash.
+        ItemStack s = stack();
+        net.minecraft.nbt.NBTTagCompound entry = new net.minecraft.nbt.NBTTagCompound();
+        entry.setByte("slot", (byte) 8);
+        new ItemStack(Items.SUGAR).writeToNBT(entry);
+        net.minecraft.nbt.NBTTagList list = new net.minecraft.nbt.NBTTagList();
+        list.appendTag(entry);
+        net.minecraft.nbt.NBTTagCompound root = new net.minecraft.nbt.NBTTagCompound();
+        root.setTag(FlaskStackState.TAG_INGREDIENTS, list);
+        net.minecraft.nbt.NBTTagCompound tag = new net.minecraft.nbt.NBTTagCompound();
+        tag.setTag(FlaskStackState.TAG_ROOT, root);
+        s.setTagCompound(tag);
+
+        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.ingredients(s);
+        assertEquals(FlaskStackState.GRID_SIZE, read.size());
+        for (ItemStack piece : read) {
+            assertTrue(piece.isEmpty());
+        }
     }
 
     @Test

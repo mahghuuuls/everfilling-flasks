@@ -60,7 +60,7 @@ FlaskApi.registerIngredient(MY_ITEM, new IngredientDefinition() {
 });
 ```
 
-- The core provides the nine-slot grid, cost accounting, the over-capacity unusable state,
+- The core provides the six-slot grid, cost accounting, the over-capacity unusable state,
   effective-value merging, and post-drink dispatch (`onDrinkCompleted(ingredient, flask,
   player)`, once per placed piece). You describe only cost and effect.
 - While the summed costs exceed the Flask's potency, the grid is inert: drinking refuses and

@@ -44,9 +44,11 @@ public final class ItemFlask extends Item {
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip,
                                ITooltipFlag flag) {
-        int maxCharges = ConfigSnapshot.current().tier(tier).maxCharges();
+        // Maximum only, owner decision 2026-08-25: current charges are the HUD's job.
         tooltip.add(I18n.format("everfillingflasks.tooltip.charges",
-                FlaskStackState.charges(stack), maxCharges));
+                ConfigSnapshot.current().tier(tier).maxCharges()));
+        tooltip.add(I18n.format("everfillingflasks.tooltip.heals", Math.round(
+                ConfigSnapshot.current().tier(tier).healPercentage() * 100.0F)));
         tooltip.add(I18n.format("everfillingflasks.tooltip.usage",
                 EverfillingFlasksMod.proxy.useFlaskKeyName()));
         addInfusionLines(stack, tooltip);

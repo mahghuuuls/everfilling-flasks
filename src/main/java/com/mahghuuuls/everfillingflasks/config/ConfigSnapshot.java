@@ -64,7 +64,6 @@ public final class ConfigSnapshot {
         tiers.put(FlaskTier.COMMON, TierConfig.from("flasks.common", FlaskConfig.flasks.common, warnings));
         tiers.put(FlaskTier.UNCOMMON, TierConfig.from("flasks.uncommon", FlaskConfig.flasks.uncommon, warnings));
         tiers.put(FlaskTier.RARE, TierConfig.from("flasks.rare", FlaskConfig.flasks.rare, warnings));
-        tiers.put(FlaskTier.EPIC, TierConfig.from("flasks.epic", FlaskConfig.flasks.epic, warnings));
 
         Map<IngredientKind, IngredientConfig> ingredients =
                 new EnumMap<IngredientKind, IngredientConfig>(IngredientKind.class);
@@ -83,7 +82,6 @@ public final class ConfigSnapshot {
         recipes.put(FlaskTier.COMMON.key(), FlaskConfig.recipes.common);
         recipes.put(FlaskTier.UNCOMMON.key(), FlaskConfig.recipes.uncommon);
         recipes.put(FlaskTier.RARE.key(), FlaskConfig.recipes.rare);
-        recipes.put(FlaskTier.EPIC.key(), FlaskConfig.recipes.epic);
         recipes.put(IngredientKind.SUNMELON_SHARD.key(), FlaskConfig.recipes.sunmelonShard);
         recipes.put(IngredientKind.IRONBARK_CHIP.key(), FlaskConfig.recipes.ironbarkChip);
         recipes.put(IngredientKind.QUICKSILVER_DROP.key(), FlaskConfig.recipes.quicksilverDrop);

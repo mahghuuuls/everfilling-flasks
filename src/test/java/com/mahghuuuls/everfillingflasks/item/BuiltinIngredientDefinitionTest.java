@@ -41,9 +41,9 @@ class BuiltinIngredientDefinitionTest {
     }
 
     @Test
-    void ironbarkAddsTwentyPercentThreshold() {
+    void ironbarkAddsFortyPercentThreshold() {
         FlaskBonuses bonuses = contributed(IngredientKind.IRONBARK_CHIP);
-        assertEquals(0.20F, bonuses.hitResistanceSum(), 1.0E-6F);
+        assertEquals(0.40F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
     }
 

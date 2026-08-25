@@ -26,16 +26,16 @@ class RecipeEnabledConditionTest {
 
     @Test
     void theSupplierReadsTheSnapshotNotACapturedValue() {
-        BooleanSupplier epic = parse("epic");
-        assertTrue(epic.getAsBoolean(), "enabled by default");
+        BooleanSupplier rare = parse("rare");
+        assertTrue(rare.getAsBoolean(), "enabled by default");
 
-        boolean original = FlaskConfig.recipes.epic;
+        boolean original = FlaskConfig.recipes.rare;
         try {
-            FlaskConfig.recipes.epic = false;
+            FlaskConfig.recipes.rare = false;
             ConfigSnapshot.refresh();
-            assertFalse(epic.getAsBoolean(), "the same supplier follows the snapshot");
+            assertFalse(rare.getAsBoolean(), "the same supplier follows the snapshot");
         } finally {
-            FlaskConfig.recipes.epic = original;
+            FlaskConfig.recipes.rare = original;
             ConfigSnapshot.refresh();
         }
     }

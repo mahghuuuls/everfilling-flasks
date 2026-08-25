@@ -36,6 +36,9 @@ public final class ItemIngredient extends Item {
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip,
                                ITooltipFlag flag) {
         ConfigSnapshot.IngredientConfig config = ConfigSnapshot.current().ingredient(kind);
+        // The owner's presentation: a green header naming what this is, then the plain cost.
+        tooltip.add(net.minecraft.util.text.TextFormatting.GREEN
+                + I18n.format("everfillingflasks.tooltip.ingredient.header"));
         tooltip.add(I18n.format("everfillingflasks.tooltip.ingredient.cost", config.cost()));
         int percent = (int) Math.round(config.strength() * 100.0);
         switch (kind.effect()) {

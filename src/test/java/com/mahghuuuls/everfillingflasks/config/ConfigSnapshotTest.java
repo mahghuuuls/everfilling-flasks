@@ -36,10 +36,10 @@ class ConfigSnapshotTest {
     @Test
     void outOfRangeDoubleIsClampedWithAWarning() {
         List<String> warnings = new ArrayList<String>();
-        assertEquals(1.0, ConfigSnapshot.clampDouble(2.5, 0.0, 1.0, "flasks.epic.healPercentage",
+        assertEquals(1.0, ConfigSnapshot.clampDouble(2.5, 0.0, 1.0, "flasks.rare.healPercentage",
                 warnings), 1.0E-9);
         assertEquals(1, warnings.size());
-        assertTrue(warnings.get(0).contains("flasks.epic.healPercentage"));
+        assertTrue(warnings.get(0).contains("flasks.rare.healPercentage"));
     }
 
     @Test
@@ -90,7 +90,7 @@ class ConfigSnapshotTest {
         assertEquals(0.10, snapshot.ingredient(
                 com.mahghuuuls.everfillingflasks.item.IngredientKind.SUNMELON_SHARD)
                 .strength(), 1.0E-9);
-        assertEquals(0.20, snapshot.ingredient(
+        assertEquals(0.40, snapshot.ingredient(
                 com.mahghuuuls.everfillingflasks.item.IngredientKind.IRONBARK_CHIP)
                 .strength(), 1.0E-9);
         assertEquals(0.20, snapshot.ingredient(
@@ -110,6 +110,7 @@ class ConfigSnapshotTest {
         values.drinkTicks = 100000;
         values.hitThreshold = -1.0;
         ConfigSnapshot.TierConfig tier = ConfigSnapshot.TierConfig.from("flasks.test", values, warnings);
+        // The clamp floor (1), not a tier default: this test feeds maxCharges 0 on purpose.
         assertEquals(1, tier.maxCharges());
         assertEquals(0.0F, tier.healPercentage(), 1.0E-6F);
         assertEquals(1, tier.rechargeTicks());
@@ -125,14 +126,13 @@ class ConfigSnapshotTest {
         ConfigSnapshot.refresh();
         ConfigSnapshot defaults = ConfigSnapshot.current();
         ConfigSnapshot.TierConfig common = defaults.tier(FlaskTier.COMMON);
-        assertEquals(1, common.maxCharges());
-        assertEquals(0.30F, common.healPercentage(), 1.0E-6F);
+        assertEquals(2, common.maxCharges());
+        assertEquals(0.33F, common.healPercentage(), 1.0E-6F);
         assertEquals(1200, common.rechargeTicks());
         assertEquals(30, common.drinkTicks());
         assertEquals(1.0F, common.hitThreshold(), 1.0E-6F);
-        assertEquals(2, defaults.tier(FlaskTier.UNCOMMON).maxCharges());
-        assertEquals(3, defaults.tier(FlaskTier.RARE).maxCharges());
-        assertEquals(4, defaults.tier(FlaskTier.EPIC).maxCharges());
+        assertEquals(3, defaults.tier(FlaskTier.UNCOMMON).maxCharges());
+        assertEquals(4, defaults.tier(FlaskTier.RARE).maxCharges());
         assertTrue(defaults.recipeEnabled(FlaskTier.COMMON));
         assertTrue(defaults.recipeEnabled(FlaskTier.RARE));
         assertEquals("everfillingflasks:common_flask", defaults.startingFlask());
