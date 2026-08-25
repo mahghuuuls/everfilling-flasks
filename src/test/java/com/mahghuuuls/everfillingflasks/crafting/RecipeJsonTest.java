@@ -52,6 +52,27 @@ class RecipeJsonTest {
         checkIngredientRecipe("second_wind_petal");
     }
 
+    private static void checkFlaskRecipe(String tier, int ingredientCount) {
+        JsonObject recipe = load(tier + "_flask.json");
+        assertEquals("minecraft:crafting_shapeless", recipe.get("type").getAsString());
+        JsonObject condition = recipe.getAsJsonArray("conditions").get(0).getAsJsonObject();
+        assertEquals("everfillingflasks:recipe_enabled", condition.get("type").getAsString());
+        assertEquals(tier, condition.get("recipe").getAsString());
+        JsonObject result = recipe.getAsJsonObject("result");
+        assertEquals("everfillingflasks:" + tier + "_flask", result.get("item").getAsString());
+        // No NBT on the output: a crafted Flask reads 0 charges by the persistence rule.
+        org.junit.jupiter.api.Assertions.assertFalse(result.has("nbt"));
+        assertEquals(ingredientCount, recipe.getAsJsonArray("ingredients").size());
+    }
+
+    @Test
+    void everyFlaskRecipeParsesWithItsSwitchAndAnEmptyOutput() {
+        checkFlaskRecipe("common", 3);
+        checkFlaskRecipe("uncommon", 4);
+        checkFlaskRecipe("rare", 4);
+        checkFlaskRecipe("epic", 6);
+    }
+
     @Test
     void theFactoryFileNamesTheConditionClass() {
         JsonObject factories = load("_factories.json");

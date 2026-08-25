@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "conditions": [
+        {
+            "type": "everfillingflasks:recipe_enabled",
+            "recipe": "epic"
+        }
+    ],
+    "ingredients": [
+        { "item": "everfillingflasks:rare_flask" },
+        { "item": "minecraft:diamond" },
+        { "item": "minecraft:diamond" },
+        { "item": "minecraft:diamond" },
+        { "item": "minecraft:diamond" },
+        { "item": "minecraft:nether_star" }
+    ],
+    "result": {
+        "item": "everfillingflasks:epic_flask"
+    }
+}

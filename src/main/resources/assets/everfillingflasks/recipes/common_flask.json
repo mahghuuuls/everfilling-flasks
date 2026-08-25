@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "conditions": [
+        {
+            "type": "everfillingflasks:recipe_enabled",
+            "recipe": "common"
+        }
+    ],
+    "ingredients": [
+        { "item": "minecraft:glass_bottle" },
+        { "item": "minecraft:gold_ingot" },
+        { "item": "minecraft:speckled_melon" }
+    ],
+    "result": {
+        "item": "everfillingflasks:common_flask"
+    }
+}
