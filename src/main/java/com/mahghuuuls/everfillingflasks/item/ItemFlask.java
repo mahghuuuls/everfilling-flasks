@@ -44,6 +44,10 @@ public final class ItemFlask extends Item {
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip,
                                ITooltipFlag flag) {
+        // The kind header first, green like the ingredients' own, so any tier reads as an
+        // Everfilling Flask at a glance.
+        tooltip.add(net.minecraft.util.text.TextFormatting.GREEN
+                + I18n.format("everfillingflasks.tooltip.flaskHeader"));
         // Maximum only, owner decision 2026-08-25: current charges are the HUD's job.
         tooltip.add(I18n.format("everfillingflasks.tooltip.charges",
                 ConfigSnapshot.current().tier(tier).maxCharges()));

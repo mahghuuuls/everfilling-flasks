@@ -12,8 +12,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * The Flask screen, in the owner's 2026-08-25 shape: the Flask slot above the six-slot
- * ingredient row, aligned with its first slot, and the potency shown as pips under the row —
+ * The Flask screen, in the owner's 2026-08-25 shape: the Flask slot on the left, the six-slot
+ * ingredient row beside it on the right, and the potency shown as pips under the row —
  * one pip per potency point in rows of ten (up to thirty), filled per used point, all red
  * plus a warning when over capacity. A configured potency too large for pips falls back to
  * plain numbers.
@@ -45,7 +45,7 @@ public final class FlaskScreen extends GuiContainer {
     private static final int PIP_SIZE = 7;
     private static final int PIP_STEP = 9;
     private static final int PIP_ROW_STEP = 8;
-    private static final int PIP_Y = 58;
+    private static final int PIP_Y = 50;
 
     private static final int PIP_BORDER = 0xFF373737;
     private static final int PIP_EMPTY = 0xFF8B8B8B;

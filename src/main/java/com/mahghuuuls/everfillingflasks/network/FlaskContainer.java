@@ -24,16 +24,13 @@ import net.minecraftforge.items.SlotItemHandler;
  */
 public final class FlaskContainer extends Container {
 
-    /** Where the Flask slot draws: above the infusion row, aligned with its first slot. */
-    public static final int FLASK_SLOT_X = 35;
-    public static final int FLASK_SLOT_Y = 17;
+    /** Where the Flask slot draws: on the left, level with the infusion row beside it. */
+    public static final int FLASK_SLOT_X = 26;
+    public static final int FLASK_SLOT_Y = 28;
 
-    /**
-     * Where the infusion row's first slot draws; six slots run right from here. 35 centers
-     * the 108-wide row in the 176-wide panel.
-     */
-    public static final int GRID_X = 35;
-    public static final int GRID_Y = 39;
+    /** Where the infusion row's first slot draws; six slots run right from here. */
+    public static final int GRID_X = 62;
+    public static final int GRID_Y = 28;
 
     private static final int FLASK_SLOT_INDEX = 0;
     private static final int GRID_START = 1;

@@ -9,6 +9,7 @@ item.everfillingflasks.ironroot_sprig.name=Ironroot Sprig
 item.everfillingflasks.quickmint_leaf.name=Quickmint Leaf
 item.everfillingflasks.second_wind_petal.name=Second Wind Petal
 
+everfillingflasks.tooltip.flaskHeader=Everfilling Flask
 everfillingflasks.tooltip.charges=Charges: %d
 everfillingflasks.tooltip.heals=Heals %d%% health
 everfillingflasks.tooltip.usage=When equipped, hold [%s] to drink
@@ -27,5 +28,5 @@ everfillingflasks.key.use_flask=Use Flask
 everfillingflasks.key.category=Everfilling Flasks
 
 everfillingflasks.button.flask=Flask
-everfillingflasks.screen.title=Flask
+everfillingflasks.screen.title=Everfilling Flask
 everfillingflasks.screen.overCapacity=Over capacity!
