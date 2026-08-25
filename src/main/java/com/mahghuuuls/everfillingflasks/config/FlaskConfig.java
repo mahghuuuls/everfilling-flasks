@@ -56,6 +56,12 @@ public final class FlaskConfig {
         @Config.RangeDouble(min = 0.0, max = 1.0)
         public double drinkSlowdown = 0.5;
 
+        @Config.Name("ingredientLoot")
+        @Config.Comment({
+                "Add Flask Ingredients to dungeon, mineshaft, and village blacksmith chests.",
+                "false removes them from world loot entirely."})
+        public boolean ingredientLoot = true;
+
         @Config.Name("diagnostics")
         @Config.Comment({
                 "Log one line per Flask decision: drink started, refused (and why), cancelled",
@@ -120,17 +126,17 @@ public final class FlaskConfig {
 
     public static final class Ingredients {
 
-        @Config.Name("sunmelonShard")
+        @Config.Name("sunpetalLeaf")
         @Config.Comment("+healing per piece; strength 0.10 is +10 percent.")
-        public final IngredientValues sunmelonShard = new IngredientValues(2, 0.10);
+        public final IngredientValues sunpetalLeaf = new IngredientValues(2, 0.10);
 
-        @Config.Name("ironbarkChip")
+        @Config.Name("ironrootSprig")
         @Config.Comment("+hit threshold per piece; strength 0.40 is +40 percent.")
-        public final IngredientValues ironbarkChip = new IngredientValues(2, 0.40);
+        public final IngredientValues ironrootSprig = new IngredientValues(2, 0.40);
 
-        @Config.Name("quicksilverDrop")
+        @Config.Name("quickmintLeaf")
         @Config.Comment("+drink speed per piece; strength 0.20 is +20 percent.")
-        public final IngredientValues quicksilverDrop = new IngredientValues(2, 0.20);
+        public final IngredientValues quickmintLeaf = new IngredientValues(2, 0.20);
 
         @Config.Name("secondWindPetal")
         @Config.Comment("Regeneration after a completed drink; strength is seconds.")
@@ -166,17 +172,8 @@ public final class FlaskConfig {
         @Config.Name("rare")
         public boolean rare = true;
 
-        @Config.Name("sunmelonShard")
-        public boolean sunmelonShard = true;
-
-        @Config.Name("ironbarkChip")
-        public boolean ironbarkChip = true;
-
-        @Config.Name("quicksilverDrop")
-        public boolean quicksilverDrop = true;
-
-        @Config.Name("secondWindPetal")
-        public boolean secondWindPetal = true;
+        // The ingredient recipes are gone (owner decision 2026-08-25: ingredients come from
+        // treasure chests instead); only the Flask switches remain.
     }
 
     // Deliberately no ConfigChangedEvent handler. The approved contract, printed in every

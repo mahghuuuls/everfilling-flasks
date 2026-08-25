@@ -28,19 +28,22 @@ public final class ConfigSnapshot {
     private final boolean keepFlaskOnDeath;
     private final float drinkSlowdown;
     private final boolean diagnostics;
+    private final boolean ingredientLoot;
     private final Map<FlaskTier, TierConfig> tiers;
     private final Map<IngredientKind, IngredientConfig> ingredients;
     private final Map<String, Boolean> recipes;
     private final List<String> clampWarnings;
 
     private ConfigSnapshot(String startingFlask, boolean keepFlaskOnDeath, float drinkSlowdown,
-                           boolean diagnostics, Map<FlaskTier, TierConfig> tiers,
+                           boolean diagnostics, boolean ingredientLoot,
+                           Map<FlaskTier, TierConfig> tiers,
                            Map<IngredientKind, IngredientConfig> ingredients,
                            Map<String, Boolean> recipes, List<String> clampWarnings) {
         this.startingFlask = startingFlask;
         this.keepFlaskOnDeath = keepFlaskOnDeath;
         this.drinkSlowdown = drinkSlowdown;
         this.diagnostics = diagnostics;
+        this.ingredientLoot = ingredientLoot;
         this.tiers = tiers;
         this.ingredients = ingredients;
         this.recipes = recipes;
@@ -67,25 +70,21 @@ public final class ConfigSnapshot {
 
         Map<IngredientKind, IngredientConfig> ingredients =
                 new EnumMap<IngredientKind, IngredientConfig>(IngredientKind.class);
-        ingredients.put(IngredientKind.SUNMELON_SHARD, IngredientConfig.from(
-                "ingredients.sunmelonShard", FlaskConfig.ingredients.sunmelonShard, warnings));
-        ingredients.put(IngredientKind.IRONBARK_CHIP, IngredientConfig.from(
-                "ingredients.ironbarkChip", FlaskConfig.ingredients.ironbarkChip, warnings));
-        ingredients.put(IngredientKind.QUICKSILVER_DROP, IngredientConfig.from(
-                "ingredients.quicksilverDrop", FlaskConfig.ingredients.quicksilverDrop, warnings));
+        ingredients.put(IngredientKind.SUNPETAL_LEAF, IngredientConfig.from(
+                "ingredients.sunpetalLeaf", FlaskConfig.ingredients.sunpetalLeaf, warnings));
+        ingredients.put(IngredientKind.IRONROOT_SPRIG, IngredientConfig.from(
+                "ingredients.ironrootSprig", FlaskConfig.ingredients.ironrootSprig, warnings));
+        ingredients.put(IngredientKind.QUICKMINT_LEAF, IngredientConfig.from(
+                "ingredients.quickmintLeaf", FlaskConfig.ingredients.quickmintLeaf, warnings));
         ingredients.put(IngredientKind.SECOND_WIND_PETAL, IngredientConfig.from(
                 "ingredients.secondWindPetal", FlaskConfig.ingredients.secondWindPetal, warnings));
 
-        // Keyed by the same lowercase names the recipe JSON conditions use, tiers and
-        // ingredients alike, so one condition class covers every switchable recipe.
+        // Keyed by the same lowercase names the recipe JSON conditions use, so one condition
+        // class covers every switchable recipe; only the Flasks have recipes now.
         Map<String, Boolean> recipes = new HashMap<String, Boolean>();
         recipes.put(FlaskTier.COMMON.key(), FlaskConfig.recipes.common);
         recipes.put(FlaskTier.UNCOMMON.key(), FlaskConfig.recipes.uncommon);
         recipes.put(FlaskTier.RARE.key(), FlaskConfig.recipes.rare);
-        recipes.put(IngredientKind.SUNMELON_SHARD.key(), FlaskConfig.recipes.sunmelonShard);
-        recipes.put(IngredientKind.IRONBARK_CHIP.key(), FlaskConfig.recipes.ironbarkChip);
-        recipes.put(IngredientKind.QUICKSILVER_DROP.key(), FlaskConfig.recipes.quicksilverDrop);
-        recipes.put(IngredientKind.SECOND_WIND_PETAL.key(), FlaskConfig.recipes.secondWindPetal);
 
         return new ConfigSnapshot(
                 FlaskConfig.general.startingFlask == null ? "" : FlaskConfig.general.startingFlask.trim(),
@@ -93,6 +92,7 @@ public final class ConfigSnapshot {
                 (float) clampDouble(FlaskConfig.general.drinkSlowdown, 0.0, 1.0,
                         "general.drinkSlowdown", warnings),
                 FlaskConfig.general.diagnostics,
+                FlaskConfig.general.ingredientLoot,
                 Collections.unmodifiableMap(tiers),
                 Collections.unmodifiableMap(ingredients),
                 Collections.unmodifiableMap(recipes),
@@ -113,6 +113,11 @@ public final class ConfigSnapshot {
 
     public boolean diagnostics() {
         return diagnostics;
+    }
+
+    /** Whether the built-in ingredients join the vanilla treasure chest loot. */
+    public boolean ingredientLoot() {
+        return ingredientLoot;
     }
 
     public TierConfig tier(FlaskTier tier) {

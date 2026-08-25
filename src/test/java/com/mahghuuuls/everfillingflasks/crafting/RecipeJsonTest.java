@@ -28,28 +28,16 @@ class RecipeJsonTest {
                 new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
     }
 
-    private static void checkIngredientRecipe(String key) {
-        JsonObject recipe = load(key + ".json");
-        assertEquals("minecraft:crafting_shapeless", recipe.get("type").getAsString());
-
-        JsonArray conditions = recipe.getAsJsonArray("conditions");
-        assertEquals(1, conditions.size());
-        JsonObject condition = conditions.get(0).getAsJsonObject();
-        assertEquals("everfillingflasks:recipe_enabled", condition.get("type").getAsString());
-        assertEquals(key, condition.get("recipe").getAsString(),
-                "the switch key must match the config's recipes entry");
-
-        assertEquals("everfillingflasks:" + key,
-                recipe.getAsJsonObject("result").get("item").getAsString());
-        assertTrue(recipe.getAsJsonArray("ingredients").size() >= 2);
-    }
-
     @Test
-    void everyIngredientRecipeParsesWithItsSwitch() {
-        checkIngredientRecipe("sunmelon_shard");
-        checkIngredientRecipe("ironbark_chip");
-        checkIngredientRecipe("quicksilver_drop");
-        checkIngredientRecipe("second_wind_petal");
+    void noIngredientRecipeFilesRemain() {
+        // Ingredients come from treasure chests (owner decision 2026-08-25); a leftover
+        // recipe file would quietly bring crafting back.
+        for (String key : new String[]{"sunpetal_leaf", "ironroot_sprig", "quickmint_leaf",
+                "second_wind_petal", "sunmelon_shard", "ironbark_chip", "quicksilver_drop"}) {
+            org.junit.jupiter.api.Assertions.assertNull(RecipeJsonTest.class.getClassLoader()
+                            .getResource("assets/everfillingflasks/recipes/" + key + ".json"),
+                    key + " must have no recipe file");
+        }
     }
 
     private static void checkFlaskRecipe(String tier, int ingredientCount) {

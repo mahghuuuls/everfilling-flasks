@@ -21,19 +21,19 @@ class BuiltinIngredientDefinitionTest {
 
     @Test
     void theApprovedCosts() {
-        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.SUNMELON_SHARD)
+        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF)
                 .potencyCost(ItemStack.EMPTY));
-        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.IRONBARK_CHIP)
+        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.IRONROOT_SPRIG)
                 .potencyCost(ItemStack.EMPTY));
-        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.QUICKSILVER_DROP)
+        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.QUICKMINT_LEAF)
                 .potencyCost(ItemStack.EMPTY));
         assertEquals(3, new BuiltinIngredientDefinition(IngredientKind.SECOND_WIND_PETAL)
                 .potencyCost(ItemStack.EMPTY));
     }
 
     @Test
-    void sunmelonAddsTenPercentHealingAndNothingElse() {
-        FlaskBonuses bonuses = contributed(IngredientKind.SUNMELON_SHARD);
+    void sunpetalAddsTenPercentHealingAndNothingElse() {
+        FlaskBonuses bonuses = contributed(IngredientKind.SUNPETAL_LEAF);
         assertEquals(0.10F, bonuses.healingSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.drinkSpeedSum(), 1.0E-6F);
@@ -41,15 +41,15 @@ class BuiltinIngredientDefinitionTest {
     }
 
     @Test
-    void ironbarkAddsFortyPercentThreshold() {
-        FlaskBonuses bonuses = contributed(IngredientKind.IRONBARK_CHIP);
+    void ironrootAddsFortyPercentThreshold() {
+        FlaskBonuses bonuses = contributed(IngredientKind.IRONROOT_SPRIG);
         assertEquals(0.40F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
     }
 
     @Test
-    void quicksilverAddsTwentyPercentDrinkSpeed() {
-        FlaskBonuses bonuses = contributed(IngredientKind.QUICKSILVER_DROP);
+    void quickmintAddsTwentyPercentDrinkSpeed() {
+        FlaskBonuses bonuses = contributed(IngredientKind.QUICKMINT_LEAF);
         assertEquals(0.20F, bonuses.drinkSpeedSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
     }
@@ -68,10 +68,10 @@ class BuiltinIngredientDefinitionTest {
 
     @Test
     void fiveOfAKindMatchesTheOwnersBalanceIntent() {
-        // Five Sunmelon Shards in a potency-10 Flask: about +50 percent healing.
+        // Five Sunpetal Leaves in a potency-10 Flask: about +50 percent healing.
         FlaskBonuses bonuses = new FlaskBonuses();
         BuiltinIngredientDefinition shard =
-                new BuiltinIngredientDefinition(IngredientKind.SUNMELON_SHARD);
+                new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF);
         for (int i = 0; i < 5; i++) {
             shard.contribute(ItemStack.EMPTY, null, bonuses);
         }

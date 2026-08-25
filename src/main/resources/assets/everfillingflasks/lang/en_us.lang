@@ -1,12 +1,12 @@
 itemGroup.everfillingflasks=Everfilling Flasks
 
-item.everfillingflasks.common_flask.name=Common Flask
-item.everfillingflasks.uncommon_flask.name=Uncommon Flask
-item.everfillingflasks.rare_flask.name=Rare Flask
+item.everfillingflasks.common_flask.name=Worn Flask
+item.everfillingflasks.uncommon_flask.name=Sturdy Flask
+item.everfillingflasks.rare_flask.name=Radiant Flask
 
-item.everfillingflasks.sunmelon_shard.name=Sunmelon Shard
-item.everfillingflasks.ironbark_chip.name=Ironbark Chip
-item.everfillingflasks.quicksilver_drop.name=Quicksilver Drop
+item.everfillingflasks.sunpetal_leaf.name=Sunpetal Leaf
+item.everfillingflasks.ironroot_sprig.name=Ironroot Sprig
+item.everfillingflasks.quickmint_leaf.name=Quickmint Leaf
 item.everfillingflasks.second_wind_petal.name=Second Wind Petal
 
 everfillingflasks.tooltip.charges=Holds %d charges

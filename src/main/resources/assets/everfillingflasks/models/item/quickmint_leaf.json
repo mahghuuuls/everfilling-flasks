@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "everfillingflasks:items/ironbark_chip"
+        "layer0": "everfillingflasks:items/quickmint_leaf"
     }
 }

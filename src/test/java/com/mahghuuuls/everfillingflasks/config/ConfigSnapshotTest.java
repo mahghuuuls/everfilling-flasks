@@ -58,10 +58,11 @@ class ConfigSnapshotTest {
     @Test
     void recipeSwitchesAnswerByNameAndUnknownNamesStayEnabled() {
         ConfigSnapshot snapshot = ConfigSnapshot.current();
-        // Defaults: everything on.
+        // Defaults: every Flask recipe on. (The ingredient recipes are gone: ingredients come
+        // from treasure chests since 2026-08-25.)
         assertTrue(snapshot.recipeEnabled("common"));
-        assertTrue(snapshot.recipeEnabled("sunmelon_shard"));
-        assertTrue(snapshot.recipeEnabled("second_wind_petal"));
+        assertTrue(snapshot.recipeEnabled("uncommon"));
+        assertTrue(snapshot.recipeEnabled("rare"));
         // A typo in a recipe file must not silently remove content.
         assertTrue(snapshot.recipeEnabled("no_such_recipe"));
     }
@@ -71,30 +72,35 @@ class ConfigSnapshotTest {
         // The false path is the only one the fail-open rule cannot mask: a mis-keyed map
         // (camelCase instead of the recipe key) would make every switch a silent no-op and
         // only this test would notice.
-        boolean original = FlaskConfig.recipes.sunmelonShard;
+        boolean original = FlaskConfig.recipes.uncommon;
         try {
-            FlaskConfig.recipes.sunmelonShard = false;
+            FlaskConfig.recipes.uncommon = false;
             ConfigSnapshot.refresh();
-            assertFalse(ConfigSnapshot.current().recipeEnabled("sunmelon_shard"));
-            assertTrue(ConfigSnapshot.current().recipeEnabled("ironbark_chip"),
+            assertFalse(ConfigSnapshot.current().recipeEnabled("uncommon"));
+            assertTrue(ConfigSnapshot.current().recipeEnabled("rare"),
                     "the other switches are untouched");
         } finally {
-            FlaskConfig.recipes.sunmelonShard = original;
+            FlaskConfig.recipes.uncommon = original;
             ConfigSnapshot.refresh();
         }
+    }
+
+    @Test
+    void ingredientLootDefaultsOn() {
+        assertTrue(ConfigSnapshot.current().ingredientLoot());
     }
 
     @Test
     void ingredientDefaultsMatchTheApprovedBalance() {
         ConfigSnapshot snapshot = ConfigSnapshot.current();
         assertEquals(0.10, snapshot.ingredient(
-                com.mahghuuuls.everfillingflasks.item.IngredientKind.SUNMELON_SHARD)
+                com.mahghuuuls.everfillingflasks.item.IngredientKind.SUNPETAL_LEAF)
                 .strength(), 1.0E-9);
         assertEquals(0.40, snapshot.ingredient(
-                com.mahghuuuls.everfillingflasks.item.IngredientKind.IRONBARK_CHIP)
+                com.mahghuuuls.everfillingflasks.item.IngredientKind.IRONROOT_SPRIG)
                 .strength(), 1.0E-9);
         assertEquals(0.20, snapshot.ingredient(
-                com.mahghuuuls.everfillingflasks.item.IngredientKind.QUICKSILVER_DROP)
+                com.mahghuuuls.everfillingflasks.item.IngredientKind.QUICKMINT_LEAF)
                 .strength(), 1.0E-9);
         assertEquals(5.0, snapshot.ingredient(
                 com.mahghuuuls.everfillingflasks.item.IngredientKind.SECOND_WIND_PETAL)
