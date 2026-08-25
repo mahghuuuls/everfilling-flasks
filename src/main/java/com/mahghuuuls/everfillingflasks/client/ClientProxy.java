@@ -67,4 +67,13 @@ public class ClientProxy extends CommonProxy {
     public boolean isLocalPlayerDrinking(net.minecraft.entity.player.EntityPlayer player) {
         return player == Minecraft.getMinecraft().player && ClientFlaskState.snapshot().drinking();
     }
+
+    @Override
+    public com.mahghuuuls.everfillingflasks.api.FlaskSnapshot clientSnapshot(
+            net.minecraft.entity.player.EntityPlayer player) {
+        if (player == Minecraft.getMinecraft().player) {
+            return ClientFlaskState.snapshot();
+        }
+        return com.mahghuuuls.everfillingflasks.player.FlaskSnapshots.empty();
+    }
 }

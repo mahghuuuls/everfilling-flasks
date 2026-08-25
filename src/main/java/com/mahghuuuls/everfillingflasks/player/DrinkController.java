@@ -443,6 +443,12 @@ public final class DrinkController {
         return data.cachedEffective;
     }
 
+    /** The snapshot builder's window onto the cache; package-private on purpose. */
+    static EffectiveFlask effectiveForApi(EntityPlayerMP player, FlaskPlayerData data,
+                                          ItemStack flask) {
+        return effectiveFor(player, data, flask);
+    }
+
     private static EffectiveFlask computeEffective(EntityPlayerMP player, ItemStack flask) {
         FlaskDefinition definition = FlaskRegistry.definition(flask);
         // One accumulator for every source: player modifiers and placed ingredients add their

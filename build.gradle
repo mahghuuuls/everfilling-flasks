@@ -432,15 +432,28 @@ tasks.named('assemble').configure {
 }
 
 tasks.named('runClient', JavaExec).configure {
-    classpath devmodJar
+    // `gradlew runClient -PnoDevmod=true` launches without the fixture add-on entirely,
+    // proving the mod stands alone (campaign card C9).
+    if (!project.hasProperty('noDevmod')) {
+        classpath devmodJar
+    }
 
     // `gradlew runClient -PdevmodModifiers=true` arms the off-hand-stick bonus fixture;
-    // `-PdevmodThrowing=true` arms the always-failing modifier source. Project properties
-    // forwarded as system properties because -D would land on Gradle's JVM, not Minecraft's.
-    if (project.hasProperty('devmodModifiers')) {
-        systemProperty 'eff.devfixtures.modifiers', project.property('devmodModifiers')
-    }
-    if (project.hasProperty('devmodThrowing')) {
-        systemProperty 'eff.devfixtures.throwing', project.property('devmodThrowing')
+    // `-PdevmodThrowing=true` arms the always-failing modifier source; the rest below arm
+    // one fixture each, named after their flag. Project properties forwarded as system
+    // properties because -D would land on Gradle's JVM, not Minecraft's.
+    [
+        devmodModifiers   : 'eff.devfixtures.modifiers',
+        devmodThrowing    : 'eff.devfixtures.throwing',
+        devmodIngredient  : 'eff.devfixtures.ingredient',
+        devmodManaFlask   : 'eff.devfixtures.manaflask',
+        devmodThrowingHook: 'eff.devfixtures.throwinghook',
+        devmodQuietFlask  : 'eff.devfixtures.quietflask',
+        devmodHud         : 'eff.devfixtures.hud',
+        devmodThrowingHud : 'eff.devfixtures.throwinghud',
+    ].each { flag, property ->
+        if (project.hasProperty(flag)) {
+            systemProperty property, project.property(flag)
+        }
     }
 }

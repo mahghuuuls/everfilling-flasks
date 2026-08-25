@@ -36,4 +36,14 @@ public class CommonProxy {
     public boolean isLocalPlayerDrinking(net.minecraft.entity.player.EntityPlayer player) {
         return false;
     }
+
+    /**
+     * The client's mirror snapshot for the local player, empty for anyone else. On a dedicated
+     * server there is no mirror and no local player, so this default answers empty; the API's
+     * server-side path never reaches here.
+     */
+    public com.mahghuuuls.everfillingflasks.api.FlaskSnapshot clientSnapshot(
+            net.minecraft.entity.player.EntityPlayer player) {
+        return com.mahghuuuls.everfillingflasks.player.FlaskSnapshots.empty();
+    }
 }

@@ -62,7 +62,7 @@ public final class FlaskSnapshot {
         return rechargeProgressTicks;
     }
 
-    /** Effective ticks per charge. 0 when no Flask is equipped. */
+    /** Effective ticks per charge. 1 in the empty snapshot, so ratio math never divides by 0. */
     public int rechargeTicks() {
         return rechargeTicks;
     }

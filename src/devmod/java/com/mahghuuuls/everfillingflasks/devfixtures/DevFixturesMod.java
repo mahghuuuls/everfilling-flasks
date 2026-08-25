@@ -52,6 +52,21 @@ public class DevFixturesMod {
             FlaskApi.registerIngredient(Items.GOLD_NUGGET, new GoldNuggetIngredient());
             LOGGER.info("Fixture ingredient active: gold nugget, cost 2, +25 percent healing");
         }
+        if (Boolean.getBoolean("eff.devfixtures.manaflask")) {
+            // In init, one phase after the core's preInit, on purpose: late registration is
+            // part of the API promise.
+            FlaskApi.registerFlask(DevItems.manaFlask(), new ManaFlaskDefinition());
+            LOGGER.info("Fixture Mana Flask active: heal 0, NBT-tiered charges, Speed hook"
+                    + " (throwinghook={}, quietflask={})",
+                    Boolean.getBoolean("eff.devfixtures.throwinghook"),
+                    Boolean.getBoolean("eff.devfixtures.quietflask"));
+        }
+        boolean hud = Boolean.getBoolean("eff.devfixtures.hud");
+        boolean throwingHud = Boolean.getBoolean("eff.devfixtures.throwinghud");
+        if ((hud || throwingHud) && event.getSide().isClient()) {
+            FixtureHuds.register(throwingHud);
+            LOGGER.info("Fixture HUD replacement active (throwing={})", throwingHud);
+        }
     }
 
     /** The API-registered ingredient fixture, exactly REQ-031's example numbers. */
