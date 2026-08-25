@@ -49,5 +49,31 @@ public final class ItemFlask extends Item {
                 FlaskStackState.charges(stack), maxCharges));
         tooltip.add(I18n.format("everfillingflasks.tooltip.usage",
                 EverfillingFlasksMod.proxy.useFlaskKeyName()));
+        addInfusionLines(stack, tooltip);
+    }
+
+    /**
+     * The infused ingredients, one line per distinct kind with a count. Owner-requested so a
+     * player sees what a Flask carries — and what an upgrade craft would consume — without
+     * opening the screen. Reads the stack's own grid, so it is right wherever the tooltip
+     * shows: inventory, chest, or the crafting table.
+     */
+    private static void addInfusionLines(ItemStack stack, List<String> tooltip) {
+        java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<String, Integer>();
+        for (ItemStack piece : FlaskStackState.ingredients(stack)) {
+            if (!piece.isEmpty()) {
+                String name = piece.getDisplayName();
+                Integer previous = counts.get(name);
+                counts.put(name, previous == null ? 1 : previous + 1);
+            }
+        }
+        if (counts.isEmpty()) {
+            return;
+        }
+        tooltip.add(I18n.format("everfillingflasks.tooltip.infused"));
+        for (java.util.Map.Entry<String, Integer> entry : counts.entrySet()) {
+            tooltip.add(I18n.format("everfillingflasks.tooltip.infusedLine",
+                    entry.getKey(), entry.getValue()));
+        }
     }
 }

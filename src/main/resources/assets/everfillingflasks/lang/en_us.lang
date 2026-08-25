@@ -13,6 +13,9 @@ item.everfillingflasks.second_wind_petal.name=Second Wind Petal
 everfillingflasks.tooltip.charges=%d / %d charges
 everfillingflasks.tooltip.usage=When equipped, hold [%s] to drink
 
+everfillingflasks.tooltip.infused=Infused:
+everfillingflasks.tooltip.infusedLine=  %s x%d
+
 everfillingflasks.tooltip.ingredient.cost=Infusion cost: %d potency
 everfillingflasks.tooltip.ingredient.healing=+%d%% healing while infused
 everfillingflasks.tooltip.ingredient.hitThreshold=+%d%% hit threshold while infused
