@@ -24,13 +24,13 @@ import net.minecraftforge.items.SlotItemHandler;
  */
 public final class FlaskContainer extends Container {
 
-    /** Where the Flask slot draws, left of the infusion grid. */
-    public static final int FLASK_SLOT_X = 26;
-    public static final int FLASK_SLOT_Y = 35;
+    /** Where the Flask slot draws: above the infusion row, aligned with its first slot. */
+    public static final int FLASK_SLOT_X = 62;
+    public static final int FLASK_SLOT_Y = 17;
 
     /** Where the infusion row's first slot draws; six slots run right from here. */
     public static final int GRID_X = 62;
-    public static final int GRID_Y = 26;
+    public static final int GRID_Y = 39;
 
     private static final int FLASK_SLOT_INDEX = 0;
     private static final int GRID_START = 1;

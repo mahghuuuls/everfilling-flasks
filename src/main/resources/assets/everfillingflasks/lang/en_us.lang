@@ -9,8 +9,8 @@ item.everfillingflasks.ironroot_sprig.name=Ironroot Sprig
 item.everfillingflasks.quickmint_leaf.name=Quickmint Leaf
 item.everfillingflasks.second_wind_petal.name=Second Wind Petal
 
-everfillingflasks.tooltip.charges=Holds %d charges
-everfillingflasks.tooltip.heals=Heals %d%% of your health per drink
+everfillingflasks.tooltip.charges=Charges: %d
+everfillingflasks.tooltip.heals=Heals %d%% health
 everfillingflasks.tooltip.usage=When equipped, hold [%s] to drink
 
 everfillingflasks.tooltip.infused=Infused:

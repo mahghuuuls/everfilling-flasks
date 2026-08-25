@@ -12,9 +12,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * The Flask screen, in the owner's 2026-08-25 shape: the Flask slot on the left, six
- * ingredient slots in one row (a three-by-three read as a crafting table), and the potency
- * shown as pips under the row — one pip per potency point, filled per used point, all red
+ * The Flask screen, in the owner's 2026-08-25 shape: the Flask slot above the six-slot
+ * ingredient row, aligned with its first slot, and the potency shown as pips under the row —
+ * one pip per potency point in rows of ten (up to thirty), filled per used point, all red
  * plus a warning when over capacity. A configured potency too large for pips falls back to
  * plain numbers.
  *
@@ -36,11 +36,16 @@ public final class FlaskScreen extends GuiContainer {
     /** The vanilla container panel grey, for painting over the texture's unused grid. */
     private static final int PANEL_GREY = 0xFFC6C6C6;
 
-    /** Pip geometry: at most this many pips fit the row; above it, numbers take over. */
-    private static final int PIP_LIMIT = 12;
+    /**
+     * Pip geometry: rows of ten, a new row per ten potency, at most three rows (the owner's
+     * bound: display must hold up to 30); above it, numbers take over.
+     */
+    private static final int PIP_LIMIT = 30;
+    private static final int PIPS_PER_ROW = 10;
     private static final int PIP_SIZE = 7;
     private static final int PIP_STEP = 9;
-    private static final int PIP_Y = 48;
+    private static final int PIP_ROW_STEP = 8;
+    private static final int PIP_Y = 58;
 
     private static final int PIP_BORDER = 0xFF373737;
     private static final int PIP_EMPTY = 0xFF8B8B8B;
@@ -97,13 +102,17 @@ public final class FlaskScreen extends GuiContainer {
         }
     }
 
-    /** One pip per potency point; filled per used point; every pip red when over capacity. */
+    /**
+     * One pip per potency point, in rows of ten; filled per used point; every pip red when
+     * over capacity.
+     */
     private void drawPips(int used, int capacity, boolean over) {
         for (int i = 0; i < capacity; i++) {
-            int x = FlaskContainer.GRID_X + i * PIP_STEP;
+            int x = FlaskContainer.GRID_X + (i % PIPS_PER_ROW) * PIP_STEP;
+            int y = PIP_Y + (i / PIPS_PER_ROW) * PIP_ROW_STEP;
             int inner = over ? PIP_OVER : i < used ? PIP_FILLED : PIP_EMPTY;
-            Gui.drawRect(x, PIP_Y, x + PIP_SIZE, PIP_Y + PIP_SIZE, PIP_BORDER);
-            Gui.drawRect(x + 1, PIP_Y + 1, x + PIP_SIZE - 1, PIP_Y + PIP_SIZE - 1, inner);
+            Gui.drawRect(x, y, x + PIP_SIZE, y + PIP_SIZE, PIP_BORDER);
+            Gui.drawRect(x + 1, y + 1, x + PIP_SIZE - 1, y + PIP_SIZE - 1, inner);
         }
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
