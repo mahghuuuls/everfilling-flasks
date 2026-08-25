@@ -74,4 +74,36 @@ public interface FlaskDefinition {
     default boolean completionSound(ItemStack stack, EntityPlayer player) {
         return true;
     }
+
+    /**
+     * The liquid color of this Flask in the default HUD's charge icons, as 0xRRGGBB. Return
+     * -1 for the built-in red. Read on the client with the synced stack, once per frame at
+     * most; keep it cheap. A throw is logged once and the default color is used.
+     */
+    default int hudLiquidColor(ItemStack stack, EntityPlayer player) {
+        return -1;
+    }
+
+    /**
+     * A full replacement for the default HUD's glass icon (the empty-charge look), drawn at
+     * nine by nine points. Null keeps the built-in. Client-read like
+     * {@link #hudLiquidColor}, with the same isolation.
+     */
+    default net.minecraft.util.ResourceLocation hudGlassTexture(ItemStack stack,
+                                                                EntityPlayer player) {
+        return null;
+    }
+
+    /**
+     * A full replacement for the default HUD's liquid layer, drawn over the glass at nine by
+     * nine points and cropped bottom-up for a recharging charge. Put your liquid pixels in
+     * the same rows as the built-in mask (rows 3 to 6 of 9), because the recharge crop maps
+     * progress onto those rows. The built-in layer is a white mask tinted by
+     * {@link #hudLiquidColor}; a custom layer is tinted the same way, except that -1 then
+     * means untinted rather than the built-in red. Null keeps the built-in.
+     */
+    default net.minecraft.util.ResourceLocation hudLiquidTexture(ItemStack stack,
+                                                                 EntityPlayer player) {
+        return null;
+    }
 }

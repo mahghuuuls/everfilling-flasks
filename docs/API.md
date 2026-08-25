@@ -68,6 +68,23 @@ FlaskApi.registerIngredient(MY_ITEM, new IngredientDefinition() {
 - Contributions use the same `FlaskBonuses` accumulator as player modifiers: percentages of
   one kind, from every source, add together before multiplying the base.
 
+### HUD appearance
+
+Three more default methods let your Flask restyle the default HUD's charge icons without
+replacing the whole HUD:
+
+- `hudLiquidColor(stack, player)`: the liquid's 0xRRGGBB color; -1 keeps the built-in red.
+- `hudGlassTexture(stack, player)`: your own glass icon (drawn at nine by nine points);
+  null keeps the built-in.
+- `hudLiquidTexture(stack, player)`: your own liquid layer, drawn over the glass and cropped
+  bottom-up while a charge refills (keep your liquid pixels in rows 3-6 of 9, like the
+  built-in mask, because the crop maps progress onto those rows). It is tinted by
+  `hudLiquidColor`; with a custom layer,
+  -1 means untinted. Null keeps the built-in white mask.
+
+These are read on the client with the synced stack, at most once per frame. A throw is
+logged once and the defaults draw from then on.
+
 ## Player Flask modifiers
 
 ```java

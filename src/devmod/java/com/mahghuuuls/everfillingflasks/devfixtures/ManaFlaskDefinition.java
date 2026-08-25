@@ -74,4 +74,10 @@ final class ManaFlaskDefinition implements FlaskDefinition {
     public boolean completionSound(ItemStack stack, EntityPlayer player) {
         return !Boolean.getBoolean("eff.devfixtures.quietflask");
     }
+
+    @Override
+    public int hudLiquidColor(ItemStack stack, EntityPlayer player) {
+        // Mana is blue: proves the per-Flask liquid tint reaches the default HUD.
+        return 0x3F7FFF;
+    }
 }
