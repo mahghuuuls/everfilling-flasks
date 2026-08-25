@@ -8,8 +8,8 @@
     ],
     "ingredients": [
         { "item": "everfillingflasks:common_flask" },
-        { "item": "minecraft:gold_ingot" },
-        { "item": "minecraft:gold_ingot" },
+        { "item": "minecraft:iron_ingot" },
+        { "item": "minecraft:iron_ingot" },
         { "item": "minecraft:blaze_powder" }
     ],
     "result": {
