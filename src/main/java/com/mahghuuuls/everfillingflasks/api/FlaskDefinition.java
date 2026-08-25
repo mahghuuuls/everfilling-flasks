@@ -97,7 +97,7 @@ public interface FlaskDefinition {
     /**
      * A full replacement for the default HUD's liquid layer, drawn over the glass at nine by
      * nine points and cropped bottom-up for a recharging charge. Put your liquid pixels in
-     * the same rows as the built-in mask (rows 3 to 6 of 9), because the recharge crop maps
+     * the same rows as the built-in mask (rows 3 to 7 of 9), because the recharge crop maps
      * progress onto those rows. The built-in layer is a white mask tinted by
      * {@link #hudLiquidColor}; a custom layer is tinted the same way, except that -1 then
      * means untinted rather than the built-in red. Null keeps the built-in.

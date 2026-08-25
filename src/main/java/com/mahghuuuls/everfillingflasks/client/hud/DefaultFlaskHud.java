@@ -34,9 +34,13 @@ public final class DefaultFlaskHud {
 
     /** Icon size in points; matches the vanilla heart row's 9-point rhythm. */
     private static final int ICON = 9;
-    /** The liquid mask's opaque rows (the glass interior), and the clear rows under them. */
-    private static final int LIQUID_ROWS = 4;
-    private static final int ROWS_BELOW_MASK = 2;
+    /**
+     * The liquid mask's opaque rows (the bottle interior) and the clear rows under them, in
+     * the icon's nine-point space. The textures are 18x18 files drawn at nine points, so the
+     * interior spans point rows 3 to 7; UVs are normalized, so the file resolution is free.
+     */
+    private static final int LIQUID_ROWS = 5;
+    private static final int ROWS_BELOW_MASK = 1;
     /** Beyond this many charge slots the row becomes text, or it would cross the screen. */
     private static final int MAX_ICONS = 10;
 
