@@ -33,6 +33,11 @@ public final class IngredientGridHandler implements IItemHandlerModifiable {
         return FlaskRegistry.isFlask(flask) ? flask : ItemStack.EMPTY;
     }
 
+    /** Whether a Flask is in the slot right now; the screen and the slots key off this. */
+    public boolean hasFlask() {
+        return !flask().isEmpty();
+    }
+
     @Override
     public int getSlots() {
         return FlaskStackState.GRID_SIZE;

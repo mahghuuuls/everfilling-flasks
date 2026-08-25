@@ -68,19 +68,25 @@ public final class FlaskScreen extends GuiContainer {
         Gui.drawRect(left + 61, top + 15, left + 115, top + 71, PANEL_GREY);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(BACKGROUND);
-        // The Flask slot's frame, then the six-slot row's frames.
+        // The Flask slot's frame always; the row's frames only while a Flask is in, matching
+        // the slots' own isEnabled gate, so the empty screen shows just the one slot.
         drawTexturedModalRect(left + FlaskContainer.FLASK_SLOT_X - 1,
                 top + FlaskContainer.FLASK_SLOT_Y - 1, FRAME_U, FRAME_V, 18, 18);
-        for (int column = 0; column < FlaskStackState.GRID_SIZE; column++) {
-            drawTexturedModalRect(left + FlaskContainer.GRID_X - 1 + column * 18,
-                    top + FlaskContainer.GRID_Y - 1, FRAME_U, FRAME_V, 18, 18);
+        if (((FlaskContainer) inventorySlots).flaskEquipped()) {
+            for (int column = 0; column < FlaskStackState.GRID_SIZE; column++) {
+                drawTexturedModalRect(left + FlaskContainer.GRID_X - 1 + column * 18,
+                        top + FlaskContainer.GRID_Y - 1, FRAME_U, FRAME_V, 18, 18);
+            }
         }
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRenderer.drawString(I18n.format("everfillingflasks.screen.title"), 8, 6, 0x404040);
-        if (!ClientFlaskState.snapshot().hasFlask()) {
+        // Both gates on purpose: the container's slot content controls what exists (same as
+        // the slots' isEnabled), the state message supplies the numbers to show.
+        if (!((FlaskContainer) inventorySlots).flaskEquipped()
+                || !ClientFlaskState.snapshot().hasFlask()) {
             return;
         }
         int used = ClientFlaskState.potencyUsed();

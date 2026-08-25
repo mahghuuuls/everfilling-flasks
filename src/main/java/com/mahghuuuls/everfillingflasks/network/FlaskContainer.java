@@ -25,11 +25,14 @@ import net.minecraftforge.items.SlotItemHandler;
 public final class FlaskContainer extends Container {
 
     /** Where the Flask slot draws: above the infusion row, aligned with its first slot. */
-    public static final int FLASK_SLOT_X = 62;
+    public static final int FLASK_SLOT_X = 35;
     public static final int FLASK_SLOT_Y = 17;
 
-    /** Where the infusion row's first slot draws; six slots run right from here. */
-    public static final int GRID_X = 62;
+    /**
+     * Where the infusion row's first slot draws; six slots run right from here. 35 centers
+     * the 108-wide row in the 176-wide panel.
+     */
+    public static final int GRID_X = 35;
     public static final int GRID_Y = 39;
 
     private static final int FLASK_SLOT_INDEX = 0;
@@ -40,17 +43,19 @@ public final class FlaskContainer extends Container {
     private static final int SLOT_COUNT = HOTBAR_START + 9;
 
     private final FlaskPlayerData data;
+    private final IngredientGridHandler grid;
 
     public FlaskContainer(InventoryPlayer playerInventory, FlaskPlayerData data) {
         this.data = data;
+        this.grid = new IngredientGridHandler(data);
         addSlotToContainer(new FlaskSlot(playerInventory.player, data.slot(),
                 FLASK_SLOT_X, FLASK_SLOT_Y));
         // The grid slots sit over the stateless handler, so a Flask swap swaps their contents
-        // and no slot ever remembers a departed stack. Plain SlotItemHandler is enough: its
-        // validity and take checks are the handler's simulated insert and extract.
-        IngredientGridHandler grid = new IngredientGridHandler(data);
+        // and no slot ever remembers a departed stack. The handler's simulated insert and
+        // extract are the validity and take checks; isEnabled hides the whole row, visually
+        // and from clicks, while no Flask is equipped.
         for (int column = 0; column < FlaskStackState.GRID_SIZE; column++) {
-            addSlotToContainer(new SlotItemHandler(grid, column,
+            addSlotToContainer(new IngredientSlot(grid, column,
                     GRID_X + column * 18, GRID_Y));
         }
         for (int row = 0; row < 3; row++) {
@@ -118,6 +123,31 @@ public final class FlaskContainer extends Container {
         }
         slot.onTake(player, moved);
         return before;
+    }
+
+    /** Whether a Flask sits in the slot right now; the screen keys its drawing off this. */
+    public boolean flaskEquipped() {
+        return grid.hasFlask();
+    }
+
+    /**
+     * One infusion slot: exists only while a Flask is equipped. Vanilla consults
+     * {@code isEnabled} before drawing, hovering, or clicking a slot, so the empty screen
+     * shows no grid at all; the handler's refusals stay as the server-side guard.
+     */
+    public static final class IngredientSlot extends SlotItemHandler {
+
+        private final IngredientGridHandler grid;
+
+        IngredientSlot(IngredientGridHandler grid, int index, int x, int y) {
+            super(grid, index, x, y);
+            this.grid = grid;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return grid.hasFlask();
+        }
     }
 
     /** The Flask slot: the equip rule, and the diagnostics line, both server-side only. */
