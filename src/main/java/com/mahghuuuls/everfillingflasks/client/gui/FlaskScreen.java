@@ -1,6 +1,7 @@
 package com.mahghuuuls.everfillingflasks.client.gui;
 
 import com.mahghuuuls.everfillingflasks.client.ClientFlaskState;
+import com.mahghuuuls.everfillingflasks.client.journal.JournalBridge;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
 import com.mahghuuuls.everfillingflasks.network.FlaskContainer;
 import net.minecraft.client.gui.Gui;
@@ -53,8 +54,66 @@ public final class FlaskScreen extends GuiContainer {
     private static final int PIP_OVER = 0xFFD03030;
     private static final int TEXT_OVER = 0xB02020;
 
+    /** Under the Flask slot, in the strip the pips never reach (they start at the row's x). */
+    private static final int JOURNAL_X = FlaskContainer.FLASK_SLOT_X - 1;
+    private static final int JOURNAL_Y = PIP_Y - 1;
+    private static final int JOURNAL_ID = 0;
+
     public FlaskScreen(FlaskContainer container) {
         super(container);
+    }
+
+    @Override
+    public void initGui() {
+        super.initGui();
+        buttonList.add(new JournalButton(JOURNAL_ID, guiLeft + JOURNAL_X, guiTop + JOURNAL_Y));
+    }
+
+    @Override
+    protected void actionPerformed(net.minecraft.client.gui.GuiButton button) {
+        if (button.id == JOURNAL_ID) {
+            // Closed properly first. The journal is a screen of its own, and simply displaying
+            // it would leave the server believing this container is still open and would settle
+            // a stack held on the cursor on the client alone.
+            mc.player.closeScreen();
+            JournalBridge.open();
+        }
+    }
+
+    /**
+     * The journal control: the book itself drawn in one of the background texture's slot frames,
+     * so the button matches the screen and still costs no new art. It is always present, because
+     * the journal is reference material rather than something the Flask state gates (REQ-035).
+     */
+    @SideOnly(Side.CLIENT)
+    private static final class JournalButton extends net.minecraft.client.gui.GuiButton {
+
+        private static final int SIZE = 18;
+        private static final int HOVER_TINT = 0x80FFFFFF;
+
+        JournalButton(int id, int x, int y) {
+            super(id, x, y, SIZE, SIZE, "");
+        }
+
+        @Override
+        public void drawButton(net.minecraft.client.Minecraft mc, int mouseX, int mouseY,
+                float partialTicks) {
+            if (!visible) {
+                return;
+            }
+            hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            mc.getTextureManager().bindTexture(BACKGROUND);
+            drawTexturedModalRect(x, y, FRAME_U, FRAME_V, SIZE, SIZE);
+
+            net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting();
+            mc.getRenderItem().renderItemAndEffectIntoGUI(JournalBridge.buttonIcon(), x + 1, y + 1);
+            net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
+
+            if (hovered) {
+                Gui.drawRect(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, HOVER_TINT);
+            }
+        }
     }
 
     @Override
@@ -127,5 +186,17 @@ public final class FlaskScreen extends GuiContainer {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         renderHoveredToolTip(mouseX, mouseY);
+        // The journal button is a plain button, not a slot, so its label is drawn here rather
+        // than by the container's own hover handling.
+        // Not while a stack is being carried, the way vanilla suppresses slot tooltips: the
+        // label would otherwise sit behind the dragged item.
+        if (mc.player.inventory.getItemStack().isEmpty()
+                && mouseX >= guiLeft + JOURNAL_X && mouseX < guiLeft + JOURNAL_X + 18
+                && mouseY >= guiTop + JOURNAL_Y && mouseY < guiTop + JOURNAL_Y + 18) {
+            drawHoveringText(
+                    java.util.Collections.singletonList(
+                            I18n.format("everfillingflasks.journal.button")),
+                    mouseX, mouseY);
+        }
     }
 }

@@ -136,6 +136,53 @@ FlaskHudApi.setRenderer((state, resolution, partialTicks) -> {
   reproduce the default cast bar's "interrupted" flash — it can tell a drink stopped, not
   why. If you need this, ask; it is a candidate for a later snapshot field.
 
+## The journal
+
+Every Flask and every ingredient you register appears in the in-game journal on its own. You
+write no journal file, declare no category, supply no icon, and provide no ordering. Your entry
+is built from the definition you already wrote: its name, its item icon, the values your
+definition returns, its crafting recipe if the recipe registry has one for that item, and the
+name of your mod. Entries are listed alphabetically by the name the player sees.
+
+Two optional methods enrich an entry. Both exist on `FlaskDefinition` and on
+`IngredientDefinition`, both return a language key, and both return `null` by default:
+
+```java
+@Override
+public String journalDescription(ItemStack stack) {
+    return "mymod.journal.emberflask.description";
+}
+
+@Override
+public String journalHint(ItemStack stack) {
+    return "mymod.journal.emberflask.hint";   // "Where to Find"
+}
+```
+
+`journalHint` answers where the content normally comes from, which is a different question from
+how it is crafted; return the truth for your own mod. A pack author can replace your hint, or
+hide it, per registry name in `journal.hintOverrides` in this mod's config, so do not treat your
+hint as final. Return `null` when you have nothing to say: an entry without either is complete.
+
+Return a language key, never finished text, so the journal reads correctly in every language.
+Both methods are called while the journal is built, on the client, and a throw costs your entry
+alone. Escape a literal percent sign in that translation as `%%`, because the line goes through
+Minecraft's own formatter.
+
+One contract note: building the journal also calls your definition's ordinary value methods
+(`maxCharges`, `healPercentage`, `rechargeTicks`, `drinkTicks`, `hitThreshold`, `potency`,
+`potencyCost`, `contribute`) **on the client**, with a bare stack of your item and a viewer that
+may be null during startup. Gameplay still calls them only on the server. Answer for a plain
+stack and do not require a server to be present, or your entry will be the only casualty.
+
+The values shown come from the client's own configuration file. A dedicated server that changes
+its configuration without shipping the same file to its players will have a journal that reads
+the player's file rather than the server's. The HUD and the flask screen are unaffected: those
+show the server's own numbers.
+
+The journal is drawn by Patchouli ROFL Edition, which is a required dependency of this mod. You
+do not depend on Patchouli yourself, and you never call it.
+
 ## Registration timing
 
 Registrations are buffered: calls made before this mod's pre-initialization are applied when

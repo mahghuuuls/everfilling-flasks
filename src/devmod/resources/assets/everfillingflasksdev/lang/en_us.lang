@@ -1,1 +1,4 @@
 item.everfillingflasksdev.mana_flask.name=Mana Flask
+
+everfillingflasksdev.journal.mana.description=A development fixture. It stands in for a third-party flask that ships its own words but no journal code.
+everfillingflasksdev.journal.mana.hint=Nowhere. It is a test item, granted by command.

@@ -1,0 +1,13 @@
+{
+    "name": "everfillingflasks.journal.title",
+    "landing_text": "everfillingflasks.journal.landing",
+    "subtitle": "everfillingflasks.journal.subtitle",
+    "version": "0",
+    "index_icon": "minecraft:book",
+    "dont_generate_book": true,
+    "custom_book_item": "patchouli:guide_book{'patchouli:book':'everfillingflasks:journal'}",
+    "show_progress": false,
+    "show_toasts": false,
+    "pause_game": true,
+    "allow_extensions": true
+}

@@ -1,6 +1,7 @@
 package com.mahghuuuls.everfillingflasks.config;
 
 import com.mahghuuuls.everfillingflasks.item.FlaskTier;
+import com.mahghuuuls.everfillingflasks.journal.JournalHintOverrides;
 import com.mahghuuuls.everfillingflasks.item.IngredientKind;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public final class ConfigSnapshot {
     private final float drinkSlowdown;
     private final boolean diagnostics;
     private final boolean ingredientLoot;
+    private final JournalHintOverrides hintOverrides;
     private final Map<FlaskTier, TierConfig> tiers;
     private final Map<IngredientKind, IngredientConfig> ingredients;
     private final Map<String, Boolean> recipes;
@@ -36,6 +38,7 @@ public final class ConfigSnapshot {
 
     private ConfigSnapshot(String startingFlask, boolean keepFlaskOnDeath, float drinkSlowdown,
                            boolean diagnostics, boolean ingredientLoot,
+                           JournalHintOverrides hintOverrides,
                            Map<FlaskTier, TierConfig> tiers,
                            Map<IngredientKind, IngredientConfig> ingredients,
                            Map<String, Boolean> recipes, List<String> clampWarnings) {
@@ -44,6 +47,7 @@ public final class ConfigSnapshot {
         this.drinkSlowdown = drinkSlowdown;
         this.diagnostics = diagnostics;
         this.ingredientLoot = ingredientLoot;
+        this.hintOverrides = hintOverrides;
         this.tiers = tiers;
         this.ingredients = ingredients;
         this.recipes = recipes;
@@ -86,6 +90,10 @@ public final class ConfigSnapshot {
         recipes.put(FlaskTier.UNCOMMON.key(), FlaskConfig.recipes.uncommon);
         recipes.put(FlaskTier.RARE.key(), FlaskConfig.recipes.rare);
 
+        JournalHintOverrides hintOverrides =
+                JournalHintOverrides.parse(FlaskConfig.journal.hintOverrides);
+        warnings.addAll(hintOverrides.warnings());
+
         return new ConfigSnapshot(
                 FlaskConfig.general.startingFlask == null ? "" : FlaskConfig.general.startingFlask.trim(),
                 FlaskConfig.general.keepFlaskOnDeath,
@@ -93,6 +101,7 @@ public final class ConfigSnapshot {
                         "general.drinkSlowdown", warnings),
                 FlaskConfig.general.diagnostics,
                 FlaskConfig.general.ingredientLoot,
+                hintOverrides,
                 Collections.unmodifiableMap(tiers),
                 Collections.unmodifiableMap(ingredients),
                 Collections.unmodifiableMap(recipes),
@@ -116,6 +125,11 @@ public final class ConfigSnapshot {
     }
 
     /** Whether the built-in ingredients join the vanilla treasure chest loot. */
+    /** A pack author's replacements for journal acquisition hints (REQ-041). */
+    public JournalHintOverrides hintOverrides() {
+        return hintOverrides;
+    }
+
     public boolean ingredientLoot() {
         return ingredientLoot;
     }

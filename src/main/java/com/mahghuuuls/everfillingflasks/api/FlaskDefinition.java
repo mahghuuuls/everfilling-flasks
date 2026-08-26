@@ -106,4 +106,28 @@ public interface FlaskDefinition {
                                                                  EntityPlayer player) {
         return null;
     }
+    // Read on the client as well as the server: the journal asks the value methods above for a
+    // bare stack of the item, and the viewer it passes may be null while the game is starting.
+    // Return a sensible answer for a plain stack and do not require a server there.
+
+    /**
+     * An optional language key for a paragraph about this content, shown at the top of its
+     * journal entry. Null means the entry shows only what the mod can work out on its own,
+     * which is a complete entry already; this is enrichment, never a requirement (REQ-042 of
+     * the journal requirements).
+     */
+    default String journalDescription(ItemStack stack) {
+        return null;
+    }
+
+    /**
+     * An optional language key answering "where is this normally obtained", shown under its own
+     * heading. Separate from any crafting recipe on purpose: a recipe says how it can be made,
+     * this says where it usually comes from, and content can have either, both, or neither. A
+     * pack author can replace or hide it in the config, so return the truth for your own mod and
+     * let packs correct it (REQ-041).
+     */
+    default String journalHint(ItemStack stack) {
+        return null;
+    }
 }

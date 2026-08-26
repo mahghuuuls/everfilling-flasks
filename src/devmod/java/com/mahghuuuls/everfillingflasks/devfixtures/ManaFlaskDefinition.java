@@ -76,6 +76,18 @@ final class ManaFlaskDefinition implements FlaskDefinition {
     }
 
     @Override
+    public String journalDescription(ItemStack stack) {
+        // Proves the optional journal text path: an add-on adds words, and only words.
+        return "everfillingflasksdev.journal.mana.description";
+    }
+
+    @Override
+    public String journalHint(ItemStack stack) {
+        // Proves the "Where to Find" path, and that a pack can override it by registry name.
+        return "everfillingflasksdev.journal.mana.hint";
+    }
+
+    @Override
     public int hudLiquidColor(ItemStack stack, EntityPlayer player) {
         // Mana is blue: proves the per-Flask liquid tint reaches the default HUD.
         return 0x3F7FFF;

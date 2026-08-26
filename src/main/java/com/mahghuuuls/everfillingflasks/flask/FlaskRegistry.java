@@ -49,4 +49,12 @@ public final class FlaskRegistry {
     public static FlaskDefinition definition(ItemStack stack) {
         return stack.isEmpty() ? null : DEFINITIONS.get(stack.getItem());
     }
+
+    /**
+     * Every registration, read-only, for code that presents the whole catalogue rather than
+     * answering about one stack. The journal is the only caller; gameplay always asks per stack.
+     */
+    public static java.util.Map<Item, FlaskDefinition> all() {
+        return java.util.Collections.unmodifiableMap(DEFINITIONS);
+    }
 }

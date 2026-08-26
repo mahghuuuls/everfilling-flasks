@@ -34,6 +34,10 @@ public final class FlaskConfig {
     @Config.Comment("One switch per built-in recipe. false removes that recipe entirely.")
     public static final Recipes recipes = new Recipes();
 
+    @Config.Name("journal")
+    @Config.Comment("The in-game journal. These options change words only, never behaviour.")
+    public static final Journal journal = new Journal();
+
     public static final class General {
 
         @Config.Name("startingFlask")
@@ -159,6 +163,19 @@ public final class FlaskConfig {
             this.cost = cost;
             this.strength = strength;
         }
+    }
+
+    public static final class Journal {
+
+        @Config.Name("hintOverrides")
+        @Config.Comment({
+                "Replace or hide a journal's \"Where to Find\" line, one entry per line.",
+                "everfillingflasks:sunpetal_leaf=Traded by wandering herbalists. replaces it;",
+                "everfillingflasks:sunpetal_leaf= (nothing after the equals sign) hides it.",
+                "Use the item's registry name, never its display name, so the setting survives",
+                "a language change. A name nothing matches is ignored with one log line.",
+                "For packs that change where content comes from."})
+        public String[] hintOverrides = new String[0];
     }
 
     public static final class Recipes {

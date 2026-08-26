@@ -58,6 +58,14 @@ public final class IngredientRegistry {
         return stack.isEmpty() ? null : DEFINITIONS.get(stack.getItem());
     }
 
+    /**
+     * Every registration, read-only, for code that presents the whole catalogue rather than
+     * answering about one stack. The journal is the only caller; gameplay always asks per stack.
+     */
+    public static java.util.Map<Item, IngredientDefinition> all() {
+        return java.util.Collections.unmodifiableMap(DEFINITIONS);
+    }
+
     /** Test seam, like the modifier registry's: static state must not leak between tests. */
     static void clearForTests() {
         DEFINITIONS.clear();

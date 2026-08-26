@@ -19,14 +19,22 @@ import org.apache.logging.log4j.Logger;
  * key, and opens the Flask screen through Inventory Button Bar, which is why that mod is required
  * on both sides even though it does nothing on a server.
  *
+ * <p>Patchouli ROFL Edition carries the in-game journal. It is required rather than optional so a
+ * missing book engine is reported at startup instead of surfacing as a dead button later.
+ *
  * <p>Dependency ranges are minimum-only on purpose: the versions named are the ones this mod was
- * built and tested against, and nothing newer is excluded.
+ * built and tested against, and nothing newer is excluded. Patchouli carries no range at all,
+ * because that fork's version string ("1.0-28") does not order reliably as a Maven range; the
+ * tested file is recorded in the release material instead.
  */
 @Mod(
         modid = Tags.MOD_ID,
         name = Tags.MOD_NAME,
         version = Tags.VERSION,
-        dependencies = "required-after:forge@[14.23.5.2847,);required-after:inventorybuttonbar@[1.0.0,)")
+        dependencies =
+                "required-after:forge@[14.23.5.2847,);"
+                        + "required-after:inventorybuttonbar@[1.0.0,);"
+                        + "required-after:patchouli")
 public class EverfillingFlasksMod {
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);

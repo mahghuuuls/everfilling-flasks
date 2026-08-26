@@ -26,6 +26,18 @@ public final class BuiltinIngredientDefinition implements IngredientDefinition {
         return ConfigSnapshot.current().ingredient(kind).cost();
     }
 
+    /**
+     * Where these herbs come from, and only while they actually come from there: a pack that
+     * turns the loot injection off gets no hint rather than a false one, and can write its own
+     * in the config (REQ-041).
+     */
+    @Override
+    public String journalHint(ItemStack ingredient) {
+        return ConfigSnapshot.current().ingredientLoot()
+                ? "everfillingflasks.journal.hint.chests"
+                : null;
+    }
+
     @Override
     public void contribute(ItemStack ingredient, EntityPlayer player, FlaskBonuses bonuses) {
         float strength = (float) ConfigSnapshot.current().ingredient(kind).strength();
