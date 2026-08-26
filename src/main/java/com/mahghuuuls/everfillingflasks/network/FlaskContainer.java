@@ -1,6 +1,7 @@
 package com.mahghuuuls.everfillingflasks.network;
 
 import com.mahghuuuls.everfillingflasks.diagnostics.Diagnostics;
+import com.mahghuuuls.everfillingflasks.flask.FlaskMechanics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
 import com.mahghuuuls.everfillingflasks.player.FlaskPlayerData;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,13 +29,15 @@ public final class FlaskContainer extends Container {
     public static final int FLASK_SLOT_X = 26;
     public static final int FLASK_SLOT_Y = 28;
 
-    /** Where the infusion row's first slot draws; six slots run right from here. */
+    /** Where the infusion grid's first slot draws; six run right, then a second row under. */
     public static final int GRID_X = 62;
     public static final int GRID_Y = 28;
+    public static final int GRID_COLUMNS = 6;
+    public static final int GRID_STEP = 18;
 
     private static final int FLASK_SLOT_INDEX = 0;
     private static final int GRID_START = 1;
-    private static final int GRID_END = GRID_START + FlaskStackState.GRID_SIZE;
+    private static final int GRID_END = GRID_START + FlaskMechanics.MAX_INFUSION_SLOTS;
     private static final int PLAYER_INVENTORY_START = GRID_END;
     private static final int HOTBAR_START = PLAYER_INVENTORY_START + 27;
     private static final int SLOT_COUNT = HOTBAR_START + 9;
@@ -51,9 +54,10 @@ public final class FlaskContainer extends Container {
         // and no slot ever remembers a departed stack. The handler's simulated insert and
         // extract are the validity and take checks; isEnabled hides the whole row, visually
         // and from clicks, while no Flask is equipped.
-        for (int column = 0; column < FlaskStackState.GRID_SIZE; column++) {
-            addSlotToContainer(new InfusionSlot(grid, column,
-                    GRID_X + column * 18, GRID_Y));
+        for (int index = 0; index < FlaskMechanics.MAX_INFUSION_SLOTS; index++) {
+            addSlotToContainer(new InfusionSlot(grid, index,
+                    GRID_X + (index % GRID_COLUMNS) * GRID_STEP,
+                    GRID_Y + (index / GRID_COLUMNS) * GRID_STEP));
         }
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -127,23 +131,34 @@ public final class FlaskContainer extends Container {
         return grid.hasFlask();
     }
 
+    /** How many infusion slots the equipped Flask has; 0 when none is equipped. */
+    public int activeInfusionSlots() {
+        return grid.activeSlots();
+    }
+
     /**
-     * One infusion slot: exists only while a Flask is equipped. Vanilla consults
-     * {@code isEnabled} before drawing, hovering, or clicking a slot, so the empty screen
-     * shows no grid at all; the handler's refusals stay as the server-side guard.
+     * One infusion slot: exists only while an equipped Flask actually has it. Vanilla consults
+     * {@code isEnabled} before drawing, hovering, or clicking a slot, so the empty screen shows
+     * no grid at all and a small Flask shows only its own; the handler's refusals stay as the
+     * server-side guard.
      */
     public static final class InfusionSlot extends SlotItemHandler {
 
         private final InfusionGridHandler grid;
+        private final int index;
 
         InfusionSlot(InfusionGridHandler grid, int index, int x, int y) {
             super(grid, index, x, y);
             this.grid = grid;
+            this.index = index;
         }
 
         @Override
         public boolean isEnabled() {
-            return grid.hasFlask();
+            // Twelve of these exist because the list is built once; a Flask with fewer slots
+            // simply switches the rest off, which is the same mechanism that hides the whole
+            // grid when no Flask is equipped.
+            return index < grid.activeSlots();
         }
     }
 

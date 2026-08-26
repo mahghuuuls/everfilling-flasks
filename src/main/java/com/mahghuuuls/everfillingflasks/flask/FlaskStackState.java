@@ -25,11 +25,10 @@ public final class FlaskStackState {
     private static final String TAG_SLOT = "slot";
 
     /**
-     * The infusion grid's size: one row of six, the owner's 2026-08-25 revision (a
-     * three-by-three read as a crafting table). Stored slot indexes at or past this are
-     * dropped on read, which retires any dev-world grid piece from the nine-slot days.
+     * What a Flask has unless its own definition says otherwise: one row of six, the owner's
+     * 2026-08-25 shape.
      */
-    public static final int GRID_SIZE = 6;
+    public static final int DEFAULT_GRID_SIZE = 6;
 
     private FlaskStackState() {
     }
@@ -66,11 +65,19 @@ public final class FlaskStackState {
     }
 
     /**
-     * The infusion grid: always {@link #GRID_SIZE} slots, empty stacks for empty slots. A
-     * fresh list every call; mutating it changes nothing until {@link #setInfusions}.
+     * The infusion grid: as many slots as this Flask has, empty stacks for empty slots. A fresh
+     * list every call; mutating it changes nothing until {@link #setInfusions}.
+     *
+     * <p>A stored piece in a slot the Flask no longer has is simply not read, which is how a
+     * Flask whose definition shrank loses only what no longer fits.
      */
     public static NonNullList<ItemStack> infusions(ItemStack stack) {
-        NonNullList<ItemStack> grid = NonNullList.withSize(GRID_SIZE, ItemStack.EMPTY);
+        return infusions(stack, FlaskGrids.slots(stack));
+    }
+
+    /** The same, for callers that already know the count and must not ask twice. */
+    public static NonNullList<ItemStack> infusions(ItemStack stack, int slots) {
+        NonNullList<ItemStack> grid = NonNullList.withSize(slots, ItemStack.EMPTY);
         NBTTagCompound state = read(stack);
         if (state == null || !state.hasKey(TAG_INFUSIONS)) {
             return grid;
@@ -79,7 +86,7 @@ public final class FlaskStackState {
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound entry = list.getCompoundTagAt(i);
             int slot = entry.getByte(TAG_SLOT);
-            if (slot >= 0 && slot < GRID_SIZE) {
+            if (slot >= 0 && slot < slots) {
                 grid.set(slot, new ItemStack(entry));
             }
         }
@@ -89,7 +96,7 @@ public final class FlaskStackState {
     /** Writes the whole grid; only filled slots are stored. Oversized lists are truncated. */
     public static void setInfusions(ItemStack stack, NonNullList<ItemStack> grid) {
         NBTTagList list = new NBTTagList();
-        int limit = Math.min(GRID_SIZE, grid.size());
+        int limit = Math.min(FlaskMechanics.MAX_INFUSION_SLOTS, grid.size());
         for (int i = 0; i < limit; i++) {
             ItemStack piece = grid.get(i);
             if (!piece.isEmpty()) {

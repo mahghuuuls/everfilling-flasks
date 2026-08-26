@@ -47,6 +47,21 @@ public interface FlaskDefinition {
     }
 
     /**
+     * How many infusion slots this Flask has, from 1 to 12. Six by default, which is what every
+     * Flask had before this existed.
+     *
+     * <p>Slots and {@link #potency} are independent on purpose: a Flask may offer many slots and
+     * a small budget, or few slots and a large one, and those are different Flasks to play with.
+     *
+     * <p>The stack alone decides, with no player, because a Flask's stored infusions are read in
+     * places where there is no player to ask. A value outside the range is clamped and reported
+     * once.
+     */
+    default int infusionSlots(ItemStack stack) {
+        return 6;
+    }
+
+    /**
      * Called on the logical server after a drink completes, the charge is spent, and the
      * standard healing is applied. Never called for a cancelled drink. A thrown exception is
      * caught and logged by the core; it cannot corrupt Flask or player state, and it cannot

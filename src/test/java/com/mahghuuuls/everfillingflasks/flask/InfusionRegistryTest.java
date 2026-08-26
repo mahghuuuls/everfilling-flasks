@@ -61,7 +61,7 @@ class InfusionRegistryTest {
     @Test
     void costsSumAcrossPlacedPiecesAndUnregisteredPiecesAreFree() {
         InfusionRegistry.register(Items.SUGAR, new Fixed(2, 0.1F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(4, new ItemStack(Items.SUGAR));
         grid.set(5, new ItemStack(Items.SUGAR));
@@ -74,7 +74,7 @@ class InfusionRegistryTest {
     @Test
     void negativeCostsAreFlooredAtZero() {
         InfusionRegistry.register(Items.SUGAR, new Fixed(-5, 0.0F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
 
         assertEquals(0, InfusionRegistry.usedPotency(grid));
@@ -83,7 +83,7 @@ class InfusionRegistryTest {
     @Test
     void infusionAndPlayerBonusesShareOneAccumulator() {
         InfusionRegistry.register(Items.SUGAR, new Fixed(2, 0.25F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
 
         // A player modifier already contributed 0.5; the infusion's 0.25 must ADD to it.
@@ -106,7 +106,7 @@ class InfusionRegistryTest {
         assertFalse(InfusionRegistry.register(null, new Fixed(1, 0.0F)));
         assertFalse(InfusionRegistry.register(Items.APPLE, null));
 
-        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         assertEquals(1, InfusionRegistry.usedPotency(grid), "the first definition's cost");
         assertTrue(InfusionRegistry.isInfusion(new ItemStack(Items.SUGAR)));
@@ -128,7 +128,7 @@ class InfusionRegistryTest {
             }
         });
         InfusionRegistry.register(Items.APPLE, new Fixed(3, 0.2F));
-        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
+        NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(1, new ItemStack(Items.APPLE));
 

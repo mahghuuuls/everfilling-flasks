@@ -16,7 +16,8 @@ First public release.
   every recipe has a config switch. All heal 33% of maximum health per drink by default.
 - Equipping a flask empties it, so swapping flasks cannot refill charges mid-combat.
 - The infusion grid: six slots on the flask itself with a potency budget of 10. Over-filling
-  makes the flask unusable until pieces are removed.
+  makes the flask unusable until pieces are removed. A flask states its own slot count, from
+  one to twelve, so an add-on can trade slots against budget.
 - Everlasting Seeds, found in dungeon, mineshaft, and village blacksmith chests. They are why
   a flask refills itself, and every flask is built around one.
 - Four flask infusions from the same chests: Sunpetal

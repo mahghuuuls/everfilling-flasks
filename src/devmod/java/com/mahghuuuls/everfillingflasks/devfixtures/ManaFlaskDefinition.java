@@ -37,6 +37,21 @@ final class ManaFlaskDefinition implements FlaskDefinition {
         return 2 + tier(stack);
     }
 
+    /**
+     * Infusion slots from the stack's own NBT ({@code fixture.slots}), so one command can hand
+     * over a Flask with three slots and another with twelve. Zero, the default, means the
+     * definition says nothing and the Flask gets the usual six.
+     */
+    @Override
+    public int infusionSlots(ItemStack stack) {
+        NBTTagCompound tag = stack.getTagCompound();
+        if (tag == null || !tag.hasKey("fixture")) {
+            return 6;
+        }
+        int declared = tag.getCompoundTag("fixture").getInteger("slots");
+        return declared <= 0 ? 6 : declared;
+    }
+
     @Override
     public float healPercentage(ItemStack stack, EntityPlayer player) {
         return 0.0F;

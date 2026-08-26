@@ -41,12 +41,16 @@ public final class FlaskScreen extends GuiContainer {
      * Pip geometry: rows of ten, a new row per ten potency, at most three rows (the owner's
      * bound: display must hold up to 30); above it, numbers take over.
      */
-    private static final int PIP_LIMIT = 30;
     private static final int PIPS_PER_ROW = 10;
     private static final int PIP_SIZE = 7;
     private static final int PIP_STEP = 9;
     private static final int PIP_ROW_STEP = 8;
-    private static final int PIP_Y = 50;
+
+    /** Just under the infusion grid, wherever the grid happens to end. */
+    private static final int PIP_GAP = 4;
+
+    /** The player's own inventory starts here; the pips must stay above it. */
+    private static final int INVENTORY_TOP = 84;
 
     private static final int PIP_BORDER = 0xFF373737;
     private static final int PIP_EMPTY = 0xFF8B8B8B;
@@ -70,9 +74,12 @@ public final class FlaskScreen extends GuiContainer {
     /** The sheet's button is 200 wide; its two ends are drawn to make a short one. */
     private static final int BUTTON_SHEET_W = 200;
 
-    /** Under the Flask slot, in the strip the pips never reach (they start at the row's x). */
+    /**
+     * Under the Flask slot, in the left column. It stays put whatever the grid does, because
+     * the grid and the potency display live to the right of it.
+     */
     private static final int JOURNAL_X = FlaskContainer.FLASK_SLOT_X - 2;
-    private static final int JOURNAL_Y = PIP_Y - 1;
+    private static final int JOURNAL_Y = FlaskContainer.FLASK_SLOT_Y + 21;
     private static final int JOURNAL_ID = 0;
 
     public FlaskScreen(FlaskContainer container) {
@@ -145,11 +152,16 @@ public final class FlaskScreen extends GuiContainer {
         // the slots' own isEnabled gate, so the empty screen shows just the one slot.
         drawTexturedModalRect(left + FlaskContainer.FLASK_SLOT_X - 1,
                 top + FlaskContainer.FLASK_SLOT_Y - 1, FRAME_U, FRAME_V, 18, 18);
-        if (((FlaskContainer) inventorySlots).flaskEquipped()) {
-            for (int column = 0; column < FlaskStackState.GRID_SIZE; column++) {
-                drawTexturedModalRect(left + FlaskContainer.GRID_X - 1 + column * 18,
-                        top + FlaskContainer.GRID_Y - 1, FRAME_U, FRAME_V, 18, 18);
-            }
+        // One frame per slot the equipped Flask actually has, in rows of six, matching the
+        // slots' own enabling so a frame never sits under nothing.
+        int slots = ((FlaskContainer) inventorySlots).activeInfusionSlots();
+        for (int index = 0; index < slots; index++) {
+            drawTexturedModalRect(
+                    left + FlaskContainer.GRID_X - 1
+                            + (index % FlaskContainer.GRID_COLUMNS) * FlaskContainer.GRID_STEP,
+                    top + FlaskContainer.GRID_Y - 1
+                            + (index / FlaskContainer.GRID_COLUMNS) * FlaskContainer.GRID_STEP,
+                    FRAME_U, FRAME_V, 18, 18);
         }
     }
 
@@ -167,11 +179,14 @@ public final class FlaskScreen extends GuiContainer {
         // The server's rule, called on the server's numbers: the screen computes nothing.
         boolean over = com.mahghuuuls.everfillingflasks.flask.FlaskMechanics
                 .overCapacity(used, capacity);
-        if (capacity >= 1 && capacity <= PIP_LIMIT) {
-            drawPips(used, capacity, over);
+        int pipTop = pipTop();
+        int rows = Math.max(1, (INVENTORY_TOP - pipTop - 2) / PIP_ROW_STEP);
+        if (capacity >= 1 && capacity <= rows * PIPS_PER_ROW) {
+            drawPips(used, capacity, over, pipTop);
         } else {
-            // A potency outside the pip range (0, or a pack author's huge value): numbers.
-            fontRenderer.drawString(used + " / " + capacity, FlaskContainer.GRID_X, PIP_Y,
+            // More potency than the space below the grid can show as pips, or none at all:
+            // the numbers say the same thing and always fit.
+            fontRenderer.drawString(used + " / " + capacity, FlaskContainer.GRID_X, pipTop,
                     over ? TEXT_OVER : 0x404040);
         }
         if (over) {
@@ -182,13 +197,24 @@ public final class FlaskScreen extends GuiContainer {
     }
 
     /**
+     * Where the potency display starts: under whatever the grid actually occupies. A Flask with
+     * a second row of slots pushes it down, which is why it is worked out rather than fixed.
+     */
+    private int pipTop() {
+        int slots = ((FlaskContainer) inventorySlots).activeInfusionSlots();
+        int gridRows = Math.max(1,
+                (slots + FlaskContainer.GRID_COLUMNS - 1) / FlaskContainer.GRID_COLUMNS);
+        return FlaskContainer.GRID_Y + gridRows * FlaskContainer.GRID_STEP + PIP_GAP;
+    }
+
+    /**
      * One pip per potency point, in rows of ten; filled per used point; every pip red when
      * over capacity.
      */
-    private void drawPips(int used, int capacity, boolean over) {
+    private void drawPips(int used, int capacity, boolean over, int pipTop) {
         for (int i = 0; i < capacity; i++) {
             int x = FlaskContainer.GRID_X + (i % PIPS_PER_ROW) * PIP_STEP;
-            int y = PIP_Y + (i / PIPS_PER_ROW) * PIP_ROW_STEP;
+            int y = pipTop + (i / PIPS_PER_ROW) * PIP_ROW_STEP;
             int inner = over ? PIP_OVER : i < used ? PIP_FILLED : PIP_EMPTY;
             Gui.drawRect(x, y, x + PIP_SIZE, y + PIP_SIZE, PIP_BORDER);
             Gui.drawRect(x + 1, y + 1, x + PIP_SIZE - 1, y + PIP_SIZE - 1, inner);

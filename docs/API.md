@@ -34,6 +34,12 @@ FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
 - `healPercentage` 0 makes a pure-hook Flask; drinking works at any health.
 - `potency(stack, player)` (default 10) is the infusion budget of your Flask's infusion
   grid; 0 means no infusion fits.
+- `infusionSlots(stack)` (default 6) is how many slots that grid has, from 1 to 12. The stack
+  alone decides, with no player, because a Flask's stored infusions are read where there is no
+  player to ask. A value outside the range is clamped and your definition is named once in the
+  log.
+- Slots and potency are independent, and that is the point: a Flask with ten slots and a budget
+  of six plays differently from one with three slots and a budget of twelve.
 - First registration per item wins. A duplicate is refused with a log line, never an
   exception.
 

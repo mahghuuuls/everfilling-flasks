@@ -20,6 +20,10 @@ public final class FlaskMechanics {
     /** A Flask always has at least one charge slot, whatever the flat modifiers say. */
     public static final int MIN_MAX_CHARGES = 1;
 
+    /** A Flask has at least one infusion slot, and at most the two rows the screen draws. */
+    public static final int MIN_INFUSION_SLOTS = 1;
+    public static final int MAX_INFUSION_SLOTS = 12;
+
     /** Base durations below one tick are treated as one tick (the FlaskDefinition contract). */
     private static final int MIN_BASE_TICKS = 1;
 
@@ -45,6 +49,11 @@ public final class FlaskMechanics {
                         bonuses.drinkSpeedSum()));
         float threshold = baseHitThreshold * multiplier(bonuses.hitResistanceSum());
         return new EffectiveFlask(maxCharges, heal, recharge, drink, threshold);
+    }
+
+    /** A declared slot count brought inside the range the screen can draw. */
+    public static int infusionSlots(int declared) {
+        return Math.max(MIN_INFUSION_SLOTS, Math.min(MAX_INFUSION_SLOTS, declared));
     }
 
     /** {@code 1 + sum}, never below 0. */

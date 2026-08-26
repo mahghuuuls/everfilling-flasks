@@ -3,6 +3,7 @@ package com.mahghuuuls.everfillingflasks.flask;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -75,7 +76,7 @@ class FlaskStackStateTest {
     void theGridRoundTripsThroughNbtWithSlotsPreserved() {
         ItemStack s = stack();
         net.minecraft.util.NonNullList<ItemStack> grid =
-                net.minecraft.util.NonNullList.withSize(FlaskStackState.GRID_SIZE,
+                net.minecraft.util.NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE,
                         ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(4, new ItemStack(Items.BLAZE_POWDER));
@@ -84,7 +85,7 @@ class FlaskStackStateTest {
 
         ItemStack reloaded = new ItemStack(s.serializeNBT());
         net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.infusions(reloaded);
-        assertEquals(FlaskStackState.GRID_SIZE, read.size());
+        assertEquals(FlaskStackState.DEFAULT_GRID_SIZE, read.size());
         assertEquals(Items.SUGAR, read.get(0).getItem());
         assertTrue(read.get(1).isEmpty());
         assertEquals(Items.BLAZE_POWDER, read.get(4).getItem());
@@ -108,7 +109,7 @@ class FlaskStackStateTest {
         s.setTagCompound(tag);
 
         net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.infusions(s);
-        assertEquals(FlaskStackState.GRID_SIZE, read.size());
+        assertEquals(FlaskStackState.DEFAULT_GRID_SIZE, read.size());
         for (ItemStack piece : read) {
             assertTrue(piece.isEmpty());
         }
@@ -117,7 +118,7 @@ class FlaskStackStateTest {
     @Test
     void aStackWithNoGridReadsAsAllEmptySlots() {
         net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.infusions(stack());
-        assertEquals(FlaskStackState.GRID_SIZE, read.size());
+        assertEquals(FlaskStackState.DEFAULT_GRID_SIZE, read.size());
         for (ItemStack piece : read) {
             assertTrue(piece.isEmpty());
         }
@@ -128,7 +129,7 @@ class FlaskStackStateTest {
         // The owner's rule: moving a Flask costs its charges, never its infusions.
         ItemStack s = stack();
         net.minecraft.util.NonNullList<ItemStack> grid =
-                net.minecraft.util.NonNullList.withSize(FlaskStackState.GRID_SIZE,
+                net.minecraft.util.NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE,
                         ItemStack.EMPTY);
         grid.set(3, new ItemStack(Items.SUGAR));
         FlaskStackState.setInfusions(s, grid);
@@ -150,4 +151,31 @@ class FlaskStackStateTest {
         assertEquals(1, s.getTagCompound().getCompoundTag(FlaskStackState.TAG_ROOT)
                 .getInteger(FlaskStackState.TAG_CHARGES));
     }
+    @Test
+    void aFlaskThatShrankKeepsOnlyWhatStillFits() {
+        // A pack changes a Flask's definition, or an add-on ships a smaller Flask than the one
+        // a player already filled. What no longer fits is gone; what fits is untouched.
+        ItemStack flask = new ItemStack(Items.GLASS_BOTTLE);
+        NonNullList<ItemStack> six = NonNullList.withSize(6, ItemStack.EMPTY);
+        for (int i = 0; i < 6; i++) {
+            six.set(i, new ItemStack(Items.WHEAT_SEEDS, 1));
+        }
+        FlaskStackState.setInfusions(flask, six);
+
+        NonNullList<ItemStack> read = FlaskStackState.infusions(flask, 3);
+
+        assertEquals(3, read.size());
+        for (int i = 0; i < 3; i++) {
+            org.junit.jupiter.api.Assertions.assertFalse(read.get(i).isEmpty(),
+                    "slot " + i + " still fits and must survive");
+        }
+    }
+
+    @Test
+    void aGridIsReadAtTheSizeItIsAskedFor() {
+        ItemStack flask = new ItemStack(Items.GLASS_BOTTLE);
+        assertEquals(12, FlaskStackState.infusions(flask, 12).size());
+        assertEquals(1, FlaskStackState.infusions(flask, 1).size());
+    }
+
 }

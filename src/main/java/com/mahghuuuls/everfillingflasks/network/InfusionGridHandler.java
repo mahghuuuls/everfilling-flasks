@@ -1,5 +1,7 @@
 package com.mahghuuuls.everfillingflasks.network;
 
+import com.mahghuuuls.everfillingflasks.flask.FlaskGrids;
+import com.mahghuuuls.everfillingflasks.flask.FlaskMechanics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
 import com.mahghuuuls.everfillingflasks.flask.InfusionRegistry;
@@ -40,13 +42,24 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
 
     @Override
     public int getSlots() {
-        return FlaskStackState.GRID_SIZE;
+        // Fixed, because a container's slot list is built once and cannot grow. The Flask's own
+        // count decides which of them accept anything; the rest simply refuse.
+        return FlaskMechanics.MAX_INFUSION_SLOTS;
+    }
+
+    /** How many of those slots the equipped Flask actually has. */
+    public int activeSlots() {
+        ItemStack flask = flask();
+        return flask.isEmpty() ? 0 : FlaskGrids.slots(flask);
     }
 
     @Override
     public ItemStack getStackInSlot(int slot) {
         ItemStack flask = flask();
-        return flask.isEmpty() ? ItemStack.EMPTY : FlaskStackState.infusions(flask).get(slot);
+        if (flask.isEmpty() || slot >= FlaskGrids.slots(flask)) {
+            return ItemStack.EMPTY;
+        }
+        return FlaskStackState.infusions(flask).get(slot);
     }
 
     @Override
@@ -55,7 +68,8 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
             return ItemStack.EMPTY;
         }
         ItemStack flask = flask();
-        if (flask.isEmpty() || !InfusionRegistry.isInfusion(stack)) {
+        if (flask.isEmpty() || slot >= FlaskGrids.slots(flask)
+                || !InfusionRegistry.isInfusion(stack)) {
             return stack;
         }
         NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
