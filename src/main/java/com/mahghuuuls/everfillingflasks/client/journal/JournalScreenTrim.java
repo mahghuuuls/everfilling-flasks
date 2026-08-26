@@ -8,7 +8,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import vazkii.patchouli.client.book.gui.GuiBook;
 import vazkii.patchouli.client.book.gui.button.GuiButtonBookConfig;
-import vazkii.patchouli.client.book.gui.button.GuiButtonCategory;
 import vazkii.patchouli.client.book.gui.button.GuiButtonBookEdit;
 import vazkii.patchouli.client.book.gui.button.GuiButtonBookHistory;
 import vazkii.patchouli.client.book.gui.button.GuiButtonIndex;
@@ -46,13 +45,6 @@ public final class JournalScreenTrim {
             while (buttons.hasNext()) {
                 if (isExtra(buttons.next())) {
                     buttons.remove();
-                }
-            }
-            // With the front page's words gone, its left half is empty and the section icons
-            // sit alone on the right. Moved across so they sit where the eye lands first.
-            for (GuiButton button : event.getButtonList()) {
-                if (button instanceof GuiButtonCategory) {
-                    button.x -= GuiBook.RIGHT_PAGE_X - GuiBook.LEFT_PAGE_X;
                 }
             }
         } catch (Throwable failure) {

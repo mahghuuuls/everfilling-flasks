@@ -34,11 +34,11 @@ everfillingflasks.screen.overCapacity=Over capacity!
 everfillingflasks.journal.button=Flask Journal
 everfillingflasks.journal.title=Everfilling Flasks
 everfillingflasks.journal.subtitle=
-everfillingflasks.journal.landing=
+everfillingflasks.journal.landing=Some vessels never run dry. What follows is what is known of them, and of what can be steeped inside.
 everfillingflasks.journal.section.flasks=Flasks
-everfillingflasks.journal.section.flasks.description=A flask rides in its own slot and fills itself back up over time. Hold the drink key to take a swig; a solid hit will spoil it.
+everfillingflasks.journal.section.flasks.description=Vessels built around Everlasting Seeds. A flask holding them fills itself back up, and what it pours depends on the vessel.
 everfillingflasks.journal.section.infusions=Infusions
-everfillingflasks.journal.section.infusions.description=Infusions are steeped into a flask to change what it does for you. Each one takes up some of the flask potency, and a flask only has so much.
+everfillingflasks.journal.section.infusions.description=Materials that steep with the seeds and change the draught a flask produces. Each takes up some of the flask potency, and a flask only holds so much.
 
 everfillingflasks.journal.text.chests=These herbs grow wild, and people who gather them leave stashes behind. Look in dungeon chests, abandoned mineshafts, and village blacksmiths.
 everfillingflasks.tooltip.potency=Max potency: %d
