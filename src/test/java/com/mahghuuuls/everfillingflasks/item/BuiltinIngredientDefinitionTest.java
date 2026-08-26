@@ -1,10 +1,13 @@
 package com.mahghuuuls.everfillingflasks.item;
 
 import com.mahghuuuls.everfillingflasks.api.FlaskBonuses;
+import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
+import com.mahghuuuls.everfillingflasks.config.FlaskConfig;
 import net.minecraft.item.ItemStack;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Each built-in ingredient's registered cost and contribution, at the config defaults, which
@@ -76,5 +79,28 @@ class BuiltinIngredientDefinitionTest {
             shard.contribute(ItemStack.EMPTY, null, bonuses);
         }
         assertEquals(0.50F, bonuses.healingSum(), 1.0E-5F);
+    }
+
+    @Test
+    void theChestHintIsOfferedOnlyWhileTheHerbsComeFromChests() {
+        // A hint must not outlive the behaviour it describes: a pack that takes the herbs out
+        // of world loot would otherwise ship a journal sending players to chests that no longer
+        // hold them.
+        boolean original = FlaskConfig.general.ingredientLoot;
+        try {
+            FlaskConfig.general.ingredientLoot = true;
+            ConfigSnapshot.refresh();
+            assertEquals("everfillingflasks.journal.hint.chests",
+                    new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF)
+                            .journalHint(ItemStack.EMPTY));
+
+            FlaskConfig.general.ingredientLoot = false;
+            ConfigSnapshot.refresh();
+            assertNull(new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF)
+                    .journalHint(ItemStack.EMPTY));
+        } finally {
+            FlaskConfig.general.ingredientLoot = original;
+            ConfigSnapshot.refresh();
+        }
     }
 }
