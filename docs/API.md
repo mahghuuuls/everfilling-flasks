@@ -37,7 +37,9 @@ FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
 - `infusionSlots(stack)` (default 6) is how many slots that grid has, from 1 to 12. The stack
   alone decides, with no player, because a Flask's stored infusions are read where there is no
   player to ask. A value outside the range is clamped and your definition is named once in the
-  log.
+  log. Answer from the stack and nothing else: each side works the count out for itself, so a
+  count that depends on world state or a server-only setting draws a grid on one side the other
+  refuses. Never read the stack's own infusions from it — that read asks this method back.
 - Slots and potency are independent, and that is the point: a Flask with ten slots and a budget
   of six plays differently from one with three slots and a budget of twelve.
 - First registration per item wins. A duplicate is refused with a log line, never an

@@ -68,8 +68,8 @@ public final class FlaskStackState {
      * The infusion grid: as many slots as this Flask has, empty stacks for empty slots. A fresh
      * list every call; mutating it changes nothing until {@link #setInfusions}.
      *
-     * <p>A stored piece in a slot the Flask no longer has is simply not read, which is how a
-     * Flask whose definition shrank loses only what no longer fits.
+     * <p>A stored piece in a slot the Flask no longer has is simply not read. It is not deleted
+     * either: see {@link #setInfusions}.
      */
     public static NonNullList<ItemStack> infusions(ItemStack stack) {
         return infusions(stack, FlaskGrids.slots(stack));
@@ -93,10 +93,17 @@ public final class FlaskStackState {
         return grid;
     }
 
-    /** Writes the whole grid; only filled slots are stored. Oversized lists are truncated. */
+    /**
+     * Writes the slots this grid covers; only filled ones are stored.
+     *
+     * <p>Anything already stored beyond the grid handed in is left exactly as it was. A Flask
+     * whose definition shrank stops showing the pieces that no longer fit, and this is what
+     * stops the next click on any other slot from destroying them: they are out of sight, not
+     * thrown away, and a Flask that grows back shows them again.
+     */
     public static void setInfusions(ItemStack stack, NonNullList<ItemStack> grid) {
-        NBTTagList list = new NBTTagList();
         int limit = Math.min(FlaskMechanics.MAX_INFUSION_SLOTS, grid.size());
+        NBTTagList list = keptBeyond(stack, limit);
         for (int i = 0; i < limit; i++) {
             ItemStack piece = grid.get(i);
             if (!piece.isEmpty()) {
@@ -107,6 +114,24 @@ public final class FlaskStackState {
             }
         }
         write(stack).setTag(TAG_INFUSIONS, list);
+    }
+
+    /** The stored entries this write does not cover, carried over untouched. */
+    private static NBTTagList keptBeyond(ItemStack stack, int limit) {
+        NBTTagList kept = new NBTTagList();
+        NBTTagCompound state = read(stack);
+        if (state == null || !state.hasKey(TAG_INFUSIONS)) {
+            return kept;
+        }
+        NBTTagList stored = state.getTagList(TAG_INFUSIONS, 10);
+        for (int i = 0; i < stored.tagCount(); i++) {
+            NBTTagCompound entry = stored.getCompoundTagAt(i);
+            int slot = entry.getByte(TAG_SLOT);
+            if (slot >= limit && slot < FlaskMechanics.MAX_INFUSION_SLOTS) {
+                kept.appendTag(entry.copy());
+            }
+        }
+        return kept;
     }
 
     /** Used only by the starting-Flask grant, which is the one full-by-creation path. */

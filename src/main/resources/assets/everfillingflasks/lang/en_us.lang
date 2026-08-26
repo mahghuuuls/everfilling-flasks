@@ -49,3 +49,4 @@ everfillingflasks.tooltip.inhibited=Does not recharge while Inhibited
 item.everfillingflasks.everlasting_seed.name=Everlasting Seed
 everfillingflasks.tooltip.seed.header=Everlasting
 everfillingflasks.tooltip.seed.use=A flask built around these never runs dry
+everfillingflasks.tooltip.seed.found=Left behind in dungeon chests, abandoned mineshafts, and village blacksmiths

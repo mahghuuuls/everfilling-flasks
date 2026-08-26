@@ -49,8 +49,9 @@ public final class InfusionLootInjector {
             return;
         }
         LootEntry[] entries = new LootEntry[]{
-                // The seed comes first and weighs most: a player needs one before any of this
-                // matters, so finding one is the start of the whole thing.
+                // The seed outweighs any single infusion: a player needs one before the rest of
+                // this matters. It does not outweigh the chance of nothing at all, which is what
+                // keeps a seed something a player is pleased to find.
                 seed(40),
                 herb(InfusionKind.SUNPETAL_LEAF, 30),
                 herb(InfusionKind.IRONROOT_SPRIG, 30),

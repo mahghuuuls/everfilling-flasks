@@ -53,13 +53,25 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
         return flask.isEmpty() ? 0 : FlaskGrids.slots(flask);
     }
 
+    /**
+     * Twelve slots exist and a Flask may have fewer, so every entry point asks once how many
+     * this Flask has and refuses anything past it. Asking once matters as much as refusing: the
+     * count comes from a third-party definition, and a definition that answered differently
+     * between two calls in the same operation could otherwise send an index past the end of the
+     * list it was checked against.
+     */
+    private int slots(ItemStack flask) {
+        return flask.isEmpty() ? 0 : FlaskGrids.slots(flask);
+    }
+
     @Override
     public ItemStack getStackInSlot(int slot) {
         ItemStack flask = flask();
-        if (flask.isEmpty() || slot >= FlaskGrids.slots(flask)) {
+        int slots = slots(flask);
+        if (slot < 0 || slot >= slots) {
             return ItemStack.EMPTY;
         }
-        return FlaskStackState.infusions(flask).get(slot);
+        return FlaskStackState.infusions(flask, slots).get(slot);
     }
 
     @Override
@@ -68,11 +80,11 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
             return ItemStack.EMPTY;
         }
         ItemStack flask = flask();
-        if (flask.isEmpty() || slot >= FlaskGrids.slots(flask)
-                || !InfusionRegistry.isInfusion(stack)) {
+        int slots = slots(flask);
+        if (slot < 0 || slot >= slots || !InfusionRegistry.isInfusion(stack)) {
             return stack;
         }
-        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
+        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask, slots);
         if (!grid.get(slot).isEmpty()) {
             return stack;
         }
@@ -92,10 +104,11 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
             return ItemStack.EMPTY;
         }
         ItemStack flask = flask();
-        if (flask.isEmpty()) {
+        int slots = slots(flask);
+        if (slot < 0 || slot >= slots) {
             return ItemStack.EMPTY;
         }
-        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
+        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask, slots);
         ItemStack piece = grid.get(slot);
         if (piece.isEmpty()) {
             return ItemStack.EMPTY;
@@ -113,12 +126,14 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
         // The container's putStack path: validity was already checked by the slot's simulated
         // insert, and the client's screen synchronization mirrors the server unchecked.
         ItemStack flask = flask();
-        if (flask.isEmpty()) {
-            // The Flask departed between the click and this write; there is nowhere honest to
-            // put the item, and dropping the write is what keeps a departed stack untouched.
+        int slots = slots(flask);
+        if (slot < 0 || slot >= slots) {
+            // Either the Flask departed between the click and this write, or this is one of the
+            // slots the Flask does not have. Vanilla writes every slot of a container without
+            // consulting whether it is enabled, so this path must refuse rather than trust it.
             return;
         }
-        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
+        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask, slots);
         if (stack.isEmpty()) {
             grid.set(slot, ItemStack.EMPTY);
         } else {

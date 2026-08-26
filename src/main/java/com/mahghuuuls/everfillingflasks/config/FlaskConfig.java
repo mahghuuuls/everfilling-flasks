@@ -62,8 +62,10 @@ public final class FlaskConfig {
 
         @Config.Name("infusionLoot")
         @Config.Comment({
-                "Add Flask Infusions to dungeon, mineshaft, and village blacksmith chests.",
-                "false removes them from world loot entirely."})
+                "Add Everlasting Seeds and Flask Infusions to dungeon, mineshaft, and village",
+                "blacksmith chests. false removes them from world loot entirely, which also makes",
+                "every Flask uncraftable in survival: the Humble Flask needs a seed, and each",
+                "other tier is crafted from the one below it."})
         public boolean infusionLoot = true;
 
         @Config.Name("diagnostics")

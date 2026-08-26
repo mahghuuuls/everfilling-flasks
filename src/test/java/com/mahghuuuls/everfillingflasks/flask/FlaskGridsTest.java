@@ -63,4 +63,35 @@ class FlaskGridsTest {
 
         assertEquals(FlaskStackState.DEFAULT_GRID_SIZE, FlaskGrids.slots(new ItemStack(item)));
     }
+    @Test
+    @DisplayName("what a definition actually asks for is what its Flask gets")
+    void aDefinitionsOwnCountIsUsed() {
+        assertEquals(3, slotsFor(3));
+        assertEquals(12, slotsFor(12));
+        assertEquals(1, slotsFor(1));
+    }
+
+    @Test
+    @DisplayName("a definition asking for far too many is brought back to the ceiling")
+    void anOverAskingDefinitionIsClamped() {
+        // The clamp is tested on its own elsewhere; this proves the resolver actually applies
+        // it, which a resolver that forgot to call it would still pass without.
+        assertEquals(12, slotsFor(99));
+        assertEquals(1, slotsFor(0));
+    }
+
+    private static int slotsFor(final int declared) {
+        Item item = new Item();
+        item.setRegistryName("everfillingflaskstest", "slots_" + declared);
+        FlaskRegistry.register(item, new FlaskDefinition() {
+            @Override public int maxCharges(ItemStack stack, EntityPlayer player) { return 1; }
+            @Override public float healPercentage(ItemStack stack, EntityPlayer player) { return 0.1F; }
+            @Override public int rechargeTicks(ItemStack stack, EntityPlayer player) { return 20; }
+            @Override public int drinkTicks(ItemStack stack, EntityPlayer player) { return 20; }
+            @Override public float hitThreshold(ItemStack stack, EntityPlayer player) { return 1.0F; }
+            @Override public int infusionSlots(ItemStack stack) { return declared; }
+        });
+        return FlaskGrids.slots(new ItemStack(item));
+    }
+
 }

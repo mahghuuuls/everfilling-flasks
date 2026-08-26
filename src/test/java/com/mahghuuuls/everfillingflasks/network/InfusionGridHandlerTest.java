@@ -19,8 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The grid window's rebinding discipline: every call resolves the Flask in the slot right
- * then, so writes land on the live instance, a swap swaps the visible grid, and no Flask
- * means nine refusing slots.
+ * then, so writes land on the live instance, a swap swaps the visible grid, and no Flask means
+ * twelve refusing slots. Also the bounds: twelve slots exist, a Flask may have fewer, and the
+ * ones it does not have must refuse rather than throw.
  */
 class InfusionGridHandlerTest {
 
@@ -209,4 +210,60 @@ class InfusionGridHandlerTest {
             throw new IllegalStateException(failure);
         }
     }
+    @Test
+    void everySlotBeyondTheFlasksOwnCountRefusesInsteadOfThrowing() {
+        // Twelve slots exist because a container's slot list is built once; a six-slot Flask
+        // has to refuse the rest. Vanilla writes and reads every slot of a container without
+        // asking whether it is enabled, so a slot that throws here takes the game down: the
+        // client dies on the window-items packet, the server dies on a shift-click.
+        data.slot().insertItem(0, new ItemStack(Items.GLASS_BOTTLE), false);
+
+        assertEquals(12, handler.getSlots());
+        assertEquals(6, handler.activeSlots());
+
+        for (int slot = 6; slot < 12; slot++) {
+            assertTrue(handler.getStackInSlot(slot).isEmpty(), "slot " + slot + " reads empty");
+            assertEquals(1, handler.insertItem(slot, new ItemStack(Items.SUGAR), false).getCount(),
+                    "slot " + slot + " refuses an infusion");
+            assertTrue(handler.extractItem(slot, 1, false).isEmpty(),
+                    "slot " + slot + " extracts nothing");
+            handler.setStackInSlot(slot, new ItemStack(Items.SUGAR));
+            handler.setStackInSlot(slot, ItemStack.EMPTY);
+        }
+    }
+
+    @Test
+    void aNegativeSlotIsRefusedRatherThanTrusted() {
+        data.slot().insertItem(0, new ItemStack(Items.GLASS_BOTTLE), false);
+
+        assertTrue(handler.getStackInSlot(-1).isEmpty());
+        assertTrue(handler.extractItem(-1, 1, false).isEmpty());
+        handler.setStackInSlot(-1, new ItemStack(Items.SUGAR));
+    }
+
+    @Test
+    void aPieceOutOfSightIsNotAPieceDestroyed() {
+        // A Flask that shrank hides what no longer fits. Writing any slot it still has must not
+        // take the hidden pieces with it, or a pack update would quietly eat a player's
+        // infusions the first time they touched the grid.
+        ItemStack flask = new ItemStack(Items.GLASS_BOTTLE);
+        net.minecraft.util.NonNullList<ItemStack> twelve =
+                net.minecraft.util.NonNullList.withSize(12, ItemStack.EMPTY);
+        for (int i = 0; i < 12; i++) {
+            twelve.set(i, new ItemStack(Items.SUGAR));
+        }
+        FlaskStackState.setInfusions(flask, twelve);
+
+        // The Flask is a plain six-slot one, so a write covers only the first six.
+        net.minecraft.util.NonNullList<ItemStack> six = FlaskStackState.infusions(flask, 6);
+        six.set(0, ItemStack.EMPTY);
+        FlaskStackState.setInfusions(flask, six);
+
+        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.infusions(flask, 12);
+        assertTrue(read.get(0).isEmpty(), "the slot actually written is empty");
+        for (int i = 6; i < 12; i++) {
+            assertFalse(read.get(i).isEmpty(), "hidden slot " + i + " survives the write");
+        }
+    }
+
 }

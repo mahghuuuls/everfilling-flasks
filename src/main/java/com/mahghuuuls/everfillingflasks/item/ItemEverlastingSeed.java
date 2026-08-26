@@ -1,5 +1,6 @@
 package com.mahghuuuls.everfillingflasks.item;
 
+import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
@@ -35,5 +36,12 @@ public final class ItemEverlastingSeed extends Item {
         tooltip.add(net.minecraft.util.text.TextFormatting.GREEN
                 + I18n.format("everfillingflasks.tooltip.seed.header"));
         tooltip.add(I18n.format("everfillingflasks.tooltip.seed.use"));
+        // Where it comes from, on the item itself. The seed is neither a Flask nor an infusion,
+        // so the journal has no page for it, and it is the one thing a player must find before
+        // any of this mod can start. Only while it is actually in world loot: a pack that turns
+        // that off will have put it somewhere else, and this would be a lie.
+        if (ConfigSnapshot.current().infusionLoot()) {
+            tooltip.add(I18n.format("everfillingflasks.tooltip.seed.found"));
+        }
     }
 }

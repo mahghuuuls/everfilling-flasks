@@ -56,6 +56,12 @@ public interface FlaskDefinition {
      * <p>The stack alone decides, with no player, because a Flask's stored infusions are read in
      * places where there is no player to ask. A value outside the range is clamped and reported
      * once.
+     *
+     * <p>Answer from the stack and nothing else. The server and the client each work the count
+     * out for themselves, so a count that depends on world state, on a server-only setting, or
+     * on anything else the two sides can disagree about will draw a grid on one side that the
+     * other refuses. Never read the stack's own infusions here either: that reading asks this
+     * method, and the two would call each other until the game ran out of stack.
      */
     default int infusionSlots(ItemStack stack) {
         return 6;

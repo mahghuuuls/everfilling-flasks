@@ -36,7 +36,7 @@ public final class FlaskGrids {
         int declared;
         try {
             declared = definition.infusionSlots(flask);
-        } catch (Throwable failure) {
+        } catch (Exception failure) {
             report(definition, "threw when asked for its infusion slot count", failure);
             return FlaskStackState.DEFAULT_GRID_SIZE;
         }
