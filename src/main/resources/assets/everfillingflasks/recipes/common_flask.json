@@ -10,8 +10,7 @@
         { "item": "minecraft:glass_bottle" },
         { "item": "minecraft:leather" },
         { "item": "minecraft:string" },
-        { "item": "minecraft:speckled_melon" },
-        { "item": "minecraft:golden_apple", "data": 0 }
+        { "item": "everfillingflasks:everlasting_seed" }
     ],
     "result": {
         "item": "everfillingflasks:common_flask"

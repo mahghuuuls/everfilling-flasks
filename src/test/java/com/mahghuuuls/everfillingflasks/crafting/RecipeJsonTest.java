@@ -55,7 +55,7 @@ class RecipeJsonTest {
 
     @Test
     void everyFlaskRecipeParsesWithItsSwitchAndAnEmptyOutput() {
-        checkFlaskRecipe("common", 5);
+        checkFlaskRecipe("common", 4);
         checkFlaskRecipe("uncommon", 4);
         checkFlaskRecipe("rare", 4);
     }
@@ -66,4 +66,29 @@ class RecipeJsonTest {
         assertEquals(RecipeEnabledCondition.class.getName(),
                 factories.getAsJsonObject("conditions").get("recipe_enabled").getAsString());
     }
+    @Test
+    void theHumbleFlaskIsBuiltOnAnEverlastingSeed() {
+        // The seed is the whole fiction: a Flask refills itself because of what is inside it.
+        // A recipe that quietly lost the seed would leave the story without its cause.
+        JsonObject recipe = load("common_flask.json");
+        boolean hasSeed = false;
+        for (int i = 0; i < recipe.getAsJsonArray("ingredients").size(); i++) {
+            String item = recipe.getAsJsonArray("ingredients").get(i).getAsJsonObject()
+                    .get("item").getAsString();
+            if ("everfillingflasks:everlasting_seed".equals(item)) {
+                hasSeed = true;
+            }
+        }
+        org.junit.jupiter.api.Assertions.assertTrue(hasSeed,
+                "the Humble Flask recipe must contain an Everlasting Seed");
+    }
+
+    @Test
+    void noSeedRecipeFileExists() {
+        // Seeds are found, never made (REQ-044).
+        org.junit.jupiter.api.Assertions.assertNull(RecipeJsonTest.class.getClassLoader()
+                        .getResource("assets/everfillingflasks/recipes/everlasting_seed.json"),
+                "the Everlasting Seed must have no recipe");
+    }
+
 }

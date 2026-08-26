@@ -40,8 +40,9 @@ One file, `config/everfillingflasks.cfg`, read at game start:
   recharge, and infusion effects. Clients only display.
 - Equipping a flask empties it. Charges are only earned while it sits in the slot, so swapping
   flasks mid-combat cannot refill anything.
-- Infusions come from dungeon, mineshaft, and village blacksmith chests
-  (`general.infusionLoot` turns that off). They are not craftable.
+- Everlasting Seeds and infusions come from dungeon, mineshaft, and village blacksmith chests
+  (`general.infusionLoot` turns that off). Neither is craftable; the seed is what a flask is
+  built around.
 - The journal builds itself from the registries on the client, so its numbers follow the config
   and its recipes follow the recipe registry. Nothing in it is duplicated data to maintain.
 - Add-ons can register their own flasks, infusions, modifier bonuses, and HUD through

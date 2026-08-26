@@ -46,3 +46,6 @@ everfillingflasks.tooltip.threshold=Damage threshold: %s
 everfillingflasks.tooltip.useTime=Use time: %s seconds
 everfillingflasks.tooltip.recharge=Recharge time: %s seconds
 everfillingflasks.tooltip.inhibited=Does not recharge while Inhibited
+item.everfillingflasks.everlasting_seed.name=Everlasting Seed
+everfillingflasks.tooltip.seed.header=Everlasting
+everfillingflasks.tooltip.seed.use=A flask built around these never runs dry

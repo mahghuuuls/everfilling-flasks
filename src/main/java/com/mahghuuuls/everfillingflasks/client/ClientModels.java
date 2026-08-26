@@ -29,5 +29,7 @@ public final class ClientModels {
                     new ModelResourceLocation(
                             ModItems.infusion(kind).getRegistryName(), "inventory"));
         }
+        ModelLoader.setCustomModelResourceLocation(ModItems.seed(), 0,
+                new ModelResourceLocation(ModItems.seed().getRegistryName(), "inventory"));
     }
 }

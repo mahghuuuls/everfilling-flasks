@@ -49,6 +49,9 @@ public final class InfusionLootInjector {
             return;
         }
         LootEntry[] entries = new LootEntry[]{
+                // The seed comes first and weighs most: a player needs one before any of this
+                // matters, so finding one is the start of the whole thing.
+                seed(40),
                 herb(InfusionKind.SUNPETAL_LEAF, 30),
                 herb(InfusionKind.IRONROOT_SPRIG, 30),
                 herb(InfusionKind.QUICKMINT_LEAF, 30),
@@ -59,6 +62,13 @@ public final class InfusionLootInjector {
         event.getTable().addPool(new LootPool(entries, new LootCondition[0],
                 new RandomValueRange(1.0F), new RandomValueRange(0.0F),
                 Tags.MOD_ID + "_infusions"));
+    }
+
+    private static LootEntryItem seed(int weight) {
+        return new LootEntryItem(ModItems.seed(), weight, 0,
+                new LootFunction[]{new SetCount(new LootCondition[0],
+                        new RandomValueRange(1.0F, 2.0F))},
+                new LootCondition[0], Tags.MOD_ID + ":everlasting_seed");
     }
 
     private static LootEntryItem herb(InfusionKind kind, int weight) {

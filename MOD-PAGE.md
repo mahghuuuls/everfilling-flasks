@@ -4,8 +4,8 @@ the drink, so healing mid-fight is a real decision, not a pause screen.
 
 <span style="color:#d6a100">**AI usage disclaimer:** This mod was developed with AI-agent assistance using [this agent workflow](https://github.com/mahghuuuls/minecraft-1.12.2-mod-agent-workflow). The project owner reviewed the work during development.</span>
 
-**Three flasks to earn.** Craft your way from the Humble Flask up to the Radiant Flask — more
-charges each step, every number configurable.
+**Three flasks to earn.** Find Everlasting Seeds in the world and build your first flask around one, then work up from
+the Humble Flask to the Radiant — more charges each step, every number configurable.
 
 **Hold to drink, risk to heal.** Drinking takes time, slows you down, and a solid hit cancels
 it. A centered cast bar shows your progress and flashes red when you are interrupted.

@@ -15,8 +15,9 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * The four built-in Flask items: their registration, their creative tab, and their Flask
- * definitions. Items are created once at registry time and looked up by tier afterwards.
+ * Every item this mod adds: the three Flasks with their definitions, the four infusions with
+ * theirs, and the Everlasting Seed. Items are created once at registry time and looked up
+ * afterwards.
  */
 @Mod.EventBusSubscriber(modid = Tags.MOD_ID)
 public final class ModItems {
@@ -25,6 +26,8 @@ public final class ModItems {
             new EnumMap<FlaskTier, ItemFlask>(FlaskTier.class);
     private static final Map<InfusionKind, ItemInfusion> INFUSIONS =
             new EnumMap<InfusionKind, ItemInfusion>(InfusionKind.class);
+
+    private static ItemEverlastingSeed seed;
 
     public static final CreativeTabs TAB = new CreativeTabs(Tags.MOD_ID) {
         @SideOnly(Side.CLIENT)
@@ -56,6 +59,15 @@ public final class ModItems {
             com.mahghuuuls.everfillingflasks.flask.InfusionRegistry.register(item,
                     new BuiltinInfusionDefinition(kind));
         }
+
+        seed = new ItemEverlastingSeed();
+        seed.setCreativeTab(TAB);
+        event.getRegistry().register(seed);
+    }
+
+    /** The seed every Flask is built around. */
+    public static ItemEverlastingSeed seed() {
+        return seed;
     }
 
     public static ItemFlask flask(FlaskTier tier) {

@@ -17,7 +17,9 @@ First public release.
 - Equipping a flask empties it, so swapping flasks cannot refill charges mid-combat.
 - The infusion grid: six slots on the flask itself with a potency budget of 10. Over-filling
   makes the flask unusable until pieces are removed.
-- Four flask infusions found in dungeon, mineshaft, and village blacksmith chests: Sunpetal
+- Everlasting Seeds, found in dungeon, mineshaft, and village blacksmith chests. They are why
+  a flask refills itself, and every flask is built around one.
+- Four flask infusions from the same chests: Sunpetal
   Leaf (+10% healing), Ironroot Sprig (+40% hit threshold), Quickmint Leaf (+20% drink speed),
   Second Wind Petal (regeneration after each completed drink). Chest loot can be turned off in
   the config.
