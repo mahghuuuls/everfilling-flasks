@@ -6,7 +6,7 @@ import com.mahghuuuls.everfillingflasks.flask.EffectiveFlask;
 import com.mahghuuuls.everfillingflasks.flask.FlaskMechanics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
-import com.mahghuuuls.everfillingflasks.flask.IngredientRegistry;
+import com.mahghuuuls.everfillingflasks.flask.InfusionRegistry;
 import com.mahghuuuls.everfillingflasks.flask.ModifierRegistry;
 import com.mahghuuuls.everfillingflasks.integration.InhibitedCompat;
 import com.mahghuuuls.everfillingflasks.network.FlaskStateMessage;
@@ -224,10 +224,10 @@ public final class DrinkController {
         Diagnostics.drinkCompleted(player, charges - 1, effective.maxCharges(), heal);
         completionFeedback(player, flask);
         runCompletionHook(player, flask);
-        // After the Flask's own hook, each placed ingredient's post-drink hook, each isolated.
+        // After the Flask's own hook, each placed infusion's post-drink hook, each isolated.
         // Reachable only below capacity: an over-capacity Flask cannot start a drink.
-        IngredientRegistry.dispatchDrinkCompleted(
-                FlaskStackState.ingredients(flask), flask, player);
+        InfusionRegistry.dispatchDrinkCompleted(
+                FlaskStackState.infusions(flask), flask, player);
         playDrinkSound(player);
         data.syncDirty = true;
     }
@@ -451,15 +451,15 @@ public final class DrinkController {
 
     private static EffectiveFlask computeEffective(EntityPlayerMP player, ItemStack flask) {
         FlaskDefinition definition = FlaskRegistry.definition(flask);
-        // One accumulator for every source: player modifiers and placed ingredients add their
+        // One accumulator for every source: player modifiers and placed infusions add their
         // percentages together before the base is multiplied, the one combination formula.
         com.mahghuuuls.everfillingflasks.api.FlaskBonuses bonuses =
                 ModifierRegistry.collect(player);
         PotencyState potency = potencyOf(player, flask);
         if (!potency.overCapacity()) {
-            // An over-capacity infusion is inert: the Flask is unusable, and its ingredients
+            // An over-capacity infusion is inert: the Flask is unusable, and its infusions
             // grant nothing, so overfilling can never be a way to farm passive bonuses.
-            IngredientRegistry.contribute(FlaskStackState.ingredients(flask), player, bonuses);
+            InfusionRegistry.contribute(FlaskStackState.infusions(flask), player, bonuses);
         }
         return FlaskMechanics.effective(
                 definition.maxCharges(flask, player),
@@ -475,7 +475,7 @@ public final class DrinkController {
         FlaskDefinition definition = FlaskRegistry.definition(flask);
         int capacity = definition == null ? 0
                 : Math.max(0, definition.potency(flask, player));
-        int used = IngredientRegistry.usedPotency(FlaskStackState.ingredients(flask));
+        int used = InfusionRegistry.usedPotency(FlaskStackState.infusions(flask));
         return new PotencyState(used, capacity);
     }
 

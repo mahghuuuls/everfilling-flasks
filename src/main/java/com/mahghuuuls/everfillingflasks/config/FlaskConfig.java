@@ -23,12 +23,12 @@ public final class FlaskConfig {
     @Config.Comment("The three built-in Flask tiers. Times are in ticks; 20 ticks are 1 second.")
     public static final Flasks flasks = new Flasks();
 
-    @Config.Name("ingredients")
+    @Config.Name("infusions")
     @Config.Comment({
-            "The four built-in Flask Ingredients. cost is potency used per placed piece.",
-            "strength is the effect size: a fraction for the percentage ingredients",
+            "The four built-in Flask Infusions. cost is potency used per placed piece.",
+            "strength is the effect size: a fraction for the percentage infusions",
             "(0.10 is +10 percent per piece), seconds for the Second Wind Petal."})
-    public static final Ingredients ingredients = new Ingredients();
+    public static final Infusions infusions = new Infusions();
 
     @Config.Name("recipes")
     @Config.Comment("One switch per built-in recipe. false removes that recipe entirely.")
@@ -60,11 +60,11 @@ public final class FlaskConfig {
         @Config.RangeDouble(min = 0.0, max = 1.0)
         public double drinkSlowdown = 0.5;
 
-        @Config.Name("ingredientLoot")
+        @Config.Name("infusionLoot")
         @Config.Comment({
-                "Add Flask Ingredients to dungeon, mineshaft, and village blacksmith chests.",
+                "Add Flask Infusions to dungeon, mineshaft, and village blacksmith chests.",
                 "false removes them from world loot entirely."})
-        public boolean ingredientLoot = true;
+        public boolean infusionLoot = true;
 
         @Config.Name("diagnostics")
         @Config.Comment({
@@ -117,7 +117,7 @@ public final class FlaskConfig {
 
         @Config.Name("potency")
         @Config.Comment({
-                "Ingredient budget of this Flask's infusion grid. Placed ingredients whose",
+                "Infusion budget of this Flask's infusion grid. Placed infusions whose",
                 "summed costs exceed it make the Flask unusable until pieces are removed.",
                 "Every tier shares the same default on purpose: tiers differ by charges."})
         @Config.RangeInt(min = 0, max = 1000)
@@ -128,26 +128,26 @@ public final class FlaskConfig {
         }
     }
 
-    public static final class Ingredients {
+    public static final class Infusions {
 
         @Config.Name("sunpetalLeaf")
         @Config.Comment("+healing per piece; strength 0.10 is +10 percent.")
-        public final IngredientValues sunpetalLeaf = new IngredientValues(2, 0.10);
+        public final InfusionValues sunpetalLeaf = new InfusionValues(2, 0.10);
 
         @Config.Name("ironrootSprig")
         @Config.Comment("+hit threshold per piece; strength 0.40 is +40 percent.")
-        public final IngredientValues ironrootSprig = new IngredientValues(2, 0.40);
+        public final InfusionValues ironrootSprig = new InfusionValues(2, 0.40);
 
         @Config.Name("quickmintLeaf")
         @Config.Comment("+drink speed per piece; strength 0.20 is +20 percent.")
-        public final IngredientValues quickmintLeaf = new IngredientValues(2, 0.20);
+        public final InfusionValues quickmintLeaf = new InfusionValues(2, 0.20);
 
         @Config.Name("secondWindPetal")
         @Config.Comment("Regeneration after a completed drink; strength is seconds.")
-        public final IngredientValues secondWindPetal = new IngredientValues(3, 5.0);
+        public final InfusionValues secondWindPetal = new InfusionValues(3, 5.0);
     }
 
-    public static final class IngredientValues {
+    public static final class InfusionValues {
 
         @Config.Name("cost")
         @Config.Comment("Potency used per placed piece.")
@@ -155,11 +155,11 @@ public final class FlaskConfig {
         public int cost;
 
         @Config.Name("strength")
-        @Config.Comment("Effect size; see the ingredient's own comment for its unit.")
+        @Config.Comment("Effect size; see the infusion's own comment for its unit.")
         @Config.RangeDouble(min = 0.0, max = 100.0)
         public double strength;
 
-        IngredientValues(int cost, double strength) {
+        InfusionValues(int cost, double strength) {
             this.cost = cost;
             this.strength = strength;
         }
@@ -167,15 +167,15 @@ public final class FlaskConfig {
 
     public static final class Journal {
 
-        @Config.Name("hintOverrides")
+        @Config.Name("textOverrides")
         @Config.Comment({
-                "Replace or hide a journal's \"Where to Find\" line, one entry per line.",
+                "Replace or hide the text on a journal entry, one entry per line.",
                 "everfillingflasks:sunpetal_leaf=Traded by wandering herbalists. replaces it;",
                 "everfillingflasks:sunpetal_leaf= (nothing after the equals sign) hides it.",
                 "Use the item's registry name, never its display name, so the setting survives",
                 "a language change. A name nothing matches is ignored with one log line.",
-                "For packs that change where content comes from."})
-        public String[] hintOverrides = new String[0];
+                "For packs that change where content comes from, or want their own wording."})
+        public String[] textOverrides = new String[0];
     }
 
     public static final class Recipes {
@@ -189,7 +189,7 @@ public final class FlaskConfig {
         @Config.Name("rare")
         public boolean rare = true;
 
-        // The ingredient recipes are gone (owner decision 2026-08-25: ingredients come from
+        // The infusion recipes are gone (owner decision 2026-08-25: infusions come from
         // treasure chests instead); only the Flask switches remain.
     }
 

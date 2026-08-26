@@ -10,7 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import vazkii.patchouli.api.PatchouliAPI;
 
 /**
- * The only place outside {@link JournalBuilder} that names a Patchouli type.
+ * Opens the journal, and the only place outside {@link JournalBuilder} that names a Patchouli
+ * type.
  *
  * <p>Patchouli is a required dependency, so its absence is a startup error rather than something
  * this class handles. What it does handle is a fault: a Patchouli version whose behaviour differs
@@ -48,12 +49,10 @@ public final class JournalBridge {
     }
 
     /**
-     * The stack drawn on the journal button: the book itself, so the button and what it opens
-     * look like one thing. A plain book stands in if Patchouli hands back nothing usable.
+     * The icon drawn on the journal button: the book itself, so the button and what it opens
+     * look like one thing. A plain book stands in if the book engine hands back nothing usable.
      */
     public static ItemStack buttonIcon() {
-        // Asked for once and kept: the button draws every frame the screen is open, and the
-        // answer cannot change while the game runs.
         if (buttonIcon != null) {
             return buttonIcon;
         }
@@ -73,4 +72,21 @@ public final class JournalBridge {
         buttonIcon = new ItemStack(Items.BOOK);
         return buttonIcon;
     }
+
+    /**
+     * Registers this mod's own page kinds with the book engine. Called once at client start.
+     * The book keeps its page kinds in a plain map that it only ever adds to, so this is safe
+     * whichever of the two mods starts first.
+     */
+    public static void registerPageTypes() {
+        try {
+            vazkii.patchouli.client.book.ClientBookRegistry.INSTANCE.pageTypes.put(
+                    CenteredCraftingPage.TYPE, CenteredCraftingPage.class);
+        } catch (Throwable failure) {
+            EverfillingFlasksMod.LOGGER.warn(
+                    "The journal's own recipe page could not be registered; recipes will fall "
+                            + "back to the book's built-in layout.", failure);
+        }
+    }
+
 }

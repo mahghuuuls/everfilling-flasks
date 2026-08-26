@@ -80,10 +80,10 @@ class FlaskStackStateTest {
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(4, new ItemStack(Items.BLAZE_POWDER));
         grid.set(5, new ItemStack(Items.SUGAR));
-        FlaskStackState.setIngredients(s, grid);
+        FlaskStackState.setInfusions(s, grid);
 
         ItemStack reloaded = new ItemStack(s.serializeNBT());
-        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.ingredients(reloaded);
+        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.infusions(reloaded);
         assertEquals(FlaskStackState.GRID_SIZE, read.size());
         assertEquals(Items.SUGAR, read.get(0).getItem());
         assertTrue(read.get(1).isEmpty());
@@ -102,12 +102,12 @@ class FlaskStackStateTest {
         net.minecraft.nbt.NBTTagList list = new net.minecraft.nbt.NBTTagList();
         list.appendTag(entry);
         net.minecraft.nbt.NBTTagCompound root = new net.minecraft.nbt.NBTTagCompound();
-        root.setTag(FlaskStackState.TAG_INGREDIENTS, list);
+        root.setTag(FlaskStackState.TAG_INFUSIONS, list);
         net.minecraft.nbt.NBTTagCompound tag = new net.minecraft.nbt.NBTTagCompound();
         tag.setTag(FlaskStackState.TAG_ROOT, root);
         s.setTagCompound(tag);
 
-        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.ingredients(s);
+        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.infusions(s);
         assertEquals(FlaskStackState.GRID_SIZE, read.size());
         for (ItemStack piece : read) {
             assertTrue(piece.isEmpty());
@@ -116,7 +116,7 @@ class FlaskStackStateTest {
 
     @Test
     void aStackWithNoGridReadsAsAllEmptySlots() {
-        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.ingredients(stack());
+        net.minecraft.util.NonNullList<ItemStack> read = FlaskStackState.infusions(stack());
         assertEquals(FlaskStackState.GRID_SIZE, read.size());
         for (ItemStack piece : read) {
             assertTrue(piece.isEmpty());
@@ -125,19 +125,19 @@ class FlaskStackStateTest {
 
     @Test
     void theEquipEmptyLeavesTheGridUntouched() {
-        // The owner's rule: moving a Flask costs its charges, never its ingredients.
+        // The owner's rule: moving a Flask costs its charges, never its infusions.
         ItemStack s = stack();
         net.minecraft.util.NonNullList<ItemStack> grid =
                 net.minecraft.util.NonNullList.withSize(FlaskStackState.GRID_SIZE,
                         ItemStack.EMPTY);
         grid.set(3, new ItemStack(Items.SUGAR));
-        FlaskStackState.setIngredients(s, grid);
+        FlaskStackState.setInfusions(s, grid);
         FlaskStackState.initialiseFull(s, 4);
 
         FlaskStackState.empty(s);
 
         assertEquals(0, FlaskStackState.charges(s));
-        assertEquals(Items.SUGAR, FlaskStackState.ingredients(s).get(3).getItem());
+        assertEquals(Items.SUGAR, FlaskStackState.infusions(s).get(3).getItem());
     }
 
     @Test

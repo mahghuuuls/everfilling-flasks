@@ -3,11 +3,11 @@ package com.mahghuuuls.everfillingflasks.item;
 import java.util.Locale;
 
 /**
- * The four built-in ingredients, herb-themed by the owner's 2026-08-25 naming decision
+ * The four built-in infusions, herb-themed by the owner's 2026-08-25 naming decision
  * ("things we add in a drink"). The kind fixes the registry name and what its strength means;
  * every number a kind actually uses at runtime comes from the configuration.
  */
-public enum IngredientKind {
+public enum InfusionKind {
 
     /** +healing per piece. Strength is the fraction: 0.10 is +10 percent. */
     SUNPETAL_LEAF(2, 0.10, Effect.HEALING),
@@ -27,7 +27,7 @@ public enum IngredientKind {
     private final double defaultStrength;
     private final Effect effect;
 
-    IngredientKind(int defaultCost, double defaultStrength, Effect effect) {
+    InfusionKind(int defaultCost, double defaultStrength, Effect effect) {
         this.defaultCost = defaultCost;
         this.defaultStrength = defaultStrength;
         this.effect = effect;

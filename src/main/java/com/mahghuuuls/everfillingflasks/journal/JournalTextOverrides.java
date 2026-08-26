@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A pack author's replacements for journal "Where to Find" lines, keyed by registry name.
+ * A pack author's replacements for the text on a journal entry, keyed by registry name.
  *
  * <p>Packs move content around: a herb that grows in caves in one pack is a quest reward in the
- * next, and the default hint then lies. This is the correction (REQ-041). Registry names are the
+ * next, and the entry then lies. This is the correction (REQ-041). Registry names are the
  * key on purpose, because a display name changes with the language and would break the setting
  * for everyone who does not play in English.
  *
@@ -18,21 +18,21 @@ import java.util.Map;
  * replaces a hint, {@code name=} hides it, and a line with no equals sign is reported rather than
  * guessed at.
  */
-public final class JournalHintOverrides {
+public final class JournalTextOverrides {
 
     private final Map<String, String> byName;
     private final List<String> warnings;
 
-    private JournalHintOverrides(Map<String, String> byName, List<String> warnings) {
+    private JournalTextOverrides(Map<String, String> byName, List<String> warnings) {
         this.byName = byName;
         this.warnings = warnings;
     }
 
-    public static JournalHintOverrides parse(String[] lines) {
+    public static JournalTextOverrides parse(String[] lines) {
         Map<String, String> byName = new LinkedHashMap<String, String>();
         List<String> warnings = new ArrayList<String>();
         if (lines == null) {
-            return new JournalHintOverrides(byName, warnings);
+            return new JournalTextOverrides(byName, warnings);
         }
         for (String raw : lines) {
             if (raw == null) {
@@ -44,21 +44,21 @@ public final class JournalHintOverrides {
             }
             int split = line.indexOf('=');
             if (split < 1) {
-                warnings.add("journal.hintOverrides ignored a line without a registry name and "
+                warnings.add("journal.textOverrides ignored a line without a registry name and "
                         + "an equals sign: \"" + line + "\"");
                 continue;
             }
             String name = line.substring(0, split).trim();
             String text = line.substring(split + 1).trim();
             if (name.isEmpty()) {
-                warnings.add("journal.hintOverrides ignored a line with an empty registry name: \""
+                warnings.add("journal.textOverrides ignored a line with an empty registry name: \""
                         + line + "\"");
                 continue;
             }
             // A later line for the same name wins, the way a later config edit should.
             byName.put(name, text);
         }
-        return new JournalHintOverrides(byName, warnings);
+        return new JournalTextOverrides(byName, warnings);
     }
 
     /** True when this registry name has an override at all, whether text or a hide. */

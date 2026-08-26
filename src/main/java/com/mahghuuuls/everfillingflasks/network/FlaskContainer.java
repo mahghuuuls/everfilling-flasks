@@ -40,11 +40,11 @@ public final class FlaskContainer extends Container {
     private static final int SLOT_COUNT = HOTBAR_START + 9;
 
     private final FlaskPlayerData data;
-    private final IngredientGridHandler grid;
+    private final InfusionGridHandler grid;
 
     public FlaskContainer(InventoryPlayer playerInventory, FlaskPlayerData data) {
         this.data = data;
-        this.grid = new IngredientGridHandler(data);
+        this.grid = new InfusionGridHandler(data);
         addSlotToContainer(new FlaskSlot(playerInventory.player, data.slot(),
                 FLASK_SLOT_X, FLASK_SLOT_Y));
         // The grid slots sit over the stateless handler, so a Flask swap swaps their contents
@@ -52,7 +52,7 @@ public final class FlaskContainer extends Container {
         // extract are the validity and take checks; isEnabled hides the whole row, visually
         // and from clicks, while no Flask is equipped.
         for (int column = 0; column < FlaskStackState.GRID_SIZE; column++) {
-            addSlotToContainer(new IngredientSlot(grid, column,
+            addSlotToContainer(new InfusionSlot(grid, column,
                     GRID_X + column * 18, GRID_Y));
         }
         for (int row = 0; row < 3; row++) {
@@ -102,9 +102,9 @@ public final class FlaskContainer extends Container {
                 return ItemStack.EMPTY;
             }
         } else {
-            // From the player's inventory: a Flask goes to the Flask slot; an ingredient goes
+            // From the player's inventory: a Flask goes to the Flask slot; an infusion goes
             // to the grid. The merge's empty-slot pass consults each slot's validity and limit,
-            // so non-ingredients, a missing Flask, and the one-per-slot rule all refuse there.
+            // so non-infusions, a missing Flask, and the one-per-slot rule all refuse there.
             if (!mergeItemStack(moved, FLASK_SLOT_INDEX, FLASK_SLOT_INDEX + 1, false)
                     && !mergeItemStack(moved, GRID_START, GRID_END, false)) {
                 return ItemStack.EMPTY;
@@ -132,11 +132,11 @@ public final class FlaskContainer extends Container {
      * {@code isEnabled} before drawing, hovering, or clicking a slot, so the empty screen
      * shows no grid at all; the handler's refusals stay as the server-side guard.
      */
-    public static final class IngredientSlot extends SlotItemHandler {
+    public static final class InfusionSlot extends SlotItemHandler {
 
-        private final IngredientGridHandler grid;
+        private final InfusionGridHandler grid;
 
-        IngredientSlot(IngredientGridHandler grid, int index, int x, int y) {
+        InfusionSlot(InfusionGridHandler grid, int index, int x, int y) {
             super(grid, index, x, y);
             this.grid = grid;
         }

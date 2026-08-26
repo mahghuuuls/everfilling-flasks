@@ -1,7 +1,7 @@
 package com.mahghuuuls.everfillingflasks.flask;
 
 import com.mahghuuuls.everfillingflasks.api.FlaskBonuses;
-import com.mahghuuuls.everfillingflasks.api.IngredientDefinition;
+import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The ingredient engine: cost summing, refusals, isolation, and the one-accumulator merge
- * order that keeps ingredient and player bonuses adding before any base is multiplied.
+ * The infusion engine: cost summing, refusals, isolation, and the one-accumulator merge
+ * order that keeps infusion and player bonuses adding before any base is multiplied.
  */
-class IngredientRegistryTest {
+class InfusionRegistryTest {
 
     @BeforeAll
     static void bootstrapMinecraft() {
@@ -30,15 +30,15 @@ class IngredientRegistryTest {
     void clearBefore() {
         // Before as well as after: another test class may have registered the same items into
         // the shared static registry, and first-wins would silently swap this class's fixtures.
-        IngredientRegistry.clearForTests();
+        InfusionRegistry.clearForTests();
     }
 
     @AfterEach
     void clearRegistry() {
-        IngredientRegistry.clearForTests();
+        InfusionRegistry.clearForTests();
     }
 
-    private static final class Fixed implements IngredientDefinition {
+    private static final class Fixed implements InfusionDefinition {
         private final int cost;
         private final float healing;
 
@@ -48,19 +48,19 @@ class IngredientRegistryTest {
         }
 
         @Override
-        public int potencyCost(ItemStack ingredient) {
+        public int potencyCost(ItemStack infusion) {
             return cost;
         }
 
         @Override
-        public void contribute(ItemStack ingredient, EntityPlayer player, FlaskBonuses bonuses) {
+        public void contribute(ItemStack infusion, EntityPlayer player, FlaskBonuses bonuses) {
             bonuses.healing(healing);
         }
     }
 
     @Test
     void costsSumAcrossPlacedPiecesAndUnregisteredPiecesAreFree() {
-        IngredientRegistry.register(Items.SUGAR, new Fixed(2, 0.1F));
+        InfusionRegistry.register(Items.SUGAR, new Fixed(2, 0.1F));
         NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(4, new ItemStack(Items.SUGAR));
@@ -68,28 +68,28 @@ class IngredientRegistryTest {
         // Not registered: contributes nothing, costs nothing.
         grid.set(2, new ItemStack(Items.APPLE));
 
-        assertEquals(6, IngredientRegistry.usedPotency(grid));
+        assertEquals(6, InfusionRegistry.usedPotency(grid));
     }
 
     @Test
     void negativeCostsAreFlooredAtZero() {
-        IngredientRegistry.register(Items.SUGAR, new Fixed(-5, 0.0F));
+        InfusionRegistry.register(Items.SUGAR, new Fixed(-5, 0.0F));
         NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
 
-        assertEquals(0, IngredientRegistry.usedPotency(grid));
+        assertEquals(0, InfusionRegistry.usedPotency(grid));
     }
 
     @Test
-    void ingredientAndPlayerBonusesShareOneAccumulator() {
-        IngredientRegistry.register(Items.SUGAR, new Fixed(2, 0.25F));
+    void infusionAndPlayerBonusesShareOneAccumulator() {
+        InfusionRegistry.register(Items.SUGAR, new Fixed(2, 0.25F));
         NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
 
-        // A player modifier already contributed 0.5; the ingredient's 0.25 must ADD to it.
+        // A player modifier already contributed 0.5; the infusion's 0.25 must ADD to it.
         FlaskBonuses bonuses = new FlaskBonuses();
         bonuses.healing(0.5F);
-        IngredientRegistry.contribute(grid, null, bonuses);
+        InfusionRegistry.contribute(grid, null, bonuses);
         EffectiveFlask effective =
                 FlaskMechanics.effective(2, 0.30F, 1200, 30, 1.0F, bonuses);
 
@@ -100,42 +100,42 @@ class IngredientRegistryTest {
 
     @Test
     void duplicateAndNullRegistrationsAreRefused() {
-        assertTrue(IngredientRegistry.register(Items.SUGAR, new Fixed(1, 0.0F)));
-        assertFalse(IngredientRegistry.register(Items.SUGAR, new Fixed(9, 0.0F)),
+        assertTrue(InfusionRegistry.register(Items.SUGAR, new Fixed(1, 0.0F)));
+        assertFalse(InfusionRegistry.register(Items.SUGAR, new Fixed(9, 0.0F)),
                 "the first registration keeps the item");
-        assertFalse(IngredientRegistry.register(null, new Fixed(1, 0.0F)));
-        assertFalse(IngredientRegistry.register(Items.APPLE, null));
+        assertFalse(InfusionRegistry.register(null, new Fixed(1, 0.0F)));
+        assertFalse(InfusionRegistry.register(Items.APPLE, null));
 
         NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
-        assertEquals(1, IngredientRegistry.usedPotency(grid), "the first definition's cost");
-        assertTrue(IngredientRegistry.isIngredient(new ItemStack(Items.SUGAR)));
-        assertFalse(IngredientRegistry.isIngredient(new ItemStack(Items.APPLE)));
+        assertEquals(1, InfusionRegistry.usedPotency(grid), "the first definition's cost");
+        assertTrue(InfusionRegistry.isInfusion(new ItemStack(Items.SUGAR)));
+        assertFalse(InfusionRegistry.isInfusion(new ItemStack(Items.APPLE)));
     }
 
     @Test
     void aThrowingDefinitionIsSkippedAndTheOthersApply() {
-        IngredientRegistry.register(Items.SUGAR, new IngredientDefinition() {
+        InfusionRegistry.register(Items.SUGAR, new InfusionDefinition() {
             @Override
-            public int potencyCost(ItemStack ingredient) {
+            public int potencyCost(ItemStack infusion) {
                 throw new IllegalStateException("test fixture: always fails");
             }
 
             @Override
-            public void contribute(ItemStack ingredient, EntityPlayer player,
+            public void contribute(ItemStack infusion, EntityPlayer player,
                                    FlaskBonuses bonuses) {
                 throw new IllegalStateException("test fixture: always fails");
             }
         });
-        IngredientRegistry.register(Items.APPLE, new Fixed(3, 0.2F));
+        InfusionRegistry.register(Items.APPLE, new Fixed(3, 0.2F));
         NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
         grid.set(1, new ItemStack(Items.APPLE));
 
-        assertEquals(3, IngredientRegistry.usedPotency(grid),
+        assertEquals(3, InfusionRegistry.usedPotency(grid),
                 "the throwing piece is skipped, the healthy one still counts");
         FlaskBonuses bonuses = new FlaskBonuses();
-        IngredientRegistry.contribute(grid, null, bonuses);
+        InfusionRegistry.contribute(grid, null, bonuses);
         assertEquals(0.2F, bonuses.healingSum(), 1.0E-6F,
                 "the healthy piece's contribution survives its neighbor's failure");
     }

@@ -125,7 +125,7 @@ public final class FlaskMechanics {
     }
 
     /**
-     * The over-capacity rule, the ingredient system's one genuinely new formula: placed costs
+     * The over-capacity rule, the infusion system's one genuinely new formula: placed costs
      * strictly above the potency make the Flask unusable. Exactly full is fine. Recharge is
      * untouched; only drinking is blocked, and removing pieces restores use at once.
      */

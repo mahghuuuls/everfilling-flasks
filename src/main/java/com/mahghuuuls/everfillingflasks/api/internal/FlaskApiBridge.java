@@ -3,7 +3,7 @@ package com.mahghuuuls.everfillingflasks.api.internal;
 import com.mahghuuuls.everfillingflasks.api.FlaskDefinition;
 import com.mahghuuuls.everfillingflasks.api.FlaskModifierSource;
 import com.mahghuuuls.everfillingflasks.api.FlaskSnapshot;
-import com.mahghuuuls.everfillingflasks.api.IngredientDefinition;
+import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,7 +23,7 @@ public abstract class FlaskApiBridge {
 
     private static FlaskApiBridge instance;
     private static List<FlaskModifierSource> pendingSources = new ArrayList<FlaskModifierSource>();
-    private static List<Object[]> pendingIngredients = new ArrayList<Object[]>();
+    private static List<Object[]> pendingInfusions = new ArrayList<Object[]>();
     private static List<Object[]> pendingFlasks = new ArrayList<Object[]>();
 
     public static synchronized void bind(FlaskApiBridge implementation) {
@@ -39,12 +39,12 @@ public abstract class FlaskApiBridge {
             }
             pendingSources = null;
         }
-        if (pendingIngredients != null) {
-            for (Object[] pending : pendingIngredients) {
-                implementation.registerIngredientNow((Item) pending[0],
-                        (IngredientDefinition) pending[1]);
+        if (pendingInfusions != null) {
+            for (Object[] pending : pendingInfusions) {
+                implementation.registerInfusionNow((Item) pending[0],
+                        (InfusionDefinition) pending[1]);
             }
-            pendingIngredients = null;
+            pendingInfusions = null;
         }
         if (pendingFlasks != null) {
             for (Object[] pending : pendingFlasks) {
@@ -63,12 +63,12 @@ public abstract class FlaskApiBridge {
         }
     }
 
-    public static synchronized void registerIngredient(Item item,
-                                                       IngredientDefinition definition) {
+    public static synchronized void registerInfusion(Item item,
+                                                       InfusionDefinition definition) {
         if (instance == null) {
-            pendingIngredients.add(new Object[]{item, definition});
+            pendingInfusions.add(new Object[]{item, definition});
         } else {
-            instance.registerIngredientNow(item, definition);
+            instance.registerInfusionNow(item, definition);
         }
     }
 
@@ -103,7 +103,7 @@ public abstract class FlaskApiBridge {
 
     protected abstract void registerModifierSourceNow(FlaskModifierSource source);
 
-    protected abstract void registerIngredientNow(Item item, IngredientDefinition definition);
+    protected abstract void registerInfusionNow(Item item, InfusionDefinition definition);
 
     protected abstract void registerFlaskNow(Item item, FlaskDefinition definition);
 

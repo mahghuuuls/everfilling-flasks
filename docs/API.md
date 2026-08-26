@@ -29,11 +29,11 @@ FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
 - Every method receives the exact stack and player, so values may depend on NBT or the
   player. Keep them cheap and side-effect free: they are consulted whenever effective values
   are computed (never every tick).
-- Values are bases. Player Flask modifiers and placed ingredients are applied by the core
+- Values are bases. Player Flask modifiers and placed infusions are applied by the core
   afterwards; do not include them yourself.
 - `healPercentage` 0 makes a pure-hook Flask; drinking works at any health.
-- `potency(stack, player)` (default 10) is the ingredient budget of your Flask's infusion
-  grid; 0 means no ingredient fits.
+- `potency(stack, player)` (default 10) is the infusion budget of your Flask's infusion
+  grid; 0 means no infusion fits.
 - First registration per item wins. A duplicate is refused with a log line, never an
   exception.
 
@@ -48,20 +48,20 @@ FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
   completion burst and chime. Return `false` to disable one half, or play your own first and
   then return `false`. A throw is logged once and the default plays.
 
-## Registering an ingredient
+## Registering an infusion
 
 Same idiom, one definition per item:
 
 ```java
-FlaskApi.registerIngredient(MY_ITEM, new IngredientDefinition() {
-    @Override public int potencyCost(ItemStack ingredient) { return 2; }
-    @Override public void contribute(ItemStack ingredient, EntityPlayer player,
+FlaskApi.registerInfusion(MY_ITEM, new InfusionDefinition() {
+    @Override public int potencyCost(ItemStack infusion) { return 2; }
+    @Override public void contribute(ItemStack infusion, EntityPlayer player,
                                      FlaskBonuses bonuses) { bonuses.healing(0.25F); }
 });
 ```
 
 - The core provides the six-slot grid, cost accounting, the over-capacity unusable state,
-  effective-value merging, and post-drink dispatch (`onDrinkCompleted(ingredient, flask,
+  effective-value merging, and post-drink dispatch (`onDrinkCompleted(infusion, flask,
   player)`, once per placed piece). You describe only cost and effect.
 - While the summed costs exceed the Flask's potency, the grid is inert: drinking refuses and
   no piece contributes.
@@ -138,36 +138,48 @@ FlaskHudApi.setRenderer((state, resolution, partialTicks) -> {
 
 ## The journal
 
-Every Flask and every ingredient you register appears in the in-game journal on its own. You
+Every Flask and every infusion you register appears in the in-game journal on its own. You
 write no journal file, declare no category, supply no icon, and provide no ordering. Your entry
 is built from the definition you already wrote: its name, its item icon, the values your
-definition returns, its crafting recipe if the recipe registry has one for that item, and the
-name of your mod. Entries are listed alphabetically by the name the player sees.
+definition returns, and its crafting recipe if the recipe registry has one for that item.
+Entries are listed alphabetically by the name the player sees. Nothing on a page names the mod
+that added it, deliberately: the journal is written in the game's voice, not the modpack's.
 
-Two optional methods enrich an entry. Both exist on `FlaskDefinition` and on
-`IngredientDefinition`, both return a language key, and both return `null` by default:
+One optional method enriches an entry. It exists on `FlaskDefinition` and on
+`InfusionDefinition`, returns a language key, and returns `null` by default:
 
 ```java
 @Override
-public String journalDescription(ItemStack stack) {
-    return "mymod.journal.emberflask.description";
-}
-
-@Override
-public String journalHint(ItemStack stack) {
-    return "mymod.journal.emberflask.hint";   // "Where to Find"
+public String journalText(ItemStack stack) {
+    return "mymod.journal.emberflask.text";
 }
 ```
 
-`journalHint` answers where the content normally comes from, which is a different question from
-how it is crafted; return the truth for your own mod. A pack author can replace your hint, or
-hide it, per registry name in `journal.hintOverrides` in this mod's config, so do not treat your
-hint as final. Return `null` when you have nothing to say: an entry without either is complete.
+Write whatever a player should be told beyond the item itself. Where the thing is normally found
+is the usual answer, but it is not required to be — the entry is perfectly valid as the item
+alone. Keep it separate in your head from the recipe: a recipe says how something can be made,
+which is a different question and one the journal already answers on its own.
 
-Return a language key, never finished text, so the journal reads correctly in every language.
-Both methods are called while the journal is built, on the client, and a throw costs your entry
-alone. Escape a literal percent sign in that translation as `%%`, because the line goes through
+A pack author can replace your text, or hide it, per registry name in `journal.textOverrides` in
+this mod's config, because a pack often changes where content comes from. Write the truth for
+your own mod and let them correct it.
+
+It is called while the journal is built, on the client, and a throw costs your entry alone.
+Escape a literal percent sign in that translation as `%%`, because the line goes through
 Minecraft's own formatter.
+
+An infusion whose effect cannot be read off `FlaskBonuses` — one that acts after a drink, or
+through a system this mod knows nothing about — can put it into words for its own tooltip:
+
+```java
+@Override
+public ITextComponent effectDescription(ItemStack infusion) {
+    return new TextComponentTranslation("mymod.emberdust.effect", secondsOfFire);
+}
+```
+
+Return a translation component, not finished text. The built-in infusions use this for their
+own tooltips, so one sentence serves wherever the effect is shown.
 
 One contract note: building the journal also calls your definition's ordinary value methods
 (`maxCharges`, `healPercentage`, `rechargeTicks`, `drinkTicks`, `hitThreshold`, `potency`,
@@ -192,10 +204,10 @@ even at runtime — also works; recognition is immediate.
 ## What is guaranteed, and what is not
 
 Guaranteed: the two `api` packages' types and documented behavior; refusal-not-exception on
-duplicate registration; isolation of your hooks, sources, ingredients, and HUD (your failure
+duplicate registration; isolation of your hooks, sources, infusions, and HUD (your failure
 costs only your feature, logged once); server authority (nothing an add-on registers can
 move gameplay decisions to the client).
 
 Not guaranteed: anything outside `api`/`api.client` (including NBT layouts and network
 formats); call frequency of definition methods beyond "not every tick"; HUD layering; hook
-ordering between multiple systems beyond "Flask hook before ingredient hooks".
+ordering between multiple systems beyond "Flask hook before infusion hooks".

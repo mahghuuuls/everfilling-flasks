@@ -44,31 +44,57 @@ public final class ItemFlask extends Item {
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip,
                                ITooltipFlag flag) {
-        // The kind header first, green like the ingredients' own, so any tier reads as an
-        // Everfilling Flask at a glance.
+        // The kind header first, green like the infusions' own, so any tier reads as an
+        // Everfilling Flask at a glance. The rest is in the owner's reading order (2026-08-26):
+        // what it does for you, then what it costs you, then how to use it.
         tooltip.add(net.minecraft.util.text.TextFormatting.GREEN
                 + I18n.format("everfillingflasks.tooltip.flaskHeader"));
+        ConfigSnapshot.TierConfig values = ConfigSnapshot.current().tier(tier);
+        tooltip.add(I18n.format("everfillingflasks.tooltip.heals",
+                Math.round(values.healPercentage() * 100.0F)));
         // Maximum only, owner decision 2026-08-25: current charges are the HUD's job.
-        tooltip.add(I18n.format("everfillingflasks.tooltip.charges",
-                ConfigSnapshot.current().tier(tier).maxCharges()));
-        tooltip.add(I18n.format("everfillingflasks.tooltip.heals", Math.round(
-                ConfigSnapshot.current().tier(tier).healPercentage() * 100.0F)));
+        tooltip.add(I18n.format("everfillingflasks.tooltip.charges", values.maxCharges()));
+        tooltip.add(I18n.format("everfillingflasks.tooltip.potency", values.potency()));
+        tooltip.add(I18n.format("everfillingflasks.tooltip.useTime",
+                seconds(values.drinkTicks())));
+        tooltip.add(I18n.format("everfillingflasks.tooltip.threshold",
+                number(values.hitThreshold())));
+        tooltip.add(I18n.format("everfillingflasks.tooltip.recharge",
+                seconds(values.rechargeTicks())));
+        // Only where it can actually happen: a player without Inhibited installed should not
+        // be told about a freeze their game has no way to cause (owner decision 2026-08-26).
+        if (com.mahghuuuls.everfillingflasks.integration.InhibitedCompat.isAvailable()) {
+            tooltip.add(I18n.format("everfillingflasks.tooltip.inhibited"));
+        }
         tooltip.add(I18n.format("everfillingflasks.tooltip.usage",
                 EverfillingFlasksMod.proxy.useFlaskKeyName()));
         addInfusionLines(stack, tooltip);
     }
 
+    /** Ticks as seconds, with a decimal only when there is one: "30", "1.5". */
+    private static String seconds(int ticks) {
+        return number(ticks / 20.0F);
+    }
+
+    /** A number with a decimal only when it has one: "1", "2.5". */
+    private static String number(float value) {
+        return value == Math.round(value) ? String.valueOf(Math.round(value))
+                : String.format("%.1f", value);
+    }
+
     /**
-     * The infused ingredients, one line per distinct kind with a count. Owner-requested so a
+     * The infused infusions, one line per distinct kind with a count. Owner-requested so a
      * player sees what a Flask carries — and what an upgrade craft would consume — without
      * opening the screen. Reads the stack's own grid, so it is right wherever the tooltip
      * shows: inventory, chest, or the crafting table.
      */
     private static void addInfusionLines(ItemStack stack, List<String> tooltip) {
+        // Each piece keeps the colour its own name has in an inventory, so a rare infusion
+        // stands out in the list exactly as the item does (owner decision 2026-08-26).
         java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<String, Integer>();
-        for (ItemStack piece : FlaskStackState.ingredients(stack)) {
+        for (ItemStack piece : FlaskStackState.infusions(stack)) {
             if (!piece.isEmpty()) {
-                String name = piece.getDisplayName();
+                String name = piece.getRarity().getColor() + piece.getDisplayName();
                 Integer previous = counts.get(name);
                 counts.put(name, previous == null ? 1 : previous + 1);
             }
@@ -76,7 +102,8 @@ public final class ItemFlask extends Item {
         if (counts.isEmpty()) {
             return;
         }
-        tooltip.add(I18n.format("everfillingflasks.tooltip.infused"));
+        tooltip.add(net.minecraft.util.text.TextFormatting.GREEN
+                + I18n.format("everfillingflasks.tooltip.infused"));
         for (java.util.Map.Entry<String, Integer> entry : counts.entrySet()) {
             tooltip.add(I18n.format("everfillingflasks.tooltip.infusedLine",
                     entry.getKey(), entry.getValue()));

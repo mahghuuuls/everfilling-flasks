@@ -3,7 +3,7 @@ package com.mahghuuuls.everfillingflasks.api;
 import com.mahghuuuls.everfillingflasks.api.internal.FlaskApiBridge;
 
 /**
- * The public entry point for other mods: Flask and ingredient registration, modifier sources,
+ * The public entry point for other mods: Flask and infusion registration, modifier sources,
  * the Flask queries, and the read-only state snapshot.
  *
  * <p>Safe on both sides and from any loading phase: registrations made before this mod
@@ -56,14 +56,14 @@ public final class FlaskApi {
     }
 
     /**
-     * Registers {@code definition} as the Flask Ingredient behavior of {@code item}, making
+     * Registers {@code definition} as the Flask Infusion behavior of {@code item}, making
      * that item placeable in every Flask's infusion grid. First registration per item wins; a
      * duplicate is refused with a log line, never an exception. The core provides the grid,
      * cost accounting, the over-capacity unusable state, effective-value merging, and
      * post-drink dispatch.
      */
-    public static void registerIngredient(net.minecraft.item.Item item,
-                                          IngredientDefinition definition) {
-        FlaskApiBridge.registerIngredient(item, definition);
+    public static void registerInfusion(net.minecraft.item.Item item,
+                                          InfusionDefinition definition) {
+        FlaskApiBridge.registerInfusion(item, definition);
     }
 }

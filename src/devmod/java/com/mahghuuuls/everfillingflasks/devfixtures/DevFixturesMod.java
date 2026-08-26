@@ -23,8 +23,8 @@ import org.apache.logging.log4j.Logger;
  * recharge speed, and +1 maximum charge.</li>
  * <li>{@code -Deff.devfixtures.throwing=true}: one source that always throws, for watching the
  * isolation contain it.</li>
- * <li>{@code -Deff.devfixtures.ingredient=true}: registers the vanilla gold nugget as a Flask
- * Ingredient through the public API: cost 2, +25 percent healing, proving the REQ-031
+ * <li>{@code -Deff.devfixtures.infusion=true}: registers the vanilla gold nugget as a Flask
+ * Infusion through the public API: cost 2, +25 percent healing, proving the REQ-031
  * number and the add-on registration path.</li>
  * </ul>
  *
@@ -48,9 +48,9 @@ public class DevFixturesMod {
             FlaskApi.registerModifierSource(new AlwaysThrows());
             LOGGER.info("Fixture throwing modifier source active");
         }
-        if (Boolean.getBoolean("eff.devfixtures.ingredient")) {
-            FlaskApi.registerIngredient(Items.GOLD_NUGGET, new GoldNuggetIngredient());
-            LOGGER.info("Fixture ingredient active: gold nugget, cost 2, +25 percent healing");
+        if (Boolean.getBoolean("eff.devfixtures.infusion")) {
+            FlaskApi.registerInfusion(Items.GOLD_NUGGET, new GoldNuggetInfusion());
+            LOGGER.info("Fixture infusion active: gold nugget, cost 2, +25 percent healing");
         }
         if (Boolean.getBoolean("eff.devfixtures.manaflask")) {
             // In init, one phase after the core's preInit, on purpose: late registration is
@@ -69,17 +69,17 @@ public class DevFixturesMod {
         }
     }
 
-    /** The API-registered ingredient fixture, exactly REQ-031's example numbers. */
-    static final class GoldNuggetIngredient
-            implements com.mahghuuuls.everfillingflasks.api.IngredientDefinition {
+    /** The API-registered infusion fixture, exactly REQ-031's example numbers. */
+    static final class GoldNuggetInfusion
+            implements com.mahghuuuls.everfillingflasks.api.InfusionDefinition {
 
         @Override
-        public int potencyCost(net.minecraft.item.ItemStack ingredient) {
+        public int potencyCost(net.minecraft.item.ItemStack infusion) {
             return 2;
         }
 
         @Override
-        public void contribute(net.minecraft.item.ItemStack ingredient, EntityPlayer player,
+        public void contribute(net.minecraft.item.ItemStack infusion, EntityPlayer player,
                                FlaskBonuses bonuses) {
             bonuses.healing(0.25F);
         }

@@ -38,9 +38,9 @@ public interface FlaskDefinition {
     float hitThreshold(ItemStack stack, EntityPlayer player);
 
     /**
-     * Potency: the ingredient budget of this Flask's infusion grid. Placed ingredients whose
+     * Potency: the infusion budget of this Flask's infusion grid. Placed infusions whose
      * summed costs exceed it make the Flask unusable until pieces are removed. Values below 0
-     * are treated as 0; 0 means no ingredient fits. The built-in tiers all default to 10.
+     * are treated as 0; 0 means no infusion fits. The built-in tiers all default to 10.
      */
     default int potency(ItemStack stack, EntityPlayer player) {
         return 10;
@@ -111,23 +111,20 @@ public interface FlaskDefinition {
     // Return a sensible answer for a plain stack and do not require a server there.
 
     /**
-     * An optional language key for a paragraph about this content, shown at the top of its
-     * journal entry. Null means the entry shows only what the mod can work out on its own,
-     * which is a complete entry already; this is enrichment, never a requirement (REQ-042 of
-     * the journal requirements).
+     * An optional language key for this content's journal entry: whatever a player should be
+     * told about it beyond the item itself.
+     *
+     * <p>The entry already shows the item, and its numbers are on its own tooltip, so this is
+     * for what nothing else can say. Where the thing is normally found is the usual answer, but
+     * it is not required to be: write what is worth writing, or return null and let the entry
+     * be the item alone.
+     *
+     * <p>Return a language key, never finished text, so the entry reads in the player's own
+     * language. A pack author can replace or hide it per registry name in this mod's config,
+     * because a pack often changes where content comes from; write the truth for your own mod
+     * and let them correct it.
      */
-    default String journalDescription(ItemStack stack) {
-        return null;
-    }
-
-    /**
-     * An optional language key answering "where is this normally obtained", shown under its own
-     * heading. Separate from any crafting recipe on purpose: a recipe says how it can be made,
-     * this says where it usually comes from, and content can have either, both, or neither. A
-     * pack author can replace or hide it in the config, so return the truth for your own mod and
-     * let packs correct it (REQ-041).
-     */
-    default String journalHint(ItemStack stack) {
+    default String journalText(ItemStack stack) {
         return null;
     }
 }

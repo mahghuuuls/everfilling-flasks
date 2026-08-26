@@ -2,7 +2,7 @@ package com.mahghuuuls.everfillingflasks.flask;
 
 import com.mahghuuuls.everfillingflasks.EverfillingFlasksMod;
 import com.mahghuuuls.everfillingflasks.api.FlaskBonuses;
-import com.mahghuuuls.everfillingflasks.api.IngredientDefinition;
+import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The one answer to "is this a Flask Ingredient", plus every walk over a placed grid: cost
+ * The one answer to "is this a Flask Infusion", plus every walk over a placed grid: cost
  * summing, contribution collecting, and post-drink dispatch. Mirrors {@link FlaskRegistry}:
  * registrations are refused, never replaced, and nothing here throws.
  *
@@ -23,38 +23,38 @@ import java.util.concurrent.ConcurrentHashMap;
  * exist when a registration disappeared between sessions, and pricing it would mean inventing
  * a number.
  */
-public final class IngredientRegistry {
+public final class InfusionRegistry {
 
-    private static final Map<Item, IngredientDefinition> DEFINITIONS =
-            new ConcurrentHashMap<Item, IngredientDefinition>();
+    private static final Map<Item, InfusionDefinition> DEFINITIONS =
+            new ConcurrentHashMap<Item, InfusionDefinition>();
     private static final Set<String> FAILED = ConcurrentHashMap.newKeySet();
 
-    private IngredientRegistry() {
+    private InfusionRegistry() {
     }
 
     /** Registers {@code definition} for {@code item}. False, with a log line, on refusal. */
-    public static boolean register(Item item, IngredientDefinition definition) {
+    public static boolean register(Item item, InfusionDefinition definition) {
         if (item == null || definition == null) {
             EverfillingFlasksMod.LOGGER.warn(
-                    "Ingredient registration refused: item and definition must both be non-null"
+                    "Infusion registration refused: item and definition must both be non-null"
                             + " (item={}, definition={})", item, definition);
             return false;
         }
         if (DEFINITIONS.putIfAbsent(item, definition) != null) {
             EverfillingFlasksMod.LOGGER.warn(
-                    "Ingredient registration refused for {}: it already has a definition; the"
+                    "Infusion registration refused for {}: it already has a definition; the"
                             + " first registration keeps it", item.getRegistryName());
             return false;
         }
         return true;
     }
 
-    public static boolean isIngredient(ItemStack stack) {
+    public static boolean isInfusion(ItemStack stack) {
         return !stack.isEmpty() && DEFINITIONS.containsKey(stack.getItem());
     }
 
-    /** The definition for this stack's item, or null when it is not an ingredient. */
-    public static IngredientDefinition definition(ItemStack stack) {
+    /** The definition for this stack's item, or null when it is not an infusion. */
+    public static InfusionDefinition definition(ItemStack stack) {
         return stack.isEmpty() ? null : DEFINITIONS.get(stack.getItem());
     }
 
@@ -62,7 +62,7 @@ public final class IngredientRegistry {
      * Every registration, read-only, for code that presents the whole catalogue rather than
      * answering about one stack. The journal is the only caller; gameplay always asks per stack.
      */
-    public static java.util.Map<Item, IngredientDefinition> all() {
+    public static java.util.Map<Item, InfusionDefinition> all() {
         return java.util.Collections.unmodifiableMap(DEFINITIONS);
     }
 
@@ -76,7 +76,7 @@ public final class IngredientRegistry {
     public static int usedPotency(NonNullList<ItemStack> grid) {
         int used = 0;
         for (ItemStack piece : grid) {
-            IngredientDefinition definition = definition(piece);
+            InfusionDefinition definition = definition(piece);
             if (definition == null) {
                 continue;
             }
@@ -93,7 +93,7 @@ public final class IngredientRegistry {
     public static void contribute(NonNullList<ItemStack> grid, EntityPlayer player,
                                   FlaskBonuses bonuses) {
         for (ItemStack piece : grid) {
-            IngredientDefinition definition = definition(piece);
+            InfusionDefinition definition = definition(piece);
             if (definition == null) {
                 continue;
             }
@@ -109,7 +109,7 @@ public final class IngredientRegistry {
     public static void dispatchDrinkCompleted(NonNullList<ItemStack> grid, ItemStack flask,
                                               EntityPlayer player) {
         for (ItemStack piece : grid) {
-            IngredientDefinition definition = definition(piece);
+            InfusionDefinition definition = definition(piece);
             if (definition == null) {
                 continue;
             }
@@ -121,11 +121,11 @@ public final class IngredientRegistry {
         }
     }
 
-    private static void logOnce(IngredientDefinition definition, String method,
+    private static void logOnce(InfusionDefinition definition, String method,
                                 Throwable failure) {
         if (FAILED.add(definition.getClass().getName() + "#" + method)) {
             EverfillingFlasksMod.LOGGER.error(
-                    "Ingredient definition {} failed in {}; that piece is skipped for this call,"
+                    "Infusion definition {} failed in {}; that piece is skipped for this call,"
                             + " it stays registered, and this is logged once",
                     definition.getClass().getName(), method, failure);
         }

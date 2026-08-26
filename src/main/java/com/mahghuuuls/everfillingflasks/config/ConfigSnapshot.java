@@ -1,8 +1,8 @@
 package com.mahghuuuls.everfillingflasks.config;
 
 import com.mahghuuuls.everfillingflasks.item.FlaskTier;
-import com.mahghuuuls.everfillingflasks.journal.JournalHintOverrides;
-import com.mahghuuuls.everfillingflasks.item.IngredientKind;
+import com.mahghuuuls.everfillingflasks.journal.JournalTextOverrides;
+import com.mahghuuuls.everfillingflasks.item.InfusionKind;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,27 +29,27 @@ public final class ConfigSnapshot {
     private final boolean keepFlaskOnDeath;
     private final float drinkSlowdown;
     private final boolean diagnostics;
-    private final boolean ingredientLoot;
-    private final JournalHintOverrides hintOverrides;
+    private final boolean infusionLoot;
+    private final JournalTextOverrides textOverrides;
     private final Map<FlaskTier, TierConfig> tiers;
-    private final Map<IngredientKind, IngredientConfig> ingredients;
+    private final Map<InfusionKind, InfusionConfig> infusions;
     private final Map<String, Boolean> recipes;
     private final List<String> clampWarnings;
 
     private ConfigSnapshot(String startingFlask, boolean keepFlaskOnDeath, float drinkSlowdown,
-                           boolean diagnostics, boolean ingredientLoot,
-                           JournalHintOverrides hintOverrides,
+                           boolean diagnostics, boolean infusionLoot,
+                           JournalTextOverrides textOverrides,
                            Map<FlaskTier, TierConfig> tiers,
-                           Map<IngredientKind, IngredientConfig> ingredients,
+                           Map<InfusionKind, InfusionConfig> infusions,
                            Map<String, Boolean> recipes, List<String> clampWarnings) {
         this.startingFlask = startingFlask;
         this.keepFlaskOnDeath = keepFlaskOnDeath;
         this.drinkSlowdown = drinkSlowdown;
         this.diagnostics = diagnostics;
-        this.ingredientLoot = ingredientLoot;
-        this.hintOverrides = hintOverrides;
+        this.infusionLoot = infusionLoot;
+        this.textOverrides = textOverrides;
         this.tiers = tiers;
-        this.ingredients = ingredients;
+        this.infusions = infusions;
         this.recipes = recipes;
         this.clampWarnings = clampWarnings;
     }
@@ -72,16 +72,16 @@ public final class ConfigSnapshot {
         tiers.put(FlaskTier.UNCOMMON, TierConfig.from("flasks.uncommon", FlaskConfig.flasks.uncommon, warnings));
         tiers.put(FlaskTier.RARE, TierConfig.from("flasks.rare", FlaskConfig.flasks.rare, warnings));
 
-        Map<IngredientKind, IngredientConfig> ingredients =
-                new EnumMap<IngredientKind, IngredientConfig>(IngredientKind.class);
-        ingredients.put(IngredientKind.SUNPETAL_LEAF, IngredientConfig.from(
-                "ingredients.sunpetalLeaf", FlaskConfig.ingredients.sunpetalLeaf, warnings));
-        ingredients.put(IngredientKind.IRONROOT_SPRIG, IngredientConfig.from(
-                "ingredients.ironrootSprig", FlaskConfig.ingredients.ironrootSprig, warnings));
-        ingredients.put(IngredientKind.QUICKMINT_LEAF, IngredientConfig.from(
-                "ingredients.quickmintLeaf", FlaskConfig.ingredients.quickmintLeaf, warnings));
-        ingredients.put(IngredientKind.SECOND_WIND_PETAL, IngredientConfig.from(
-                "ingredients.secondWindPetal", FlaskConfig.ingredients.secondWindPetal, warnings));
+        Map<InfusionKind, InfusionConfig> infusions =
+                new EnumMap<InfusionKind, InfusionConfig>(InfusionKind.class);
+        infusions.put(InfusionKind.SUNPETAL_LEAF, InfusionConfig.from(
+                "infusions.sunpetalLeaf", FlaskConfig.infusions.sunpetalLeaf, warnings));
+        infusions.put(InfusionKind.IRONROOT_SPRIG, InfusionConfig.from(
+                "infusions.ironrootSprig", FlaskConfig.infusions.ironrootSprig, warnings));
+        infusions.put(InfusionKind.QUICKMINT_LEAF, InfusionConfig.from(
+                "infusions.quickmintLeaf", FlaskConfig.infusions.quickmintLeaf, warnings));
+        infusions.put(InfusionKind.SECOND_WIND_PETAL, InfusionConfig.from(
+                "infusions.secondWindPetal", FlaskConfig.infusions.secondWindPetal, warnings));
 
         // Keyed by the same lowercase names the recipe JSON conditions use, so one condition
         // class covers every switchable recipe; only the Flasks have recipes now.
@@ -90,9 +90,9 @@ public final class ConfigSnapshot {
         recipes.put(FlaskTier.UNCOMMON.key(), FlaskConfig.recipes.uncommon);
         recipes.put(FlaskTier.RARE.key(), FlaskConfig.recipes.rare);
 
-        JournalHintOverrides hintOverrides =
-                JournalHintOverrides.parse(FlaskConfig.journal.hintOverrides);
-        warnings.addAll(hintOverrides.warnings());
+        JournalTextOverrides textOverrides =
+                JournalTextOverrides.parse(FlaskConfig.journal.textOverrides);
+        warnings.addAll(textOverrides.warnings());
 
         return new ConfigSnapshot(
                 FlaskConfig.general.startingFlask == null ? "" : FlaskConfig.general.startingFlask.trim(),
@@ -100,10 +100,10 @@ public final class ConfigSnapshot {
                 (float) clampDouble(FlaskConfig.general.drinkSlowdown, 0.0, 1.0,
                         "general.drinkSlowdown", warnings),
                 FlaskConfig.general.diagnostics,
-                FlaskConfig.general.ingredientLoot,
-                hintOverrides,
+                FlaskConfig.general.infusionLoot,
+                textOverrides,
                 Collections.unmodifiableMap(tiers),
-                Collections.unmodifiableMap(ingredients),
+                Collections.unmodifiableMap(infusions),
                 Collections.unmodifiableMap(recipes),
                 Collections.unmodifiableList(warnings));
     }
@@ -124,22 +124,22 @@ public final class ConfigSnapshot {
         return diagnostics;
     }
 
-    /** Whether the built-in ingredients join the vanilla treasure chest loot. */
-    /** A pack author's replacements for journal acquisition hints (REQ-041). */
-    public JournalHintOverrides hintOverrides() {
-        return hintOverrides;
+    /** Whether the built-in infusions join the vanilla treasure chest loot. */
+    /** A pack author's replacements for journal entry text (REQ-041). */
+    public JournalTextOverrides textOverrides() {
+        return textOverrides;
     }
 
-    public boolean ingredientLoot() {
-        return ingredientLoot;
+    public boolean infusionLoot() {
+        return infusionLoot;
     }
 
     public TierConfig tier(FlaskTier tier) {
         return tiers.get(tier);
     }
 
-    public IngredientConfig ingredient(IngredientKind kind) {
-        return ingredients.get(kind);
+    public InfusionConfig infusion(InfusionKind kind) {
+        return infusions.get(kind);
     }
 
     public boolean recipeEnabled(FlaskTier tier) {
@@ -147,7 +147,7 @@ public final class ConfigSnapshot {
     }
 
     /**
-     * The switch for one named recipe, tier or ingredient. An unknown name reads as enabled:
+     * The switch for one named recipe, tier or infusion. An unknown name reads as enabled:
      * a typo in a recipe file must not silently remove content, and the mismatch is visible
      * in the config file the name fails to match.
      */
@@ -238,20 +238,20 @@ public final class ConfigSnapshot {
         }
     }
 
-    /** One ingredient's clamped values. */
-    public static final class IngredientConfig {
+    /** One infusion's clamped values. */
+    public static final class InfusionConfig {
 
         private final int cost;
         private final double strength;
 
-        IngredientConfig(int cost, double strength) {
+        InfusionConfig(int cost, double strength) {
             this.cost = cost;
             this.strength = strength;
         }
 
-        static IngredientConfig from(String keyPrefix, FlaskConfig.IngredientValues values,
+        static InfusionConfig from(String keyPrefix, FlaskConfig.InfusionValues values,
                                      List<String> warnings) {
-            return new IngredientConfig(
+            return new InfusionConfig(
                     clampInt(values.cost, 0, 1000, keyPrefix + ".cost", warnings),
                     clampDouble(values.strength, 0.0, 100.0, keyPrefix + ".strength", warnings));
         }

@@ -29,8 +29,8 @@ class RecipeJsonTest {
     }
 
     @Test
-    void noIngredientRecipeFilesRemain() {
-        // Ingredients come from treasure chests (owner decision 2026-08-25); a leftover
+    void noInfusionRecipeFilesRemain() {
+        // Infusions come from treasure chests (owner decision 2026-08-25); a leftover
         // recipe file would quietly bring crafting back.
         for (String key : new String[]{"sunpetal_leaf", "ironroot_sprig", "quickmint_leaf",
                 "second_wind_petal", "sunmelon_shard", "ironbark_chip", "quicksilver_drop"}) {
@@ -40,7 +40,7 @@ class RecipeJsonTest {
         }
     }
 
-    private static void checkFlaskRecipe(String tier, int ingredientCount) {
+    private static void checkFlaskRecipe(String tier, int infusionCount) {
         JsonObject recipe = load(tier + "_flask.json");
         assertEquals("minecraft:crafting_shapeless", recipe.get("type").getAsString());
         JsonObject condition = recipe.getAsJsonArray("conditions").get(0).getAsJsonObject();
@@ -50,12 +50,12 @@ class RecipeJsonTest {
         assertEquals("everfillingflasks:" + tier + "_flask", result.get("item").getAsString());
         // No NBT on the output: a crafted Flask reads 0 charges by the persistence rule.
         org.junit.jupiter.api.Assertions.assertFalse(result.has("nbt"));
-        assertEquals(ingredientCount, recipe.getAsJsonArray("ingredients").size());
+        assertEquals(infusionCount, recipe.getAsJsonArray("ingredients").size());
     }
 
     @Test
     void everyFlaskRecipeParsesWithItsSwitchAndAnEmptyOutput() {
-        checkFlaskRecipe("common", 3);
+        checkFlaskRecipe("common", 5);
         checkFlaskRecipe("uncommon", 4);
         checkFlaskRecipe("rare", 4);
     }

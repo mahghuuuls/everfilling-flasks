@@ -4,18 +4,20 @@ import com.google.gson.JsonObject;
 import com.mahghuuuls.everfillingflasks.EverfillingFlasksMod;
 import com.mahghuuuls.everfillingflasks.Tags;
 import com.mahghuuuls.everfillingflasks.api.FlaskDefinition;
-import com.mahghuuuls.everfillingflasks.api.IngredientDefinition;
+import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
-import com.mahghuuuls.everfillingflasks.flask.IngredientRegistry;
+import com.mahghuuuls.everfillingflasks.flask.InfusionRegistry;
 import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -59,11 +61,11 @@ public final class JournalBuilder {
 
     /** Section ids. Player-visible names come from the language file. */
     private static final String FLASKS = "flasks";
-    private static final String INGREDIENTS = "ingredients";
+    private static final String INFUSIONS = "infusions";
 
     /** Sections are shown in this order rather than alphabetically; entries inside sort A to Z. */
     private static final int FLASKS_SORT = 0;
-    private static final int INGREDIENTS_SORT = 1;
+    private static final int INFUSIONS_SORT = 1;
 
     private static boolean buildFailed;
 
@@ -80,11 +82,11 @@ public final class JournalBuilder {
     private static final Set<String> recipeScanFailed = new HashSet<>();
 
     /**
-     * Whether the last build had a player to ask. Patchouli loads its books during the startup
-     * resource load, when there is no player yet, and a definition is entitled to use the player
-     * it is given. So a journal built at that moment is rebuilt before it is first read.
+     * How many registrations the journal was last built from. Content may be registered at any
+     * time, including after the book was first filled, so a count that no longer matches means
+     * the journal is out of date and is built again.
      */
-    private static boolean builtWithViewer;
+    private static int builtFrom = -1;
 
     /**
      * A book somewhere finished reloading.
@@ -102,12 +104,11 @@ public final class JournalBuilder {
     }
 
     /**
-     * Rebuilds the journal if it is missing or was built without a player to ask.
+     * Rebuilds the journal if it is missing or out of date.
      *
-     * <p>Two things wipe it. Any resource reload (a language change, a resource pack, F3+T) makes
-     * Patchouli clear the book, and this restores it. Separately, the first build happens during
-     * startup when there is no player yet, and a definition is entitled to use the player it is
-     * given, so the first build with a player present replaces those values.
+     * <p>Any resource reload (a language change, a resource pack, F3+T) makes Patchouli clear
+     * the book, and this puts it back. A mod registering a Flask or an infusion later than the
+     * first build changes the count, and this picks that up too.
      */
     static void ensureCurrent() {
         try {
@@ -116,15 +117,17 @@ public final class JournalBuilder {
                 return;
             }
             boolean sectionsGone = !book.contents.categories.containsKey(sectionKey(FLASKS))
-                    || !book.contents.categories.containsKey(sectionKey(INGREDIENTS));
-            boolean viewerArrived =
-                    !builtWithViewer && Minecraft.getMinecraft().player != null;
-            if (sectionsGone || viewerArrived) {
+                    || !book.contents.categories.containsKey(sectionKey(INFUSIONS));
+            if (sectionsGone || registrationCount() != builtFrom) {
                 build();
             }
         } catch (Throwable failure) {
             report(failure);
         }
+    }
+
+    private static int registrationCount() {
+        return FlaskRegistry.all().size() + InfusionRegistry.all().size();
     }
 
     private static void build() {
@@ -149,27 +152,29 @@ public final class JournalBuilder {
 
     private void rebuild(Book book, BookContents contents) {
         addSection(book, contents, FLASKS, FLASKS_SORT, "everfillingflasks:rare_flask");
-        addSection(book, contents, INGREDIENTS, INGREDIENTS_SORT,
+        addSection(book, contents, INFUSIONS, INFUSIONS_SORT,
                 "everfillingflasks:sunpetal_leaf");
 
         // One pass over the recipe registry for the whole rebuild, rather than one search per
         // entry. A recipe a pack or the config disabled is simply not registered, so it is
         // absent here too, which is exactly what REQ-040 asks for.
         Map<Item, String> recipes = recipesByOutput();
-        EntityPlayer viewer = Minecraft.getMinecraft().player;
-        builtWithViewer = viewer != null;
+        builtFrom = registrationCount();
 
+        Map<Item, Integer> flaskRanks = alphabeticalRanks(FlaskRegistry.all().keySet());
         for (Map.Entry<Item, FlaskDefinition> flask : FlaskRegistry.all().entrySet()) {
             Item item = flask.getKey();
             addEntry(book, contents, item, "flask", () -> JournalEntryWriter.flask(
-                    item, flask.getValue(), viewer, sectionId(FLASKS), recipes.get(item)));
+                    item, flask.getValue(), sectionId(FLASKS), recipes.get(item),
+                    flaskRanks.get(item)));
         }
-        for (Map.Entry<Item, IngredientDefinition> ingredient
-                : IngredientRegistry.all().entrySet()) {
-            Item item = ingredient.getKey();
-            addEntry(book, contents, item, "ingredient", () -> JournalEntryWriter.ingredient(
-                    item, ingredient.getValue(), viewer, sectionId(INGREDIENTS),
-                    recipes.get(item)));
+        Map<Item, Integer> infusionRanks = alphabeticalRanks(InfusionRegistry.all().keySet());
+        for (Map.Entry<Item, InfusionDefinition> infusion
+                : InfusionRegistry.all().entrySet()) {
+            Item item = infusion.getKey();
+            addEntry(book, contents, item, "infusion", () -> JournalEntryWriter.infusion(
+                    item, infusion.getValue(), sectionId(INFUSIONS),
+                    recipes.get(item), infusionRanks.get(item)));
         }
         dropStaleRecipeLinks(contents);
         reportUnmatchedOverrides();
@@ -188,17 +193,47 @@ public final class JournalBuilder {
     }
 
     /**
-     * A hint override naming something no mod registered is silent otherwise, and a pack author
+     * Each item's place in A-to-Z order by the name the player reads, with no colour codes in
+     * the way.
+     *
+     * <p>The book orders entries by a number first and their raw name second. The names carry
+     * rarity colours, and a colour code at the front of a name would otherwise decide the order
+     * before the first letter did, so the order is worked out here from the plain names and
+     * handed to the book as that number.
+     */
+    private Map<Item, Integer> alphabeticalRanks(Set<Item> items) {
+        List<Item> sorted = new ArrayList<>(items);
+        Collections.sort(sorted, new Comparator<Item>() {
+            @Override
+            public int compare(Item left, Item right) {
+                int byName = JournalEntryWriter.plainName(new ItemStack(left))
+                        .compareToIgnoreCase(JournalEntryWriter.plainName(new ItemStack(right)));
+                // Two items sharing a display name still need one settled order, or the book
+                // would show them in whichever order the registry happened to hand over.
+                return byName != 0 ? byName
+                        : String.valueOf(left.getRegistryName())
+                                .compareTo(String.valueOf(right.getRegistryName()));
+            }
+        });
+        Map<Item, Integer> ranks = new HashMap<>();
+        for (int i = 0; i < sorted.size(); i++) {
+            ranks.put(sorted.get(i), i);
+        }
+        return ranks;
+    }
+
+    /**
+     * A text override naming something no mod registered is silent otherwise, and a pack author
      * would have no way to find their typo. Said once per name per session (REQ-041).
      */
     private void reportUnmatchedOverrides() {
-        for (String name : ConfigSnapshot.current().hintOverrides().names()) {
+        for (String name : ConfigSnapshot.current().textOverrides().names()) {
             if (described.contains(name) || !reportedOverrides.add(name)) {
                 continue;
             }
             EverfillingFlasksMod.LOGGER.warn(
-                    "journal.hintOverrides names {}, which is not a registered Flask or "
-                            + "ingredient; that line does nothing.", name);
+                    "journal.textOverrides names {}, which is not a registered Flask or "
+                            + "infusion; that line does nothing.", name);
         }
     }
 

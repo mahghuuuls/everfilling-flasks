@@ -89,7 +89,7 @@ public final class ClientFlaskState {
         }
     }
 
-    /** The server's summed ingredient costs for the equipped Flask; display only. */
+    /** The server's summed infusion costs for the equipped Flask; display only. */
     public static int potencyUsed() {
         return last == null ? 0 : last.potencyUsed();
     }

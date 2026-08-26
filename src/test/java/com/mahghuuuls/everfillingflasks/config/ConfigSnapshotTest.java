@@ -43,22 +43,22 @@ class ConfigSnapshotTest {
     }
 
     @Test
-    void ingredientConfigClampsCostAndStrength() {
+    void infusionConfigClampsCostAndStrength() {
         List<String> warnings = new ArrayList<String>();
-        FlaskConfig.IngredientValues values = new FlaskConfig.IngredientValues(-1, 200.0);
-        ConfigSnapshot.IngredientConfig config =
-                ConfigSnapshot.IngredientConfig.from("ingredients.test", values, warnings);
+        FlaskConfig.InfusionValues values = new FlaskConfig.InfusionValues(-1, 200.0);
+        ConfigSnapshot.InfusionConfig config =
+                ConfigSnapshot.InfusionConfig.from("infusions.test", values, warnings);
         assertEquals(0, config.cost());
         assertEquals(100.0, config.strength(), 1.0E-9);
         assertEquals(2, warnings.size());
-        assertTrue(warnings.get(0).contains("ingredients.test.cost"));
-        assertTrue(warnings.get(1).contains("ingredients.test.strength"));
+        assertTrue(warnings.get(0).contains("infusions.test.cost"));
+        assertTrue(warnings.get(1).contains("infusions.test.strength"));
     }
 
     @Test
     void recipeSwitchesAnswerByNameAndUnknownNamesStayEnabled() {
         ConfigSnapshot snapshot = ConfigSnapshot.current();
-        // Defaults: every Flask recipe on. (The ingredient recipes are gone: ingredients come
+        // Defaults: every Flask recipe on. (The infusion recipes are gone: infusions come
         // from treasure chests since 2026-08-25.)
         assertTrue(snapshot.recipeEnabled("common"));
         assertTrue(snapshot.recipeEnabled("uncommon"));
@@ -86,24 +86,24 @@ class ConfigSnapshotTest {
     }
 
     @Test
-    void ingredientLootDefaultsOn() {
-        assertTrue(ConfigSnapshot.current().ingredientLoot());
+    void infusionLootDefaultsOn() {
+        assertTrue(ConfigSnapshot.current().infusionLoot());
     }
 
     @Test
-    void ingredientDefaultsMatchTheApprovedBalance() {
+    void infusionDefaultsMatchTheApprovedBalance() {
         ConfigSnapshot snapshot = ConfigSnapshot.current();
-        assertEquals(0.10, snapshot.ingredient(
-                com.mahghuuuls.everfillingflasks.item.IngredientKind.SUNPETAL_LEAF)
+        assertEquals(0.10, snapshot.infusion(
+                com.mahghuuuls.everfillingflasks.item.InfusionKind.SUNPETAL_LEAF)
                 .strength(), 1.0E-9);
-        assertEquals(0.40, snapshot.ingredient(
-                com.mahghuuuls.everfillingflasks.item.IngredientKind.IRONROOT_SPRIG)
+        assertEquals(0.40, snapshot.infusion(
+                com.mahghuuuls.everfillingflasks.item.InfusionKind.IRONROOT_SPRIG)
                 .strength(), 1.0E-9);
-        assertEquals(0.20, snapshot.ingredient(
-                com.mahghuuuls.everfillingflasks.item.IngredientKind.QUICKMINT_LEAF)
+        assertEquals(0.20, snapshot.infusion(
+                com.mahghuuuls.everfillingflasks.item.InfusionKind.QUICKMINT_LEAF)
                 .strength(), 1.0E-9);
-        assertEquals(5.0, snapshot.ingredient(
-                com.mahghuuuls.everfillingflasks.item.IngredientKind.SECOND_WIND_PETAL)
+        assertEquals(5.0, snapshot.infusion(
+                com.mahghuuuls.everfillingflasks.item.InfusionKind.SECOND_WIND_PETAL)
                 .strength(), 1.0E-9);
     }
 

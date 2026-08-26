@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * The Flask screen, in the owner's 2026-08-25 shape: the Flask slot on the left, the six-slot
- * ingredient row beside it on the right, and the potency shown as pips under the row —
+ * infusion row beside it on the right, and the potency shown as pips under the row —
  * one pip per potency point in rows of ten (up to thirty), filled per used point, all red
  * plus a warning when over capacity. A configured potency too large for pips falls back to
  * plain numbers.
@@ -54,8 +54,24 @@ public final class FlaskScreen extends GuiContainer {
     private static final int PIP_OVER = 0xFFD03030;
     private static final int TEXT_OVER = 0xB02020;
 
+    /**
+     * The journal control: a real button with a book drawn on it, not an item in a slot (owner
+     * decision 2026-08-26). The face is vanilla's own button art from the widget sheet, so the
+     * raised edge and the hover highlight are the ones players already know, and no new art is
+     * needed. 1.12.2 has no dedicated recipe-book button texture to borrow.
+     */
+    private static final ResourceLocation WIDGETS =
+            new ResourceLocation("minecraft", "textures/gui/widgets.png");
+    private static final int JOURNAL_W = 20;
+    private static final int JOURNAL_H = 20;
+    /** The widget sheet's button row, and the highlighted row one button below it. */
+    private static final int BUTTON_V = 66;
+    private static final int BUTTON_HOVER_V = 86;
+    /** The sheet's button is 200 wide; its two ends are drawn to make a short one. */
+    private static final int BUTTON_SHEET_W = 200;
+
     /** Under the Flask slot, in the strip the pips never reach (they start at the row's x). */
-    private static final int JOURNAL_X = FlaskContainer.FLASK_SLOT_X - 1;
+    private static final int JOURNAL_X = FlaskContainer.FLASK_SLOT_X - 2;
     private static final int JOURNAL_Y = PIP_Y - 1;
     private static final int JOURNAL_ID = 0;
 
@@ -81,18 +97,16 @@ public final class FlaskScreen extends GuiContainer {
     }
 
     /**
-     * The journal control: the book itself drawn in one of the background texture's slot frames,
-     * so the button matches the screen and still costs no new art. It is always present, because
-     * the journal is reference material rather than something the Flask state gates (REQ-035).
+     * A short vanilla button with the journal drawn on its face.
+     *
+     * <p>The widget sheet only holds a full-width button, so its left and right ends are drawn
+     * side by side to make a small square one; that is how vanilla itself builds narrow buttons.
      */
     @SideOnly(Side.CLIENT)
     private static final class JournalButton extends net.minecraft.client.gui.GuiButton {
 
-        private static final int SIZE = 18;
-        private static final int HOVER_TINT = 0x80FFFFFF;
-
         JournalButton(int id, int x, int y) {
-            super(id, x, y, SIZE, SIZE, "");
+            super(id, x, y, JOURNAL_W, JOURNAL_H, "");
         }
 
         @Override
@@ -103,16 +117,16 @@ public final class FlaskScreen extends GuiContainer {
             }
             hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            mc.getTextureManager().bindTexture(BACKGROUND);
-            drawTexturedModalRect(x, y, FRAME_U, FRAME_V, SIZE, SIZE);
+            mc.getTextureManager().bindTexture(WIDGETS);
+            int v = hovered ? BUTTON_HOVER_V : BUTTON_V;
+            int half = JOURNAL_W / 2;
+            drawTexturedModalRect(x, y, 0, v, half, JOURNAL_H);
+            drawTexturedModalRect(x + half, y, BUTTON_SHEET_W - half, v, half, JOURNAL_H);
 
             net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting();
-            mc.getRenderItem().renderItemAndEffectIntoGUI(JournalBridge.buttonIcon(), x + 1, y + 1);
+            mc.getRenderItem().renderItemAndEffectIntoGUI(
+                    JournalBridge.buttonIcon(), x + 2, y + 2);
             net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
-
-            if (hovered) {
-                Gui.drawRect(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, HOVER_TINT);
-            }
         }
     }
 
@@ -191,8 +205,8 @@ public final class FlaskScreen extends GuiContainer {
         // Not while a stack is being carried, the way vanilla suppresses slot tooltips: the
         // label would otherwise sit behind the dragged item.
         if (mc.player.inventory.getItemStack().isEmpty()
-                && mouseX >= guiLeft + JOURNAL_X && mouseX < guiLeft + JOURNAL_X + 18
-                && mouseY >= guiTop + JOURNAL_Y && mouseY < guiTop + JOURNAL_Y + 18) {
+                && mouseX >= guiLeft + JOURNAL_X && mouseX < guiLeft + JOURNAL_X + JOURNAL_W
+                && mouseY >= guiTop + JOURNAL_Y && mouseY < guiTop + JOURNAL_Y + JOURNAL_H) {
             drawHoveringText(
                     java.util.Collections.singletonList(
                             I18n.format("everfillingflasks.journal.button")),

@@ -2,7 +2,7 @@ package com.mahghuuuls.everfillingflasks.network;
 
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
-import com.mahghuuuls.everfillingflasks.flask.IngredientRegistry;
+import com.mahghuuuls.everfillingflasks.flask.InfusionRegistry;
 import com.mahghuuuls.everfillingflasks.player.FlaskPlayerData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -16,15 +16,15 @@ import net.minecraftforge.items.IItemHandlerModifiable;
  * one. No equipped Flask means nine empty, refusing slots.
  *
  * <p>Rules enforced here, server and client alike (the client copy only mirrors what the
- * server sends back): registered ingredients only, one item per slot. Every real write also
+ * server sends back): registered infusions only, one item per slot. Every real write also
  * tells the player data the Flask's worth changed, so the effective cache refreshes and the
  * new potency numbers reach the client immediately.
  */
-public final class IngredientGridHandler implements IItemHandlerModifiable {
+public final class InfusionGridHandler implements IItemHandlerModifiable {
 
     private final FlaskPlayerData data;
 
-    public IngredientGridHandler(FlaskPlayerData data) {
+    public InfusionGridHandler(FlaskPlayerData data) {
         this.data = data;
     }
 
@@ -46,7 +46,7 @@ public final class IngredientGridHandler implements IItemHandlerModifiable {
     @Override
     public ItemStack getStackInSlot(int slot) {
         ItemStack flask = flask();
-        return flask.isEmpty() ? ItemStack.EMPTY : FlaskStackState.ingredients(flask).get(slot);
+        return flask.isEmpty() ? ItemStack.EMPTY : FlaskStackState.infusions(flask).get(slot);
     }
 
     @Override
@@ -55,10 +55,10 @@ public final class IngredientGridHandler implements IItemHandlerModifiable {
             return ItemStack.EMPTY;
         }
         ItemStack flask = flask();
-        if (flask.isEmpty() || !IngredientRegistry.isIngredient(stack)) {
+        if (flask.isEmpty() || !InfusionRegistry.isInfusion(stack)) {
             return stack;
         }
-        NonNullList<ItemStack> grid = FlaskStackState.ingredients(flask);
+        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
         if (!grid.get(slot).isEmpty()) {
             return stack;
         }
@@ -66,7 +66,7 @@ public final class IngredientGridHandler implements IItemHandlerModifiable {
         ItemStack piece = remainder.splitStack(1);
         if (!simulate) {
             grid.set(slot, piece);
-            FlaskStackState.setIngredients(flask, grid);
+            FlaskStackState.setInfusions(flask, grid);
             data.noteExternalChange();
         }
         return remainder;
@@ -81,14 +81,14 @@ public final class IngredientGridHandler implements IItemHandlerModifiable {
         if (flask.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        NonNullList<ItemStack> grid = FlaskStackState.ingredients(flask);
+        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
         ItemStack piece = grid.get(slot);
         if (piece.isEmpty()) {
             return ItemStack.EMPTY;
         }
         if (!simulate) {
             grid.set(slot, ItemStack.EMPTY);
-            FlaskStackState.setIngredients(flask, grid);
+            FlaskStackState.setInfusions(flask, grid);
             data.noteExternalChange();
         }
         return piece.copy();
@@ -104,7 +104,7 @@ public final class IngredientGridHandler implements IItemHandlerModifiable {
             // put the item, and dropping the write is what keeps a departed stack untouched.
             return;
         }
-        NonNullList<ItemStack> grid = FlaskStackState.ingredients(flask);
+        NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
         if (stack.isEmpty()) {
             grid.set(slot, ItemStack.EMPTY);
         } else {
@@ -112,7 +112,7 @@ public final class IngredientGridHandler implements IItemHandlerModifiable {
             piece.setCount(1);
             grid.set(slot, piece);
         }
-        FlaskStackState.setIngredients(flask, grid);
+        FlaskStackState.setInfusions(flask, grid);
         data.noteExternalChange();
     }
 

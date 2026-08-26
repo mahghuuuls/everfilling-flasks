@@ -10,33 +10,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Each built-in ingredient's registered cost and contribution, at the config defaults, which
+ * Each built-in infusion's registered cost and contribution, at the config defaults, which
  * are the owner's approved balance numbers (REQ-033). Pure value checks; no item registry or
  * world needed, because the definitions read only the config snapshot.
  */
-class BuiltinIngredientDefinitionTest {
+class BuiltinInfusionDefinitionTest {
 
-    private static FlaskBonuses contributed(IngredientKind kind) {
+    private static FlaskBonuses contributed(InfusionKind kind) {
         FlaskBonuses bonuses = new FlaskBonuses();
-        new BuiltinIngredientDefinition(kind).contribute(ItemStack.EMPTY, null, bonuses);
+        new BuiltinInfusionDefinition(kind).contribute(ItemStack.EMPTY, null, bonuses);
         return bonuses;
     }
 
     @Test
     void theApprovedCosts() {
-        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF)
+        assertEquals(2, new BuiltinInfusionDefinition(InfusionKind.SUNPETAL_LEAF)
                 .potencyCost(ItemStack.EMPTY));
-        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.IRONROOT_SPRIG)
+        assertEquals(2, new BuiltinInfusionDefinition(InfusionKind.IRONROOT_SPRIG)
                 .potencyCost(ItemStack.EMPTY));
-        assertEquals(2, new BuiltinIngredientDefinition(IngredientKind.QUICKMINT_LEAF)
+        assertEquals(2, new BuiltinInfusionDefinition(InfusionKind.QUICKMINT_LEAF)
                 .potencyCost(ItemStack.EMPTY));
-        assertEquals(3, new BuiltinIngredientDefinition(IngredientKind.SECOND_WIND_PETAL)
+        assertEquals(3, new BuiltinInfusionDefinition(InfusionKind.SECOND_WIND_PETAL)
                 .potencyCost(ItemStack.EMPTY));
     }
 
     @Test
     void sunpetalAddsTenPercentHealingAndNothingElse() {
-        FlaskBonuses bonuses = contributed(IngredientKind.SUNPETAL_LEAF);
+        FlaskBonuses bonuses = contributed(InfusionKind.SUNPETAL_LEAF);
         assertEquals(0.10F, bonuses.healingSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.drinkSpeedSum(), 1.0E-6F);
@@ -45,14 +45,14 @@ class BuiltinIngredientDefinitionTest {
 
     @Test
     void ironrootAddsFortyPercentThreshold() {
-        FlaskBonuses bonuses = contributed(IngredientKind.IRONROOT_SPRIG);
+        FlaskBonuses bonuses = contributed(InfusionKind.IRONROOT_SPRIG);
         assertEquals(0.40F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
     }
 
     @Test
     void quickmintAddsTwentyPercentDrinkSpeed() {
-        FlaskBonuses bonuses = contributed(IngredientKind.QUICKMINT_LEAF);
+        FlaskBonuses bonuses = contributed(InfusionKind.QUICKMINT_LEAF);
         assertEquals(0.20F, bonuses.drinkSpeedSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
     }
@@ -61,7 +61,7 @@ class BuiltinIngredientDefinitionTest {
     void thePetalContributesNothingWhilePlaced() {
         // Its whole effect is the post-drink hook; a passive contribution here would be a
         // second, unapproved effect.
-        FlaskBonuses bonuses = contributed(IngredientKind.SECOND_WIND_PETAL);
+        FlaskBonuses bonuses = contributed(InfusionKind.SECOND_WIND_PETAL);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.drinkSpeedSum(), 1.0E-6F);
@@ -73,8 +73,8 @@ class BuiltinIngredientDefinitionTest {
     void fiveOfAKindMatchesTheOwnersBalanceIntent() {
         // Five Sunpetal Leaves in a potency-10 Flask: about +50 percent healing.
         FlaskBonuses bonuses = new FlaskBonuses();
-        BuiltinIngredientDefinition shard =
-                new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF);
+        BuiltinInfusionDefinition shard =
+                new BuiltinInfusionDefinition(InfusionKind.SUNPETAL_LEAF);
         for (int i = 0; i < 5; i++) {
             shard.contribute(ItemStack.EMPTY, null, bonuses);
         }
@@ -86,20 +86,20 @@ class BuiltinIngredientDefinitionTest {
         // A hint must not outlive the behaviour it describes: a pack that takes the herbs out
         // of world loot would otherwise ship a journal sending players to chests that no longer
         // hold them.
-        boolean original = FlaskConfig.general.ingredientLoot;
+        boolean original = FlaskConfig.general.infusionLoot;
         try {
-            FlaskConfig.general.ingredientLoot = true;
+            FlaskConfig.general.infusionLoot = true;
             ConfigSnapshot.refresh();
-            assertEquals("everfillingflasks.journal.hint.chests",
-                    new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF)
-                            .journalHint(ItemStack.EMPTY));
+            assertEquals("everfillingflasks.journal.text.chests",
+                    new BuiltinInfusionDefinition(InfusionKind.SUNPETAL_LEAF)
+                            .journalText(ItemStack.EMPTY));
 
-            FlaskConfig.general.ingredientLoot = false;
+            FlaskConfig.general.infusionLoot = false;
             ConfigSnapshot.refresh();
-            assertNull(new BuiltinIngredientDefinition(IngredientKind.SUNPETAL_LEAF)
-                    .journalHint(ItemStack.EMPTY));
+            assertNull(new BuiltinInfusionDefinition(InfusionKind.SUNPETAL_LEAF)
+                    .journalText(ItemStack.EMPTY));
         } finally {
-            FlaskConfig.general.ingredientLoot = original;
+            FlaskConfig.general.infusionLoot = original;
             ConfigSnapshot.refresh();
         }
     }

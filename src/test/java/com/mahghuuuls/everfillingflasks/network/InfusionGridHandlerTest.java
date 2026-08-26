@@ -1,7 +1,7 @@
 package com.mahghuuuls.everfillingflasks.network;
 
 import com.mahghuuuls.everfillingflasks.api.FlaskDefinition;
-import com.mahghuuuls.everfillingflasks.api.IngredientDefinition;
+import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
 import com.mahghuuuls.everfillingflasks.player.FlaskPlayerData;
@@ -22,24 +22,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * then, so writes land on the live instance, a swap swaps the visible grid, and no Flask
  * means nine refusing slots.
  */
-class IngredientGridHandlerTest {
+class InfusionGridHandlerTest {
 
     private FlaskPlayerData data;
-    private IngredientGridHandler handler;
+    private InfusionGridHandler handler;
 
     @BeforeAll
     static void bootstrapMinecraft() {
         Bootstrap.register();
         // Static registries shared with other test classes: register defensively, first wins.
         FlaskRegistry.register(Items.GLASS_BOTTLE, new NullFlask());
-        com.mahghuuuls.everfillingflasks.flask.IngredientRegistry.register(Items.SUGAR,
-                new SimpleIngredient());
+        com.mahghuuuls.everfillingflasks.flask.InfusionRegistry.register(Items.SUGAR,
+                new SimpleInfusion());
     }
 
     @BeforeEach
     void freshData() {
         data = new FlaskPlayerData();
-        handler = new IngredientGridHandler(data);
+        handler = new InfusionGridHandler(data);
     }
 
     private static final class NullFlask implements FlaskDefinition {
@@ -69,9 +69,9 @@ class IngredientGridHandlerTest {
         }
     }
 
-    private static final class SimpleIngredient implements IngredientDefinition {
+    private static final class SimpleInfusion implements InfusionDefinition {
         @Override
-        public int potencyCost(ItemStack ingredient) {
+        public int potencyCost(ItemStack infusion) {
             return 2;
         }
     }
@@ -97,13 +97,13 @@ class IngredientGridHandlerTest {
         ItemStack remainder = handler.insertItem(4, new ItemStack(Items.SUGAR, 3), false);
 
         assertEquals(2, remainder.getCount(), "one piece per insert");
-        assertEquals(Items.SUGAR, FlaskStackState.ingredients(flask).get(4).getItem(),
+        assertEquals(Items.SUGAR, FlaskStackState.infusions(flask).get(4).getItem(),
                 "the write landed on the equipped Flask's own NBT");
         assertEquals(Items.SUGAR, handler.getStackInSlot(4).getItem());
     }
 
     @Test
-    void anOccupiedSlotAndANonIngredientBothRefuse() {
+    void anOccupiedSlotAndANonInfusionBothRefuse() {
         equipFlask();
         handler.insertItem(0, new ItemStack(Items.SUGAR), false);
         assertEquals(1, handler.insertItem(0, new ItemStack(Items.SUGAR), false).getCount(),
@@ -117,7 +117,7 @@ class IngredientGridHandlerTest {
         ItemStack flask = equipFlask();
         ItemStack remainder = handler.insertItem(0, new ItemStack(Items.SUGAR), true);
         assertTrue(remainder.isEmpty(), "the simulation reports acceptance");
-        assertTrue(FlaskStackState.ingredients(flask).get(0).isEmpty(),
+        assertTrue(FlaskStackState.infusions(flask).get(0).isEmpty(),
                 "but nothing was stored");
     }
 
@@ -129,7 +129,7 @@ class IngredientGridHandlerTest {
         ItemStack taken = handler.extractItem(2, 1, false);
 
         assertEquals(Items.SUGAR, taken.getItem());
-        assertTrue(FlaskStackState.ingredients(flask).get(2).isEmpty());
+        assertTrue(FlaskStackState.infusions(flask).get(2).isEmpty());
     }
 
     @Test
@@ -143,21 +143,21 @@ class IngredientGridHandlerTest {
         assertTrue(handler.getStackInSlot(0).isEmpty(),
                 "the new Flask's grid is what the slots show");
         handler.insertItem(1, new ItemStack(Items.SUGAR), false);
-        assertTrue(FlaskStackState.ingredients(first).get(1).isEmpty(),
+        assertTrue(FlaskStackState.infusions(first).get(1).isEmpty(),
                 "the departed Flask was not written");
-        assertEquals(Items.SUGAR, FlaskStackState.ingredients(second).get(1).getItem());
-        assertEquals(Items.SUGAR, FlaskStackState.ingredients(first).get(0).getItem(),
-                "the departed Flask kept its own ingredients");
+        assertEquals(Items.SUGAR, FlaskStackState.infusions(second).get(1).getItem());
+        assertEquals(Items.SUGAR, FlaskStackState.infusions(first).get(0).getItem(),
+                "the departed Flask kept its own infusions");
     }
 
     @Test
     void setStackClampsToOneItemAndClearsHonestly() {
         ItemStack flask = equipFlask();
         handler.setStackInSlot(3, new ItemStack(Items.SUGAR, 5));
-        assertEquals(1, FlaskStackState.ingredients(flask).get(3).getCount(),
+        assertEquals(1, FlaskStackState.infusions(flask).get(3).getCount(),
                 "the one-per-slot shape holds on the direct write path too");
         handler.setStackInSlot(3, ItemStack.EMPTY);
-        assertTrue(FlaskStackState.ingredients(flask).get(3).isEmpty());
+        assertTrue(FlaskStackState.infusions(flask).get(3).isEmpty());
     }
 
     @Test

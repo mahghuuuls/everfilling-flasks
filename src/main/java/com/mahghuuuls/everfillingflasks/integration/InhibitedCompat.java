@@ -22,6 +22,15 @@ public final class InhibitedCompat {
     }
 
     public static boolean isInhibited(EntityPlayer player) {
+        return isAvailable() && player.isPotionActive(potion);
+    }
+
+    /**
+     * Whether the integration has anything to act on: the Inhibited mod is installed and its
+     * effect is registered under the name this looks for. Used to decide whether it is worth
+     * telling a player about a freeze that could never happen in their game.
+     */
+    public static boolean isAvailable() {
         if (!resolved) {
             // Lazy on purpose: first call is always after registry events, so load order
             // against the Inhibited mod cannot matter.
@@ -32,6 +41,6 @@ public final class InhibitedCompat {
                         "Inhibited is not installed; flask recharge is never frozen by it");
             }
         }
-        return potion != null && player.isPotionActive(potion);
+        return potion != null;
     }
 }

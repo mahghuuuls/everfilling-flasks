@@ -14,10 +14,15 @@ it. A centered cast bar shows your progress and flashes red when you are interru
 flask's infusion grid: more healing, faster drinking, a tougher drink, or regeneration after
 each sip — within the flask's potency budget.
 
-**Made for add-ons.** Other mods can register their own flasks and ingredients, boost flasks
-from their items, recolor the HUD liquid, or replace the flask HUD entirely.
+**An in-game journal.** A book button on the flask screen opens a reference to every flask and
+infusion in your pack: what each one does, its real numbers, how to craft it, and where it is
+normally found. Add-on content appears in it automatically.
+
+**Made for add-ons.** Other mods can register their own flasks and infusions, boost flasks
+from their items, recolor the HUD liquid, or replace the flask HUD entirely. Anything they
+register shows up in the journal on its own, with no journal work on their side.
 
 Install on both client and server. Requires Inventory Button Bar (it adds the inventory button
-that opens the flask screen).
+that opens the flask screen) and Patchouli ROFL Edition (it draws the journal).
 
 Source and add-on API: [GitHub](https://github.com/mahghuuuls/everfilling-flasks)

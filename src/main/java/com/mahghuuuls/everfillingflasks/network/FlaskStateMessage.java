@@ -104,7 +104,7 @@ public final class FlaskStateMessage implements IMessage {
         return hitThreshold;
     }
 
-    /** Summed potency costs of the placed ingredients, for the screen's potency display. */
+    /** Summed potency costs of the placed infusions, for the screen's potency display. */
     public int potencyUsed() {
         return potencyUsed;
     }

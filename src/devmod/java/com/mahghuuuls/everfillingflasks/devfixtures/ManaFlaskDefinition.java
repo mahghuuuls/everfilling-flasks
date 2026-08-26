@@ -76,13 +76,7 @@ final class ManaFlaskDefinition implements FlaskDefinition {
     }
 
     @Override
-    public String journalDescription(ItemStack stack) {
-        // Proves the optional journal text path: an add-on adds words, and only words.
-        return "everfillingflasksdev.journal.mana.description";
-    }
-
-    @Override
-    public String journalHint(ItemStack stack) {
+    public String journalText(ItemStack stack) {
         // Proves the "Where to Find" path, and that a pack can override it by registry name.
         return "everfillingflasksdev.journal.mana.hint";
     }

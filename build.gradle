@@ -445,7 +445,7 @@ tasks.named('runClient', JavaExec).configure {
     [
         devmodModifiers   : 'eff.devfixtures.modifiers',
         devmodThrowing    : 'eff.devfixtures.throwing',
-        devmodIngredient  : 'eff.devfixtures.ingredient',
+        devmodInfusion  : 'eff.devfixtures.infusion',
         devmodManaFlask   : 'eff.devfixtures.manaflask',
         devmodThrowingHook: 'eff.devfixtures.throwinghook',
         devmodQuietFlask  : 'eff.devfixtures.quietflask',

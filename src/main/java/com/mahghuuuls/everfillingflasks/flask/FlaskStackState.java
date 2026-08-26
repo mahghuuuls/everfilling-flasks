@@ -21,7 +21,7 @@ public final class FlaskStackState {
     static final String TAG_ROOT = Tags.MOD_ID;
     static final String TAG_CHARGES = "charges";
     static final String TAG_PROGRESS = "progress";
-    static final String TAG_INGREDIENTS = "ingredients";
+    static final String TAG_INFUSIONS = "infusions";
     private static final String TAG_SLOT = "slot";
 
     /**
@@ -57,7 +57,7 @@ public final class FlaskStackState {
     /**
      * The equip rule: a Flask placed in the slot starts over. Charges and progress only; the
      * infusion grid rides along untouched, by the owner's rule that moving a Flask never costs
-     * its ingredients.
+     * its infusions.
      */
     public static void empty(ItemStack stack) {
         NBTTagCompound state = write(stack);
@@ -67,15 +67,15 @@ public final class FlaskStackState {
 
     /**
      * The infusion grid: always {@link #GRID_SIZE} slots, empty stacks for empty slots. A
-     * fresh list every call; mutating it changes nothing until {@link #setIngredients}.
+     * fresh list every call; mutating it changes nothing until {@link #setInfusions}.
      */
-    public static NonNullList<ItemStack> ingredients(ItemStack stack) {
+    public static NonNullList<ItemStack> infusions(ItemStack stack) {
         NonNullList<ItemStack> grid = NonNullList.withSize(GRID_SIZE, ItemStack.EMPTY);
         NBTTagCompound state = read(stack);
-        if (state == null || !state.hasKey(TAG_INGREDIENTS)) {
+        if (state == null || !state.hasKey(TAG_INFUSIONS)) {
             return grid;
         }
-        NBTTagList list = state.getTagList(TAG_INGREDIENTS, 10);
+        NBTTagList list = state.getTagList(TAG_INFUSIONS, 10);
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound entry = list.getCompoundTagAt(i);
             int slot = entry.getByte(TAG_SLOT);
@@ -87,7 +87,7 @@ public final class FlaskStackState {
     }
 
     /** Writes the whole grid; only filled slots are stored. Oversized lists are truncated. */
-    public static void setIngredients(ItemStack stack, NonNullList<ItemStack> grid) {
+    public static void setInfusions(ItemStack stack, NonNullList<ItemStack> grid) {
         NBTTagList list = new NBTTagList();
         int limit = Math.min(GRID_SIZE, grid.size());
         for (int i = 0; i < limit; i++) {
@@ -99,7 +99,7 @@ public final class FlaskStackState {
                 list.appendTag(entry);
             }
         }
-        write(stack).setTag(TAG_INGREDIENTS, list);
+        write(stack).setTag(TAG_INFUSIONS, list);
     }
 
     /** Used only by the starting-Flask grant, which is the one full-by-creation path. */
