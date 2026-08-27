@@ -54,6 +54,10 @@ public final class ItemFlask extends Item {
                 Math.round(values.healPercentage() * 100.0F)));
         // Maximum only, owner decision 2026-08-25: current charges are the HUD's job.
         tooltip.add(I18n.format("everfillingflasks.tooltip.charges", values.maxCharges()));
+        // The two grid numbers together, slots before budget: how many pieces fit, then how
+        // much they may cost between them.
+        tooltip.add(I18n.format("everfillingflasks.tooltip.slots",
+                com.mahghuuuls.everfillingflasks.flask.FlaskGrids.slots(stack)));
         tooltip.add(I18n.format("everfillingflasks.tooltip.potency", values.potency()));
         tooltip.add(I18n.format("everfillingflasks.tooltip.useTime",
                 seconds(values.drinkTicks())));

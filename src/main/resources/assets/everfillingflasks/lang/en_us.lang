@@ -48,3 +48,4 @@ everfillingflasks.tooltip.recharge=Recharge time: %s seconds
 everfillingflasks.tooltip.inhibited=Does not recharge while Inhibited
 item.everfillingflasks.everlasting_seed.name=Everlasting Seed
 everfillingflasks.tooltip.seed.use=A flask built around these never runs dry
+everfillingflasks.tooltip.slots=Infusion slots: %d
