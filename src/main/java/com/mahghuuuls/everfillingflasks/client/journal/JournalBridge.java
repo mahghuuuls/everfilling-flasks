@@ -2,8 +2,6 @@ package com.mahghuuuls.everfillingflasks.client.journal;
 
 import com.mahghuuuls.everfillingflasks.EverfillingFlasksMod;
 import com.mahghuuuls.everfillingflasks.Tags;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,10 +24,6 @@ public final class JournalBridge {
     public static final ResourceLocation BOOK = new ResourceLocation(Tags.MOD_ID, "journal");
 
     private static boolean openFailed;
-    private static boolean iconFailed;
-
-    /** Resolved once, then reused: the button redraws every frame. */
-    private static ItemStack buttonIcon;
 
     private JournalBridge() {}
 
@@ -48,30 +42,6 @@ public final class JournalBridge {
         }
     }
 
-    /**
-     * The icon drawn on the journal button: the book itself, so the button and what it opens
-     * look like one thing. A plain book stands in if the book engine hands back nothing usable.
-     */
-    public static ItemStack buttonIcon() {
-        if (buttonIcon != null) {
-            return buttonIcon;
-        }
-        try {
-            ItemStack stack = PatchouliAPI.instance.getBookStack(BOOK.toString());
-            if (stack != null && !stack.isEmpty()) {
-                buttonIcon = stack;
-                return buttonIcon;
-            }
-        } catch (Throwable failure) {
-            if (!iconFailed) {
-                iconFailed = true;
-                EverfillingFlasksMod.LOGGER.warn(
-                        "The journal button icon fell back to a plain book.", failure);
-            }
-        }
-        buttonIcon = new ItemStack(Items.BOOK);
-        return buttonIcon;
-    }
 
     /**
      * Registers this mod's own page kinds with the book engine. Called once at client start.

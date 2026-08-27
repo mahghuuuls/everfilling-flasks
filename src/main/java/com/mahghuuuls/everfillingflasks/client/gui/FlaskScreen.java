@@ -13,15 +13,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * The Flask screen, in the owner's 2026-08-25 shape: the Flask slot on the left, the six-slot
- * infusion row beside it on the right, and the potency shown as pips under the row —
- * one pip per potency point in rows of ten (up to thirty), filled per used point, all red
- * plus a warning when over capacity. A configured potency too large for pips falls back to
- * plain numbers.
+ * The Flask screen: the Flask slot on the left, the infusion grid beside it in rows of six, and
+ * the potency shown as pips under whatever the grid occupies — one pip per potency point in
+ * rows of ten, filled per used point, all red plus a warning when over capacity. A potency too
+ * large for the space left below the grid falls back to plain numbers.
  *
- * <p>Still zero new art: the vanilla dispenser texture is the placeholder background, its
- * unused three-by-three painted over in panel grey, and every slot frame is one of its cells
- * redrawn. The potency numbers are the server's, from the state message — the screen displays
+ * <p>The panel is still the vanilla dispenser texture with its unused three-by-three painted
+ * over, and every slot frame is one of its cells redrawn; only the journal button carries art
+ * of ours. The potency numbers are the server's, from the state message — the screen displays
  * and never computes them, so the display cannot disagree with the refusal rule.
  */
 @SideOnly(Side.CLIENT)
@@ -38,8 +37,8 @@ public final class FlaskScreen extends GuiContainer {
     private static final int PANEL_GREY = 0xFFC6C6C6;
 
     /**
-     * Pip geometry: rows of ten, a new row per ten potency, at most three rows (the owner's
-     * bound: display must hold up to 30); above it, numbers take over.
+     * Pip geometry: rows of ten, a new row per ten potency, as many rows as fit between the
+     * grid and the player inventory; above that, numbers take over.
      */
     private static final int PIPS_PER_ROW = 10;
     private static final int PIP_SIZE = 7;
@@ -59,10 +58,10 @@ public final class FlaskScreen extends GuiContainer {
     private static final int TEXT_OVER = 0xB02020;
 
     /**
-     * The journal control: a real button with a book drawn on it, not an item in a slot (owner
-     * decision 2026-08-26). The face is vanilla's own button art from the widget sheet, so the
-     * raised edge and the hover highlight are the ones players already know, and no new art is
-     * needed. 1.12.2 has no dedicated recipe-book button texture to borrow.
+     * The journal control: a real button with a book on it, not an item in a slot. The face is
+     * vanilla's own button art from the widget sheet, so the raised edge and the hover highlight
+     * are the ones players already know; 1.12.2 has no dedicated recipe-book button to borrow.
+     * The book on it is ours, drawn in the shape and shading a Minecraft book has.
      */
     private static final ResourceLocation WIDGETS =
             new ResourceLocation("minecraft", "textures/gui/widgets.png");
@@ -73,6 +72,12 @@ public final class FlaskScreen extends GuiContainer {
     private static final int BUTTON_HOVER_V = 86;
     /** The sheet's button is 200 wide; its two ends are drawn to make a short one. */
     private static final int BUTTON_SHEET_W = 200;
+
+    /** The journal's own book, drawn on the button face. */
+    private static final ResourceLocation JOURNAL_ICON =
+            new ResourceLocation(com.mahghuuuls.everfillingflasks.Tags.MOD_ID,
+                    "textures/gui/journal_button.png");
+    private static final int ICON = 16;
 
     /**
      * Under the Flask slot, in the left column. It stays put whatever the grid does, because
@@ -130,10 +135,8 @@ public final class FlaskScreen extends GuiContainer {
             drawTexturedModalRect(x, y, 0, v, half, JOURNAL_H);
             drawTexturedModalRect(x + half, y, BUTTON_SHEET_W - half, v, half, JOURNAL_H);
 
-            net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting();
-            mc.getRenderItem().renderItemAndEffectIntoGUI(
-                    JournalBridge.buttonIcon(), x + 2, y + 2);
-            net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
+            mc.getTextureManager().bindTexture(JOURNAL_ICON);
+            drawModalRectWithCustomSizedTexture(x + 2, y + 2, 0, 0, ICON, ICON, ICON, ICON);
         }
     }
 
