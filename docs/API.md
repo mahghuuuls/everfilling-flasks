@@ -146,12 +146,27 @@ FlaskHudApi.setRenderer((state, resolution, partialTicks) -> {
 
 ## The journal
 
-Every Flask and every infusion you register appears in the in-game journal on its own. You
+The journal has three sections: Flasks, Infusions, and Items. Every Flask and every infusion you
+register appears in the first two on its own. You
 write no journal file, declare no category, supply no icon, and provide no ordering. Your entry
 is built from the definition you already wrote: its name, its item icon, the values your
 definition returns, and its crafting recipe if the recipe registry has one for that item.
 Entries are listed alphabetically by the name the player sees. Nothing on a page names the mod
 that added it, deliberately: the journal is written in the game's voice, not the modpack's.
+
+### An item that is neither
+
+The journal has a third section, Items, for anything that belongs to this ecosystem without
+being a flask or an infusion — a vessel part, a brewing tool, whatever your add-on invents:
+
+```java
+FlaskApi.registerJournalItem(MY_ITEM, "mymod.journal.teainfuser");
+```
+
+Pass `null` for the text and the page is just the item. Presentation only: nothing about the
+item changes, and an item that also behaves as an infusion registers that separately and appears
+in both places. The core registers the Everlasting Seed here, which is what gives it a page.
+
 
 One optional method enriches an entry. It exists on `FlaskDefinition` and on
 `InfusionDefinition`, returns a language key, and returns `null` by default:

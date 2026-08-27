@@ -31,6 +31,11 @@ public final class InternalFlaskApiBridge extends FlaskApiBridge {
     }
 
     @Override
+    protected void registerJournalItemNow(net.minecraft.item.Item item, String textKey) {
+        JournalItemRegistry.register(item, textKey);
+    }
+
+    @Override
     protected boolean isFlaskNow(net.minecraft.item.ItemStack stack) {
         return FlaskRegistry.isFlask(stack);
     }

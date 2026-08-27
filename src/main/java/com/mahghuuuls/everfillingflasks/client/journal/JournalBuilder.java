@@ -7,6 +7,7 @@ import com.mahghuuuls.everfillingflasks.api.FlaskDefinition;
 import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import com.mahghuuuls.everfillingflasks.flask.FlaskRegistry;
 import com.mahghuuuls.everfillingflasks.flask.InfusionRegistry;
+import com.mahghuuuls.everfillingflasks.flask.JournalItemRegistry;
 import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,10 +63,12 @@ public final class JournalBuilder {
     /** Section ids. Player-visible names come from the language file. */
     private static final String FLASKS = "flasks";
     private static final String INFUSIONS = "infusions";
+    private static final String ITEMS = "items";
 
     /** Sections are shown in this order rather than alphabetically; entries inside sort A to Z. */
     private static final int FLASKS_SORT = 0;
     private static final int INFUSIONS_SORT = 1;
+    private static final int ITEMS_SORT = 2;
 
     private static boolean buildFailed;
 
@@ -117,7 +120,8 @@ public final class JournalBuilder {
                 return;
             }
             boolean sectionsGone = !book.contents.categories.containsKey(sectionKey(FLASKS))
-                    || !book.contents.categories.containsKey(sectionKey(INFUSIONS));
+                    || !book.contents.categories.containsKey(sectionKey(INFUSIONS))
+                    || !book.contents.categories.containsKey(sectionKey(ITEMS));
             if (sectionsGone || registrationCount() != builtFrom) {
                 build();
             }
@@ -127,7 +131,8 @@ public final class JournalBuilder {
     }
 
     private static int registrationCount() {
-        return FlaskRegistry.all().size() + InfusionRegistry.all().size();
+        return FlaskRegistry.all().size() + InfusionRegistry.all().size()
+                + JournalItemRegistry.all().size();
     }
 
     private static void build() {
@@ -154,6 +159,7 @@ public final class JournalBuilder {
         addSection(book, contents, FLASKS, FLASKS_SORT, "everfillingflasks:rare_flask");
         addSection(book, contents, INFUSIONS, INFUSIONS_SORT,
                 "everfillingflasks:sunpetal_leaf");
+        addSection(book, contents, ITEMS, ITEMS_SORT, "everfillingflasks:everlasting_seed");
 
         // One pass over the recipe registry for the whole rebuild, rather than one search per
         // entry. A recipe a pack or the config disabled is simply not registered, so it is
@@ -177,6 +183,13 @@ public final class JournalBuilder {
                     recipes.get(item), infusionRanks.get(item)));
         }
         dropStaleRecipeLinks(contents);
+        Map<Item, Integer> itemRanks = alphabeticalRanks(JournalItemRegistry.all().keySet());
+        for (Map.Entry<Item, String> entry : JournalItemRegistry.all().entrySet()) {
+            Item item = entry.getKey();
+            addEntry(book, contents, item, "item", () -> JournalEntryWriter.journalItem(
+                    item, entry.getValue(), sectionId(ITEMS), recipes.get(item),
+                    itemRanks.get(item)));
+        }
         reportUnmatchedOverrides();
     }
 

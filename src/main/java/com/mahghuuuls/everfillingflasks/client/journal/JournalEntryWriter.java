@@ -52,6 +52,13 @@ final class JournalEntryWriter {
                 text(item, () -> definition.journalText(stack)), recipeName);
     }
 
+    /** An item that is neither a Flask nor an infusion: the item, its words, its recipe. */
+    static JsonObject journalItem(Item item, String textKey, String categoryId,
+            String recipeName, int sortRank) {
+        ItemStack stack = new ItemStack(item);
+        return entry(stack, categoryId, sortRank, text(item, () -> textKey), recipeName);
+    }
+
     /**
      * What the entry says, or nothing at all.
      *

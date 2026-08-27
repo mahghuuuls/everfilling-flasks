@@ -49,3 +49,6 @@ everfillingflasks.tooltip.inhibited=Does not recharge while Inhibited
 item.everfillingflasks.everlasting_seed.name=Everlasting Seed
 everfillingflasks.tooltip.seed.use=A flask built around these never runs dry
 everfillingflasks.tooltip.slots=Infusion slots: %d
+everfillingflasks.journal.section.items=Items
+everfillingflasks.journal.section.items.description=Everything else that belongs to the craft: what flasks are built from, and what other hands have brought to it.
+everfillingflasks.journal.text.seed=A seed that does not run out. Sealed into a vessel, it keeps giving up a draught shaped by whatever holds it, which is why no two flasks pour quite the same thing.

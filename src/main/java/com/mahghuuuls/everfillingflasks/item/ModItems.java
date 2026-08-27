@@ -63,6 +63,10 @@ public final class ModItems {
         seed = new ItemEverlastingSeed();
         seed.setCreativeTab(TAB);
         event.getRegistry().register(seed);
+        // Neither a Flask nor an infusion, so it needs the journal to be told about it, or the
+        // one item a player must find before any of this works would have no page anywhere.
+        com.mahghuuuls.everfillingflasks.flask.JournalItemRegistry.register(seed,
+                "everfillingflasks.journal.text.seed");
     }
 
     /** The seed every Flask is built around. */

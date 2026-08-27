@@ -66,4 +66,17 @@ public final class FlaskApi {
                                           InfusionDefinition definition) {
         FlaskApiBridge.registerInfusion(item, definition);
     }
+
+    /**
+     * Gives an item a page in the journal's Items section, for something that belongs to the
+     * Flask ecosystem without being a Flask or an infusion.
+     *
+     * <p>Presentation only: nothing about the item changes. The page shows the item and, when a
+     * language key is given, whatever that key says about it; pass null for a page that is just
+     * the item. A pack author can replace or hide that text per registry name, the same way they
+     * can for any other entry.
+     */
+    public static void registerJournalItem(net.minecraft.item.Item item, String textKey) {
+        FlaskApiBridge.registerJournalItem(item, textKey);
+    }
 }

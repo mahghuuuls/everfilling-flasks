@@ -31,8 +31,8 @@ First public release.
 - A public add-on API: register flasks and infusions for your own items, contribute flask
   bonuses from your mod's conditions, replace the completion effects, recolor the HUD liquid,
   or replace the flask HUD entirely. See docs/API.md.
-- An in-game journal, opened from a book button on the flask screen, with a Flasks section and
-  an Infusions section. Every entry is built from the registration itself, so its numbers
+- An in-game journal, opened from a book button on the flask screen, with Flasks, Infusions and
+  Items sections. Every entry is built from the registration itself, so its numbers
   always match the config, its recipe comes from the recipe registry, and add-on content
   appears without the add-on shipping any journal data. Optional "Where to Find" lines can be
   replaced or hidden per item in the config. Drawn by Patchouli ROFL Edition.

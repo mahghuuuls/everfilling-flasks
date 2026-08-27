@@ -25,6 +25,7 @@ public abstract class FlaskApiBridge {
     private static List<FlaskModifierSource> pendingSources = new ArrayList<FlaskModifierSource>();
     private static List<Object[]> pendingInfusions = new ArrayList<Object[]>();
     private static List<Object[]> pendingFlasks = new ArrayList<Object[]>();
+    private static List<Object[]> pendingJournalItems = new ArrayList<Object[]>();
 
     public static synchronized void bind(FlaskApiBridge implementation) {
         if (instance != null) {
@@ -53,6 +54,12 @@ public abstract class FlaskApiBridge {
             }
             pendingFlasks = null;
         }
+        if (pendingJournalItems != null) {
+            for (Object[] pending : pendingJournalItems) {
+                implementation.registerJournalItemNow((Item) pending[0], (String) pending[1]);
+            }
+            pendingJournalItems = null;
+        }
     }
 
     public static synchronized void registerModifierSource(FlaskModifierSource source) {
@@ -69,6 +76,14 @@ public abstract class FlaskApiBridge {
             pendingInfusions.add(new Object[]{item, definition});
         } else {
             instance.registerInfusionNow(item, definition);
+        }
+    }
+
+    public static synchronized void registerJournalItem(Item item, String textKey) {
+        if (instance == null) {
+            pendingJournalItems.add(new Object[]{item, textKey});
+        } else {
+            instance.registerJournalItemNow(item, textKey);
         }
     }
 
@@ -106,6 +121,8 @@ public abstract class FlaskApiBridge {
     protected abstract void registerInfusionNow(Item item, InfusionDefinition definition);
 
     protected abstract void registerFlaskNow(Item item, FlaskDefinition definition);
+
+    protected abstract void registerJournalItemNow(Item item, String textKey);
 
     protected abstract boolean isFlaskNow(ItemStack stack);
 
