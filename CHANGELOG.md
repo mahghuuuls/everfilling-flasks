@@ -15,13 +15,14 @@ First public release.
 - Three flasks: Humble (2 charges), Sturdy (3), Radiant (4), each crafted from the one below;
   every recipe has a config switch. All heal 33% of maximum health per drink by default.
 - Equipping a flask empties it, so swapping flasks cannot refill charges mid-combat.
-- The infusion grid: six slots on the flask itself with a potency budget of 10. Over-filling
+- The infusion grid: five slots on the flask itself with a potency budget of 10, so a full grid
+  of the cheapest infusions spends it exactly. Over-filling
   makes the flask unusable until pieces are removed. A flask states its own slot count, from
   one to twelve, so an add-on can trade slots against budget.
 - Everlasting Seeds, found in dungeon, mineshaft, and village blacksmith chests. They are why
   a flask refills itself, and every flask is built around one.
 - Four flask infusions from the same chests: Sunpetal
-  Leaf (+10% healing), Ironroot Sprig (+40% hit threshold), Quickmint Leaf (+20% drink speed),
+  Leaf (+8% healing), Ironroot Sprig (+32% damage threshold), Quickmint Leaf (+16% drink speed),
   Second Wind Petal (regeneration after each completed drink). Chest loot can be turned off in
   the config.
 - HUD charge icons that fill as the flask recharges, a centered cast bar with an interrupted

@@ -219,9 +219,9 @@ class InfusionGridHandlerTest {
         data.slot().insertItem(0, new ItemStack(Items.GLASS_BOTTLE), false);
 
         assertEquals(12, handler.getSlots());
-        assertEquals(6, handler.activeSlots());
+        assertEquals(5, handler.activeSlots());
 
-        for (int slot = 6; slot < 12; slot++) {
+        for (int slot = 5; slot < 12; slot++) {
             assertTrue(handler.getStackInSlot(slot).isEmpty(), "slot " + slot + " reads empty");
             assertEquals(1, handler.insertItem(slot, new ItemStack(Items.SUGAR), false).getCount(),
                     "slot " + slot + " refuses an infusion");

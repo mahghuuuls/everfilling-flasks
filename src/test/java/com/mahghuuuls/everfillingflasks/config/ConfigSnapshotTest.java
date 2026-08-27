@@ -93,13 +93,13 @@ class ConfigSnapshotTest {
     @Test
     void infusionDefaultsMatchTheApprovedBalance() {
         ConfigSnapshot snapshot = ConfigSnapshot.current();
-        assertEquals(0.10, snapshot.infusion(
+        assertEquals(0.08, snapshot.infusion(
                 com.mahghuuuls.everfillingflasks.item.InfusionKind.SUNPETAL_LEAF)
                 .strength(), 1.0E-9);
-        assertEquals(0.40, snapshot.infusion(
+        assertEquals(0.32, snapshot.infusion(
                 com.mahghuuuls.everfillingflasks.item.InfusionKind.IRONROOT_SPRIG)
                 .strength(), 1.0E-9);
-        assertEquals(0.20, snapshot.infusion(
+        assertEquals(0.16, snapshot.infusion(
                 com.mahghuuuls.everfillingflasks.item.InfusionKind.QUICKMINT_LEAF)
                 .strength(), 1.0E-9);
         assertEquals(5.0, snapshot.infusion(

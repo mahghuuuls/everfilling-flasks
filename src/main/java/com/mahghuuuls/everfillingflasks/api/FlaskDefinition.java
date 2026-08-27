@@ -47,8 +47,9 @@ public interface FlaskDefinition {
     }
 
     /**
-     * How many infusion slots this Flask has, from 1 to 12. Six by default, which is what every
-     * Flask had before this existed.
+     * How many infusion slots this Flask has, from 1 to 12. Five by default, which is what the
+     * built-in Flasks have: five pieces at the usual cost of two spend a potency budget of ten
+     * exactly.
      *
      * <p>Slots and {@link #potency} are independent on purpose: a Flask may offer many slots and
      * a small budget, or few slots and a large one, and those are different Flasks to play with.
@@ -64,7 +65,7 @@ public interface FlaskDefinition {
      * method, and the two would call each other until the game ran out of stack.
      */
     default int infusionSlots(ItemStack stack) {
-        return 6;
+        return 5;
     }
 
     /**

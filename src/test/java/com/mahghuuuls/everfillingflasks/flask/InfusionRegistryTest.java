@@ -63,8 +63,8 @@ class InfusionRegistryTest {
         InfusionRegistry.register(Items.SUGAR, new Fixed(2, 0.1F));
         NonNullList<ItemStack> grid = NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE, ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
+        grid.set(3, new ItemStack(Items.SUGAR));
         grid.set(4, new ItemStack(Items.SUGAR));
-        grid.set(5, new ItemStack(Items.SUGAR));
         // Not registered: contributes nothing, costs nothing.
         grid.set(2, new ItemStack(Items.APPLE));
 

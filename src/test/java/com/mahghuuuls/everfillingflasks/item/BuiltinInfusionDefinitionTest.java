@@ -35,25 +35,25 @@ class BuiltinInfusionDefinitionTest {
     }
 
     @Test
-    void sunpetalAddsTenPercentHealingAndNothingElse() {
+    void sunpetalAddsEightPercentHealingAndNothingElse() {
         FlaskBonuses bonuses = contributed(InfusionKind.SUNPETAL_LEAF);
-        assertEquals(0.10F, bonuses.healingSum(), 1.0E-6F);
+        assertEquals(0.08F, bonuses.healingSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.drinkSpeedSum(), 1.0E-6F);
         assertEquals(0, bonuses.maxChargesFlat());
     }
 
     @Test
-    void ironrootAddsFortyPercentThreshold() {
+    void ironrootAddsThirtyTwoPercentThreshold() {
         FlaskBonuses bonuses = contributed(InfusionKind.IRONROOT_SPRIG);
-        assertEquals(0.40F, bonuses.hitResistanceSum(), 1.0E-6F);
+        assertEquals(0.32F, bonuses.hitResistanceSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
     }
 
     @Test
-    void quickmintAddsTwentyPercentDrinkSpeed() {
+    void quickmintAddsSixteenPercentDrinkSpeed() {
         FlaskBonuses bonuses = contributed(InfusionKind.QUICKMINT_LEAF);
-        assertEquals(0.20F, bonuses.drinkSpeedSum(), 1.0E-6F);
+        assertEquals(0.16F, bonuses.drinkSpeedSum(), 1.0E-6F);
         assertEquals(0.0F, bonuses.healingSum(), 1.0E-6F);
     }
 
@@ -70,15 +70,15 @@ class BuiltinInfusionDefinitionTest {
     }
 
     @Test
-    void fiveOfAKindMatchesTheOwnersBalanceIntent() {
-        // Five Sunpetal Leaves in a potency-10 Flask: about +50 percent healing.
+    void aFullGridOfOneKindMatchesTheOwnersBalanceIntent() {
+        // Five Sunpetal Leaves fill a potency-10 Flask exactly: about +40 percent healing.
         FlaskBonuses bonuses = new FlaskBonuses();
         BuiltinInfusionDefinition shard =
                 new BuiltinInfusionDefinition(InfusionKind.SUNPETAL_LEAF);
         for (int i = 0; i < 5; i++) {
             shard.contribute(ItemStack.EMPTY, null, bonuses);
         }
-        assertEquals(0.50F, bonuses.healingSum(), 1.0E-5F);
+        assertEquals(0.40F, bonuses.healingSum(), 1.0E-5F);
     }
 
     @Test

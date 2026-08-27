@@ -1,8 +1,8 @@
 package com.mahghuuuls.everfillingflasks.item;
 
-import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -20,7 +20,9 @@ import java.util.List;
  * shaped by the vessel itself, which is why one Flask heals more than another and why an
  * infusion changes what comes out.
  *
- * <p>Found, never crafted, so a player's first Flask is something the world gave them.
+ * <p>The tooltip says what the seed is for and never where it comes from. Where it comes from is
+ * a pack's business: the built-in chest loot is only the default, and a pack that moves the seed
+ * elsewhere would be left with an item telling players to search chests for nothing.
  */
 public final class ItemEverlastingSeed extends Item {
 
@@ -29,19 +31,16 @@ public final class ItemEverlastingSeed extends Item {
         setTranslationKey("everfillingflasks.everlasting_seed");
     }
 
+    /** Yellow, the way an uncommon thing reads: this is not a wheat seed. */
+    @Override
+    public EnumRarity getRarity(ItemStack stack) {
+        return EnumRarity.UNCOMMON;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip,
                                ITooltipFlag flag) {
-        tooltip.add(net.minecraft.util.text.TextFormatting.GREEN
-                + I18n.format("everfillingflasks.tooltip.seed.header"));
         tooltip.add(I18n.format("everfillingflasks.tooltip.seed.use"));
-        // Where it comes from, on the item itself. The seed is neither a Flask nor an infusion,
-        // so the journal has no page for it, and it is the one thing a player must find before
-        // any of this mod can start. Only while it is actually in world loot: a pack that turns
-        // that off will have put it somewhere else, and this would be a lie.
-        if (ConfigSnapshot.current().infusionLoot()) {
-            tooltip.add(I18n.format("everfillingflasks.tooltip.seed.found"));
-        }
     }
 }

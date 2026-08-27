@@ -34,7 +34,7 @@ FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
 - `healPercentage` 0 makes a pure-hook Flask; drinking works at any health.
 - `potency(stack, player)` (default 10) is the infusion budget of your Flask's infusion
   grid; 0 means no infusion fits.
-- `infusionSlots(stack)` (default 6) is how many slots that grid has, from 1 to 12. The stack
+- `infusionSlots(stack)` (default 5) is how many slots that grid has, from 1 to 12. The stack
   alone decides, with no player, because a Flask's stored infusions are read where there is no
   player to ask. A value outside the range is clamped and your definition is named once in the
   log. Answer from the stack and nothing else: each side works the count out for itself, so a
@@ -68,7 +68,7 @@ FlaskApi.registerInfusion(MY_ITEM, new InfusionDefinition() {
 });
 ```
 
-- The core provides the six-slot grid, cost accounting, the over-capacity unusable state,
+- The core provides the grid, cost accounting, the over-capacity unusable state,
   effective-value merging, and post-drink dispatch (`onDrinkCompleted(infusion, flask,
   player)`, once per placed piece). You describe only cost and effect.
 - While the summed costs exceed the Flask's potency, the grid is inert: drinking refuses and

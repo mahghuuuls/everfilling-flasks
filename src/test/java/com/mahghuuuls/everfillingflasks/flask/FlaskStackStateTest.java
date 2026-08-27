@@ -79,8 +79,8 @@ class FlaskStackStateTest {
                 net.minecraft.util.NonNullList.withSize(FlaskStackState.DEFAULT_GRID_SIZE,
                         ItemStack.EMPTY);
         grid.set(0, new ItemStack(Items.SUGAR));
-        grid.set(4, new ItemStack(Items.BLAZE_POWDER));
-        grid.set(5, new ItemStack(Items.SUGAR));
+        grid.set(3, new ItemStack(Items.BLAZE_POWDER));
+        grid.set(4, new ItemStack(Items.SUGAR));
         FlaskStackState.setInfusions(s, grid);
 
         ItemStack reloaded = new ItemStack(s.serializeNBT());
@@ -88,8 +88,8 @@ class FlaskStackStateTest {
         assertEquals(FlaskStackState.DEFAULT_GRID_SIZE, read.size());
         assertEquals(Items.SUGAR, read.get(0).getItem());
         assertTrue(read.get(1).isEmpty());
-        assertEquals(Items.BLAZE_POWDER, read.get(4).getItem());
-        assertEquals(Items.SUGAR, read.get(5).getItem());
+        assertEquals(Items.BLAZE_POWDER, read.get(3).getItem());
+        assertEquals(Items.SUGAR, read.get(4).getItem());
     }
 
     @Test

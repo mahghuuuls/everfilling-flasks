@@ -27,7 +27,7 @@ public final class FlaskConfig {
     @Config.Comment({
             "The four built-in Flask Infusions. cost is potency used per placed piece.",
             "strength is the effect size: a fraction for the percentage infusions",
-            "(0.10 is +10 percent per piece), seconds for the Second Wind Petal."})
+            "(0.08 is +8 percent per piece), seconds for the Second Wind Petal."})
     public static final Infusions infusions = new Infusions();
 
     @Config.Name("recipes")
@@ -133,16 +133,16 @@ public final class FlaskConfig {
     public static final class Infusions {
 
         @Config.Name("sunpetalLeaf")
-        @Config.Comment("+healing per piece; strength 0.10 is +10 percent.")
-        public final InfusionValues sunpetalLeaf = new InfusionValues(2, 0.10);
+        @Config.Comment("+healing per piece; strength 0.08 is +8 percent.")
+        public final InfusionValues sunpetalLeaf = new InfusionValues(2, 0.08);
 
         @Config.Name("ironrootSprig")
-        @Config.Comment("+hit threshold per piece; strength 0.40 is +40 percent.")
-        public final InfusionValues ironrootSprig = new InfusionValues(2, 0.40);
+        @Config.Comment("+damage threshold per piece; strength 0.32 is +32 percent.")
+        public final InfusionValues ironrootSprig = new InfusionValues(2, 0.32);
 
         @Config.Name("quickmintLeaf")
-        @Config.Comment("+drink speed per piece; strength 0.20 is +20 percent.")
-        public final InfusionValues quickmintLeaf = new InfusionValues(2, 0.20);
+        @Config.Comment("+drink speed per piece; strength 0.16 is +16 percent.")
+        public final InfusionValues quickmintLeaf = new InfusionValues(2, 0.16);
 
         @Config.Name("secondWindPetal")
         @Config.Comment("Regeneration after a completed drink; strength is seconds.")

@@ -25,10 +25,10 @@ public final class FlaskStackState {
     private static final String TAG_SLOT = "slot";
 
     /**
-     * What a Flask has unless its own definition says otherwise: one row of six, the owner's
-     * 2026-08-25 shape.
+     * What a Flask has unless its own definition says otherwise. Five pieces at the usual cost
+     * of two spend a potency budget of ten exactly, which is the owner's 2026-08-26 balance.
      */
-    public static final int DEFAULT_GRID_SIZE = 6;
+    public static final int DEFAULT_GRID_SIZE = 5;
 
     private FlaskStackState() {
     }
