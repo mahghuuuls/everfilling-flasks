@@ -94,9 +94,43 @@ public final class DefaultFlaskHud {
         }
     }
 
+    /**
+     * Whether this frame's health element reported itself finished. Reset as the overlay opens,
+     * which happens every frame before any element draws.
+     */
+    private static boolean healthPostSeen;
+
+    /** Opens a new frame's bookkeeping. ALL is posted once, before every other element. */
+    @SubscribeEvent
+    public void onOverlayStart(RenderGameOverlayEvent.Pre event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+            healthPostSeen = false;
+        }
+    }
+
+    /**
+     * Draws the row after the health bar, or at the end of the overlay if the health bar never
+     * announced itself.
+     *
+     * <p>The row belongs above the health bar, so the health element's own completion is the
+     * natural moment to draw it. That moment is not guaranteed to arrive: Forge skips an
+     * element's Post entirely when its Pre was cancelled, and a replacement-bar mod cancels
+     * exactly that way to draw its own health bar instead. Anchoring there alone made the Flask
+     * HUD disappear for anyone running one (found with Classic Bars 0.6.1).
+     *
+     * <p>So the end of the overlay serves as a fallback, used only when the health element
+     * stayed silent. Forge's own left-column height is still the anchor, and a replacement-bar
+     * mod maintains it, so the row lands above whatever took the health bar's place. Drawing
+     * this late puts the row over the chat instead of under it, which is worth accepting for a
+     * HUD that would otherwise not be there at all.
+     */
     @SubscribeEvent
     public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
-        if (event.getType() != RenderGameOverlayEvent.ElementType.HEALTH) {
+        RenderGameOverlayEvent.ElementType type = event.getType();
+        if (type == RenderGameOverlayEvent.ElementType.HEALTH) {
+            // This frame is served here; the fallback below must not draw the row again.
+            healthPostSeen = true;
+        } else if (type != RenderGameOverlayEvent.ElementType.ALL || healthPostSeen) {
             return;
         }
         FlaskSnapshot state = ClientFlaskState.snapshot();
