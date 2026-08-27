@@ -1,4 +1,4 @@
-# Everfilling Flasks
+﻿# Everfilling Flasks
 
 A Minecraft 1.12.2 Forge mod: a rechargeable healing flask in its own equipment slot, drunk by
 holding a key, in the spirit of souls-like games. Flasks refill on their own over time, drinking
@@ -7,7 +7,7 @@ can be interrupted by hits, and flasks can be infused with infusions found in tr
 - Player-facing description: [MOD-PAGE.md](MOD-PAGE.md)
 - Release history: [CHANGELOG.md](CHANGELOG.md)
 - Add-on API for other mods: [docs/API.md](docs/API.md)
-- License: [MIT](LICENSE) — see also [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)
+- License: [MIT](LICENSE) , see also [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)
 
 ## Identity and installation
 
@@ -31,8 +31,8 @@ One file, `config/everfillingflasks.cfg`, read at game start:
   `hitThreshold`, `potency` per built-in flask
 - `infusions.<name>`: `cost` and `strength` per built-in infusion
 - `recipes.<tier>`: one switch per built-in flask recipe
-- `journal.hintOverrides`: replace or hide a journal "Where to Find" line per registry name,
-  as `everfillingflasks:sunpetal_leaf=your text` or `everfillingflasks:sunpetal_leaf=` to hide
+- `journal.textOverrides`: replace or hide the text on a journal entry per registry name, as
+  `everfillingflasks:sunpetal_leaf=your text` or `everfillingflasks:sunpetal_leaf=` to hide
 
 ## Scope notes for pack authors
 

@@ -31,6 +31,12 @@ public final class InhibitedCompat {
      * telling a player about a freeze that could never happen in their game.
      */
     public static boolean isAvailable() {
+        if (!com.mahghuuuls.everfillingflasks.config.ConfigSnapshot.current()
+                .inhibitedIntegration()) {
+            // Switched off by a pack that wants the two mods to leave each other alone. Nothing
+            // is looked up and nothing is said about it, on the tooltip or anywhere else.
+            return false;
+        }
         if (!resolved) {
             // Lazy on purpose: first call is always after registry events, so load order
             // against the Inhibited mod cannot matter.

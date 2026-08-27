@@ -68,6 +68,13 @@ public final class FlaskConfig {
                 "other tier is crafted from the one below it."})
         public boolean infusionLoot = true;
 
+        @Config.Name("inhibitedIntegration")
+        @Config.Comment({
+                "While a player has the Inhibited effect, their Flask stops recharging.",
+                "Does nothing unless that mod is installed. false ignores the effect entirely,",
+                "for a pack that wants the two mods to leave each other alone."})
+        public boolean inhibitedIntegration = true;
+
         @Config.Name("diagnostics")
         @Config.Comment({
                 "Log one line per Flask decision: drink started, refused (and why), cancelled",

@@ -30,6 +30,7 @@ public final class ConfigSnapshot {
     private final float drinkSlowdown;
     private final boolean diagnostics;
     private final boolean infusionLoot;
+    private final boolean inhibitedIntegration;
     private final JournalTextOverrides textOverrides;
     private final Map<FlaskTier, TierConfig> tiers;
     private final Map<InfusionKind, InfusionConfig> infusions;
@@ -38,6 +39,7 @@ public final class ConfigSnapshot {
 
     private ConfigSnapshot(String startingFlask, boolean keepFlaskOnDeath, float drinkSlowdown,
                            boolean diagnostics, boolean infusionLoot,
+                           boolean inhibitedIntegration,
                            JournalTextOverrides textOverrides,
                            Map<FlaskTier, TierConfig> tiers,
                            Map<InfusionKind, InfusionConfig> infusions,
@@ -47,6 +49,7 @@ public final class ConfigSnapshot {
         this.drinkSlowdown = drinkSlowdown;
         this.diagnostics = diagnostics;
         this.infusionLoot = infusionLoot;
+        this.inhibitedIntegration = inhibitedIntegration;
         this.textOverrides = textOverrides;
         this.tiers = tiers;
         this.infusions = infusions;
@@ -101,6 +104,7 @@ public final class ConfigSnapshot {
                         "general.drinkSlowdown", warnings),
                 FlaskConfig.general.diagnostics,
                 FlaskConfig.general.infusionLoot,
+                FlaskConfig.general.inhibitedIntegration,
                 textOverrides,
                 Collections.unmodifiableMap(tiers),
                 Collections.unmodifiableMap(infusions),
@@ -128,6 +132,11 @@ public final class ConfigSnapshot {
     /** A pack author's replacements for journal entry text (REQ-041). */
     public JournalTextOverrides textOverrides() {
         return textOverrides;
+    }
+
+    /** Whether the Inhibited effect is allowed to freeze recharge (REQ-012). */
+    public boolean inhibitedIntegration() {
+        return inhibitedIntegration;
     }
 
     public boolean infusionLoot() {
