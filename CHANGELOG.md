@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.1.0
+
+Add-on API additions, all backward compatible: an add-on built against 1.0.0 runs unchanged.
+
+### Added
+
+- Healing over time, owned by the core. A flask definition may declare a second heal spread
+  over a number of ticks. The core pays it out on the server, reports it on the tooltip and in
+  diagnostics, and applies the same healing bonuses as the instant part. A new drink replaces a
+  running payout; death stops it; a relog drops it.
+- A drink outcome for the completion hook: health before, heal requested, heal actually
+  applied, over-time heal scheduled, charges left, and effect power. The old two-argument hook
+  keeps working.
+- `FlaskApi.advanceRecharge(player, ticks)`: an add-on can push the equipped flask's refill
+  forward, completing charges with carry-over. Works while the Inhibited pause is active.
+- Effect power, a sixth bonus channel the core carries to the flask for its secondary effect.
+
+### Changed
+
+- The three built-in flasks show plain white names. Sturdy and Radiant no longer carry the
+  yellow and aqua rarity colours, so they read like add-on flasks in a list.
+- The Inhibited link (`general.inhibitedIntegration`) is off by default. The feature is unchanged;
+  a pack that wants recharge to freeze under the Inhibited effect turns it on. A config file
+  written by 1.0.0 keeps the value it has.
+
 ## 1.0.0
 
 First public release.

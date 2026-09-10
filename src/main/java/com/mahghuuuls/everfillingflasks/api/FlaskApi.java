@@ -79,4 +79,20 @@ public final class FlaskApi {
     public static void registerJournalItem(net.minecraft.item.Item item, String textKey) {
         FlaskApiBridge.registerJournalItem(item, textKey);
     }
+
+    /**
+     * Pushes the equipped Flask's current refill forward by up to {@code ticks}, for a Flask
+     * that refills faster on events the core does not know about. Charges complete as they
+     * would under the regular tick, the remainder carries into the next charge, and the Flask
+     * never exceeds its maximum. Returns the ticks actually applied.
+     *
+     * <p>Logical server only, and on the server thread: call it from a tick or event handler,
+     * not from a network handler's own thread. On the client, or before this mod binds, nothing
+     * changes and 0 is returned. With no equipped Flask, a full Flask, or {@code ticks <= 0}, likewise 0. The
+     * push applies even while the Inhibited effect is pausing the refill: the pause stops the
+     * clock, and this is not the clock. The change is synced like any charge change. Since 1.1.0.
+     */
+    public static int advanceRecharge(net.minecraft.entity.player.EntityPlayer player, int ticks) {
+        return FlaskApiBridge.advanceRecharge(player, ticks);
+    }
 }

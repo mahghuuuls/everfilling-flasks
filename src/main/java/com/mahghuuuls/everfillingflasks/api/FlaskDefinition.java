@@ -69,12 +69,45 @@ public interface FlaskDefinition {
     }
 
     /**
+     * A second heal, paid out after the drink completes, as a fraction of maximum health
+     * (0.2 is 20 percent). Zero, the default, means none. The core pays it on the server, one
+     * even share per tick over {@link #healOverTimeTicks}, with the same healing multiplier as
+     * the instant part: both come from the values frozen when the drink starts, so a bonus that
+     * changes mid-drink or mid-payout changes nothing. A new completed drink replaces a running
+     * payout; death stops it; logout drops it (it is never saved). Values outside 0..1 are
+     * clamped. Also read on the client, for the tooltip, with a null player. Since 1.1.0.
+     */
+    default float healOverTimePercentage(ItemStack stack, EntityPlayer player) {
+        return 0.0F;
+    }
+
+    /**
+     * How many ticks {@link #healOverTimePercentage} is spread over. Zero, the default, means no
+     * over-time part even when the percentage is set. Clamped to at most one hour (72000). Also
+     * read on the client, for the tooltip, with a null player. Since 1.1.0.
+     */
+    default int healOverTimeTicks(ItemStack stack, EntityPlayer player) {
+        return 0;
+    }
+
+    /**
      * Called on the logical server after a drink completes, the charge is spent, and the
      * standard healing is applied. Never called for a cancelled drink. A thrown exception is
      * caught and logged by the core; it cannot corrupt Flask or player state, and it cannot
      * cancel or repeat any core step.
      */
     default void onDrinkCompleted(ItemStack stack, EntityPlayer player) {
+    }
+
+    /**
+     * The same moment as {@link #onDrinkCompleted(ItemStack, EntityPlayer)}, with what the drink
+     * actually did. The core calls this form only; its default forwards to the two-argument
+     * form, so a definition written against 1.0.0 is called exactly once, as before. Override
+     * one or the other, not both. Same isolation: a throw is caught and logged once per
+     * definition class and cannot touch the drink. Since 1.1.0.
+     */
+    default void onDrinkCompleted(ItemStack stack, EntityPlayer player, DrinkOutcome outcome) {
+        onDrinkCompleted(stack, player);
     }
 
     /**

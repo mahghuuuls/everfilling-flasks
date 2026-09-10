@@ -27,6 +27,9 @@ public final class FlaskMechanics {
     /** Base durations below one tick are treated as one tick (the FlaskDefinition contract). */
     private static final int MIN_BASE_TICKS = 1;
 
+    /** An over-time heal runs at most an hour; longer is a mistake, not a design. */
+    public static final int MAX_PAYOUT_TICKS = 72000;
+
     private FlaskMechanics() {
     }
 
@@ -39,8 +42,22 @@ public final class FlaskMechanics {
     public static EffectiveFlask effective(int baseMaxCharges, float baseHealPercentage,
                                            int baseRechargeTicks, int baseDrinkTicks,
                                            float baseHitThreshold, FlaskBonuses bonuses) {
+        return effective(baseMaxCharges, baseHealPercentage, baseRechargeTicks, baseDrinkTicks,
+                baseHitThreshold, 0.0F, 0, bonuses);
+    }
+
+    /**
+     * As {@link #effective(int, float, int, int, float, FlaskBonuses)}, with an over-time heal
+     * (REQ-047). The over-time fraction takes the same healing multiplier as the instant part;
+     * the fraction is clamped to 0..1 and the ticks to 0..{@link #MAX_PAYOUT_TICKS}.
+     */
+    public static EffectiveFlask effective(int baseMaxCharges, float baseHealPercentage,
+                                           int baseRechargeTicks, int baseDrinkTicks,
+                                           float baseHitThreshold, float baseOverTimePercentage,
+                                           int baseOverTimeTicks, FlaskBonuses bonuses) {
         int maxCharges = Math.max(MIN_MAX_CHARGES, baseMaxCharges + bonuses.maxChargesFlat());
-        float heal = baseHealPercentage * multiplier(bonuses.healingSum());
+        float healMultiplier = multiplier(bonuses.healingSum());
+        float heal = baseHealPercentage * healMultiplier;
         int recharge = Math.max(MIN_RECHARGE_TICKS,
                 divideByMultiplier(Math.max(MIN_BASE_TICKS, baseRechargeTicks),
                         bonuses.rechargeSpeedSum()));
@@ -48,7 +65,33 @@ public final class FlaskMechanics {
                 divideByMultiplier(Math.max(MIN_BASE_TICKS, baseDrinkTicks),
                         bonuses.drinkSpeedSum()));
         float threshold = baseHitThreshold * multiplier(bonuses.hitResistanceSum());
-        return new EffectiveFlask(maxCharges, heal, recharge, drink, threshold);
+        float effectPower = multiplier(bonuses.effectPowerSum());
+        float overTime = Math.max(0.0F, Math.min(1.0F, baseOverTimePercentage)) * healMultiplier;
+        int overTimeTicks = Math.max(0, Math.min(MAX_PAYOUT_TICKS, baseOverTimeTicks));
+        return new EffectiveFlask(maxCharges, heal, recharge, drink, threshold, effectPower,
+                overTime, overTimeTicks);
+    }
+
+    /**
+     * One tick of an over-time payout (REQ-047): an even share of what is still owed over the
+     * ticks still to run. Recomputed from the remainder each tick, so the shares always sum to
+     * the total exactly: on the last tick the division is by one, which pays whatever is left
+     * to the bit. Zero when nothing is owed or no ticks remain.
+     */
+    public static float payoutStep(float remainingPoints, int remainingTicks) {
+        if (remainingTicks <= 0 || remainingPoints <= 0.0F) {
+            return 0.0F;
+        }
+        return remainingPoints / remainingTicks;
+    }
+
+    /**
+     * Health actually gained by one heal call: after minus before, never below 0. Below 0 can
+     * happen only if something else lowered health between the two reads, which the core does
+     * not do; the floor keeps the reported value honest rather than negative.
+     */
+    public static float healApplied(float healthBefore, float healthAfter) {
+        return Math.max(0.0F, healthAfter - healthBefore);
     }
 
     /** A declared slot count brought inside the range the screen can draw. */
@@ -83,6 +126,59 @@ public final class FlaskMechanics {
             return new RechargeStep(0, true);
         }
         return new RechargeStep(progress + 1, false);
+    }
+
+    /**
+     * Many recharge ticks at once, for an add-on pushing the refill forward (REQ-048). The same
+     * rule as {@link #advance} applied {@code ticks} times, in closed form: a charge completes
+     * after {@code max(1, rechargeTicks - progress)} more ticks, the remainder carries into the
+     * next charge, and the Flask never exceeds {@code maxCharges}. Ticks past a full Flask are
+     * not applied, so {@link AdvanceResult#ticksApplied} is at most {@code ticks} and at most
+     * what full needed. Zero or fewer ticks, or an already full Flask, apply nothing.
+     */
+    public static AdvanceResult advanceBy(int progress, int ticks, int rechargeTicks,
+                                          int charges, int maxCharges) {
+        int applied = 0;
+        while (ticks > 0 && charges < maxCharges) {
+            int needed = Math.max(1, rechargeTicks - progress);
+            if (ticks >= needed) {
+                ticks -= needed;
+                applied += needed;
+                charges++;
+                progress = 0;
+            } else {
+                progress += ticks;
+                applied += ticks;
+                ticks = 0;
+            }
+        }
+        return new AdvanceResult(progress, charges, applied);
+    }
+
+    /** The outcome of {@link #advanceBy}: where progress and charges ended, and the ticks used. */
+    public static final class AdvanceResult {
+
+        private final int progress;
+        private final int charges;
+        private final int ticksApplied;
+
+        AdvanceResult(int progress, int charges, int ticksApplied) {
+            this.progress = progress;
+            this.charges = charges;
+            this.ticksApplied = ticksApplied;
+        }
+
+        public int progress() {
+            return progress;
+        }
+
+        public int charges() {
+            return charges;
+        }
+
+        public int ticksApplied() {
+            return ticksApplied;
+        }
     }
 
     /** The outcome of one recharge tick: the stored progress and whether a charge was gained. */

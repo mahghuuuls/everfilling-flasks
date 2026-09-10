@@ -10,7 +10,9 @@ Everything else, including `api.internal`, is internal and may change between ve
 without notice.
 
 Add a dependency on `everfillingflasks` in your `@Mod` line if you require it, or use
-`after:everfillingflasks` for a soft dependency.
+`after:everfillingflasks` for a soft dependency. If you use anything marked *since 1.1.0*
+below, require that version: `required-after:everfillingflasks@[1.1.0,)`, minimum only, no
+upper bound. Everything from 1.0.0 still works unchanged.
 
 ## Registering your own Flask
 
@@ -45,16 +47,65 @@ FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
 - First registration per item wins. A duplicate is refused with a log line, never an
   exception.
 
+### Healing over time (since 1.1.0)
+
+A Flask may heal a second amount after the drink, paid out by the core:
+
+```java
+@Override public float healOverTimePercentage(ItemStack stack, EntityPlayer player) { return 0.2F; }
+@Override public int healOverTimeTicks(ItemStack stack, EntityPlayer player) { return 100; }
+```
+
+- Both default to 0, and the over-time part exists only when both are above 0. The fraction is
+  of maximum health, clamped to 0..1; the ticks are clamped to one hour.
+- The core pays it on the server, one even share of the remainder per tick, starting the tick
+  after the drink completes, so the shares add up to the total exactly.
+- It takes the same healing multiplier as the instant part, from the values frozen when the
+  drink starts. A bonus that changes mid-drink or mid-payout changes nothing.
+- A newly completed drink of any Flask replaces a running payout; what it still owed is
+  forfeited, never added. Death stops it. Logout drops it: it is never saved, so a relog
+  starts with none. A player at full health still receives the ticks; the game caps them.
+- The tooltip's heal line, the completion outcome (`healOverTimeScheduled`), and the
+  diagnostics log all report it. Your own item's tooltip is yours to write; the built-in
+  `ItemFlask` reads these two methods to compose "Heals X% health, plus Y% over Zs", and the
+  language key `everfillingflasks.tooltip.heals.overTime` is there if you want the same line.
+- Both methods are also read on the client, for the tooltip, with a null player. Answer from
+  the stack.
+
 ### Completion behavior
 
-- `onDrinkCompleted(stack, player)` runs on the logical server after the charge is spent and
-  the healing applied. A thrown exception is caught and logged once per definition class; it
-  cannot corrupt Flask or player state. Mutating the Flask's charges from the hook is
-  unsupported: the completed drink is already committed, and anything a hook writes is
-  treated like any other external write at the next state sync, not as part of the drink.
+- `onDrinkCompleted(stack, player, outcome)` (since 1.1.0) runs on the logical server after the
+  charge is spent and the healing applied. The core calls this form only; its default forwards
+  to the older `onDrinkCompleted(stack, player)`, so a definition written against 1.0.0 is
+  called exactly once, as before. Override one or the other, not both.
+- `DrinkOutcome` says what the drink actually did, in health points: `healthBefore()`,
+  `healRequested()` (what the core computed), `healApplied()` (health after minus before, never
+  below 0: a player at full health reads 0, and another mod's heal listener is reflected
+  honestly), `healOverTimeScheduled()`, `chargesLeft()`, and `effectPower()`. Its accessors
+  are frozen for 1.x.
+- A thrown exception is caught and logged once per definition class; it cannot corrupt Flask
+  or player state. Mutating the Flask's charges from the hook is unsupported: the completed
+  drink is already committed, and anything a hook writes is treated like any other external
+  write at the next state sync, not as part of the drink.
 - `completionEffect` / `completionSound` (default `true`) keep or replace the core's
   completion burst and chime. Return `false` to disable one half, or play your own first and
   then return `false`. A throw is logged once and the default plays.
+
+### Advancing the recharge (since 1.1.0)
+
+```java
+int applied = FlaskApi.advanceRecharge(player, 100);   // e.g. on a kill
+```
+
+- Pushes the equipped Flask's current refill forward by up to that many ticks. Charges complete
+  as they would under the regular tick, the remainder carries into the next charge, and the
+  Flask never exceeds its maximum. Returns the ticks actually applied.
+- Logical server only, on the server thread (a tick or event handler, not a network handler's
+  own thread). On the client, before this mod binds, with no equipped Flask, with a full Flask,
+  or with `ticks <= 0`: nothing changes and 0 is returned.
+- The push applies even while the Inhibited effect is pausing the refill. The pause stops the
+  clock; this is not the clock.
+- The change is synced like any charge change and logged by diagnostics.
 
 ## Registering an infusion
 
@@ -103,6 +154,7 @@ FlaskApi.registerModifierSource((player, bonuses) -> {
         bonuses.hitResistance(1.0F); // doubled hit threshold
         bonuses.rechargeSpeed(1.0F); // recharges twice as fast
         bonuses.maxCharges(1);      // one extra charge slot
+        bonuses.effectPower(0.5F);  // since 1.1.0: secondary effect 50 percent stronger
     }
 });
 ```
@@ -110,6 +162,14 @@ FlaskApi.registerModifierSource((player, bonuses) -> {
 Sources are consulted when effective values are computed: at drink start, on charge changes,
 on state sync, and about once per second otherwise. A source that throws stays registered,
 is logged once, and only its own contribution is lost.
+
+### Effect power (since 1.1.0)
+
+Effect power is the one channel the core carries without using. Sources and infusions add to
+it like the other percentages; the core delivers `1 + sum`, floored at 0, to the Flask as
+`DrinkOutcome.effectPower()`. What it scales is the Flask's own business: a duration, a mana
+amount, a flat damage, anything the healing half does not cover. Nothing shows it to players;
+no built-in infusion adds to it. Cap your own use of it if a runaway value would matter.
 
 ## Reading state
 
@@ -207,7 +267,8 @@ own tooltips, so one sentence serves wherever the effect is shown.
 One contract note: building the journal also calls your definition's ordinary value methods
 (`maxCharges`, `healPercentage`, `rechargeTicks`, `drinkTicks`, `hitThreshold`, `potency`,
 `potencyCost`, `contribute`) **on the client**, with a bare stack of your item and a viewer that
-may be null during startup. Gameplay still calls them only on the server. Answer for a plain
+may be null during startup; the built-in tooltip does the same with `healOverTimePercentage`
+and `healOverTimeTicks`, and your own tooltip may copy that pattern. Gameplay still calls them only on the server. Answer for a plain
 stack and do not require a server to be present, or your entry will be the only casualty.
 
 The values shown come from the client's own configuration file. A dedicated server that changes
@@ -229,7 +290,8 @@ even at runtime — also works; recognition is immediate.
 Guaranteed: the two `api` packages' types and documented behavior; refusal-not-exception on
 duplicate registration; isolation of your hooks, sources, infusions, and HUD (your failure
 costs only your feature, logged once); server authority (nothing an add-on registers can
-move gameplay decisions to the client).
+move gameplay decisions to the client); `DrinkOutcome`'s accessors for the whole of 1.x; that
+an over-time payout is never persisted.
 
 Not guaranteed: anything outside `api`/`api.client` (including NBT layouts and network
 formats); call frequency of definition methods beyond "not every tick"; HUD layering; hook

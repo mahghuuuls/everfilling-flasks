@@ -12,6 +12,7 @@ item.everfillingflasks.second_wind_petal.name=Second Wind Petal
 everfillingflasks.tooltip.flaskHeader=Everfilling Flask
 everfillingflasks.tooltip.charges=Charges: %d
 everfillingflasks.tooltip.heals=Heals %d%% health
+everfillingflasks.tooltip.heals.overTime=Heals %d%% health, plus %d%% over %ss
 everfillingflasks.tooltip.usage=When equipped, hold [%s] to drink
 
 everfillingflasks.tooltip.infused=Infused:

@@ -12,14 +12,21 @@ public final class EffectiveFlask {
     private final int rechargeTicks;
     private final int drinkTicks;
     private final float hitThreshold;
+    private final float effectPower;
+    private final float healOverTimePercentage;
+    private final int healOverTimeTicks;
 
     EffectiveFlask(int maxCharges, float healPercentage, int rechargeTicks, int drinkTicks,
-                   float hitThreshold) {
+                   float hitThreshold, float effectPower, float healOverTimePercentage,
+                   int healOverTimeTicks) {
         this.maxCharges = maxCharges;
         this.healPercentage = healPercentage;
         this.rechargeTicks = rechargeTicks;
         this.drinkTicks = drinkTicks;
         this.hitThreshold = hitThreshold;
+        this.effectPower = effectPower;
+        this.healOverTimePercentage = healOverTimePercentage;
+        this.healOverTimeTicks = healOverTimeTicks;
     }
 
     public int maxCharges() {
@@ -40,5 +47,20 @@ public final class EffectiveFlask {
 
     public float hitThreshold() {
         return hitThreshold;
+    }
+
+    /** {@code 1 + effect power sum}, never below 0; carried to the Flask, never used here. */
+    public float effectPower() {
+        return effectPower;
+    }
+
+    /** The over-time heal fraction with the healing bonus already applied; 0 when none. */
+    public float healOverTimePercentage() {
+        return healOverTimePercentage;
+    }
+
+    /** Ticks the over-time heal is spread over; 0 when none. */
+    public int healOverTimeTicks() {
+        return healOverTimeTicks;
     }
 }

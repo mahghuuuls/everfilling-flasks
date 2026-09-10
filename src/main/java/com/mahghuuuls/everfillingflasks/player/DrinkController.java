@@ -66,6 +66,12 @@ public final class DrinkController {
             data.lastEffectiveRefreshTick = now;
         }
 
+        // Before the drink tick on purpose: a drink completing this tick schedules its payout,
+        // and the first share then lands next tick, as REQ-047 says.
+        if (data.payoutTicks > 0) {
+            payoutTick(player, data);
+        }
+
         if (data.drinking) {
             drinkTick(player, data);
         }
@@ -216,20 +222,77 @@ public final class DrinkController {
         FlaskStackState.setCharges(flask, charges - 1);
         float heal = FlaskMechanics.healAmount(player.getMaxHealth(),
                 effective.healPercentage());
+        // The two reads bracket the one heal call and nothing else, so the difference is what
+        // the heal did: 0 at full health, and whatever another mod's heal listener left of it.
+        float healthBefore = player.getHealth();
         if (heal > 0.0F) {
             player.heal(heal);
         }
+        float applied = FlaskMechanics.healApplied(healthBefore, player.getHealth());
+        float scheduled = schedulePayout(player, data, effective);
+        com.mahghuuuls.everfillingflasks.api.DrinkOutcome outcome =
+                new com.mahghuuuls.everfillingflasks.api.DrinkOutcome(healthBefore, heal,
+                        applied, scheduled, charges - 1, effective.effectPower());
         clearDrinkState(player, data,
                 com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage.OUTCOME_COMPLETED);
-        Diagnostics.drinkCompleted(player, charges - 1, effective.maxCharges(), heal);
+        Diagnostics.drinkCompleted(player, charges - 1, effective.maxCharges(), heal, applied,
+                effective.effectPower(), scheduled, effective.healOverTimeTicks());
         completionFeedback(player, flask);
-        runCompletionHook(player, flask);
+        runCompletionHook(player, flask, outcome);
         // After the Flask's own hook, each placed infusion's post-drink hook, each isolated.
         // Reachable only below capacity: an over-capacity Flask cannot start a drink.
         InfusionRegistry.dispatchDrinkCompleted(
                 FlaskStackState.infusions(flask), flask, player);
         playDrinkSound(player);
         data.syncDirty = true;
+    }
+
+    /**
+     * Starts the over-time payout a completing drink declares (REQ-047), replacing any payout
+     * still running: the remainder is forfeited, never added. The total is fixed here, from the
+     * effective value frozen at drink start, so a bonus changing mid-payout changes nothing.
+     * Returns the health points scheduled, 0 when the Flask declares no over-time part.
+     */
+    private static float schedulePayout(EntityPlayerMP player, FlaskPlayerData data,
+                                        EffectiveFlask effective) {
+        int ticks = effective.healOverTimeTicks();
+        float total = ticks > 0
+                ? FlaskMechanics.healAmount(player.getMaxHealth(),
+                        effective.healOverTimePercentage())
+                : 0.0F;
+        if (data.payoutTicks > 0) {
+            Diagnostics.payoutEnded(player, "replaced by a new drink", data.payoutRemaining);
+            data.clearPayout();
+        }
+        if (ticks <= 0 || total <= 0.0F) {
+            return 0.0F;
+        }
+        data.payoutRemaining = total;
+        data.payoutTicks = ticks;
+        return total;
+    }
+
+    /** One share of the running payout; the last share pays whatever is left. */
+    private static void payoutTick(EntityPlayerMP player, FlaskPlayerData data) {
+        float share = FlaskMechanics.payoutStep(data.payoutRemaining, data.payoutTicks);
+        if (share > 0.0F) {
+            player.heal(share);
+        }
+        data.payoutRemaining -= share;
+        data.payoutTicks--;
+        if (data.payoutTicks <= 0) {
+            Diagnostics.payoutEnded(player, "completed", 0.0F);
+            data.clearPayout();
+        }
+    }
+
+    /** Death and logout: a payout must not outlive the player it was healing. */
+    public static void clearPayout(EntityPlayerMP player, String reason) {
+        FlaskPlayerData data = FlaskPlayerCapability.get(player);
+        if (data != null && data.payoutTicks > 0) {
+            Diagnostics.payoutEnded(player, reason, data.payoutRemaining);
+            data.clearPayout();
+        }
     }
 
     /**
@@ -271,14 +334,19 @@ public final class DrinkController {
         }
     }
 
-    /** Hook isolation: a hook may do anything except break the Flask or the player. */
-    private static void runCompletionHook(EntityPlayerMP player, ItemStack flask) {
+    /**
+     * Hook isolation: a hook may do anything except break the Flask or the player. Only the
+     * outcome form is called; its default forwards to the plain form, so a 1.0.0 definition
+     * still runs exactly once.
+     */
+    private static void runCompletionHook(EntityPlayerMP player, ItemStack flask,
+                                          com.mahghuuuls.everfillingflasks.api.DrinkOutcome outcome) {
         FlaskDefinition definition = FlaskRegistry.definition(flask);
         if (definition == null) {
             return;
         }
         try {
-            definition.onDrinkCompleted(flask, player);
+            definition.onDrinkCompleted(flask, player, outcome);
         } catch (Throwable failure) {
             if (FAILED_HOOKS.add(definition.getClass().getName())) {
                 com.mahghuuuls.everfillingflasks.EverfillingFlasksMod.LOGGER.error(
@@ -435,6 +503,46 @@ public final class DrinkController {
         return true;
     }
 
+    /**
+     * An add-on pushing the equipped Flask's refill forward by up to {@code ticks} (REQ-048).
+     * Goes through the same closed-form rule as the per-tick recharge, so the two can never
+     * disagree on carry-over. The Inhibited pause is deliberately not consulted: the pause
+     * models a stopped clock, and this is not the clock. Returns the ticks actually applied;
+     * 0 with no Flask, a full Flask, or nothing to apply, and nothing changes then.
+     */
+    public static int advanceRecharge(EntityPlayerMP player, int ticks) {
+        FlaskPlayerData data = FlaskPlayerCapability.get(player);
+        if (data == null || ticks <= 0) {
+            return 0;
+        }
+        long now = player.world.getTotalWorldTime();
+        trackSlotChange(data, now);
+        ItemStack flask = data.trackedStack;
+        if (flask.isEmpty() || !FlaskRegistry.isFlask(flask)) {
+            return 0;
+        }
+        EffectiveFlask effective = effectiveFor(player, data, flask);
+        int chargesBefore = FlaskMechanics.clampCharges(FlaskStackState.charges(flask),
+                effective.maxCharges());
+        int progressBefore = data.liveProgress;
+        FlaskMechanics.AdvanceResult result = FlaskMechanics.advanceBy(progressBefore, ticks,
+                effective.rechargeTicks(), chargesBefore, effective.maxCharges());
+        if (result.ticksApplied() == 0) {
+            return 0;
+        }
+        data.liveProgress = result.progress();
+        FlaskStackState.setProgress(flask, result.progress());
+        if (result.charges() != chargesBefore) {
+            FlaskStackState.setCharges(flask, result.charges());
+            data.cachedEffective = null;
+        }
+        data.lastFlushTick = now;
+        data.syncDirty = true;
+        Diagnostics.rechargeAdvanced(player, result.ticksApplied(), chargesBefore,
+                result.charges(), progressBefore, result.progress(), effective.rechargeTicks());
+        return result.ticksApplied();
+    }
+
     private static EffectiveFlask effectiveFor(EntityPlayerMP player, FlaskPlayerData data,
                                                ItemStack flask) {
         if (data.cachedEffective == null) {
@@ -467,6 +575,8 @@ public final class DrinkController {
                 definition.rechargeTicks(flask, player),
                 definition.drinkTicks(flask, player),
                 definition.hitThreshold(flask, player),
+                definition.healOverTimePercentage(flask, player),
+                definition.healOverTimeTicks(flask, player),
                 bonuses);
     }
 

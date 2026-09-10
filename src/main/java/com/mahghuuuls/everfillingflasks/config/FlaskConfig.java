@@ -70,10 +70,10 @@ public final class FlaskConfig {
 
         @Config.Name("inhibitedIntegration")
         @Config.Comment({
-                "While a player has the Inhibited effect, their Flask stops recharging.",
-                "Does nothing unless that mod is installed. false ignores the effect entirely,",
-                "for a pack that wants the two mods to leave each other alone."})
-        public boolean inhibitedIntegration = true;
+                "Off by default. true makes a player's Flask stop recharging while they have the",
+                "Inhibited effect, for packs that use a mod providing it. Does nothing without one.",
+                "A file written by 1.0.0 keeps its own value; only a missing key takes the default."})
+        public boolean inhibitedIntegration = false;
 
         @Config.Name("diagnostics")
         @Config.Comment({

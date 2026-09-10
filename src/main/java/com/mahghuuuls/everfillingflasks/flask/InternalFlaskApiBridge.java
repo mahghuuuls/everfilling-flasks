@@ -64,4 +64,16 @@ public final class InternalFlaskApiBridge extends FlaskApiBridge {
         }
         return com.mahghuuuls.everfillingflasks.player.FlaskSnapshots.empty();
     }
+
+    @Override
+    protected int advanceRechargeNow(net.minecraft.entity.player.EntityPlayer player, int ticks) {
+        // Server only: the client holds a mirror, and a push there would be lost at the next
+        // sync and mislead the caller about what happened.
+        if (player instanceof net.minecraft.entity.player.EntityPlayerMP
+                && player.world != null && !player.world.isRemote) {
+            return com.mahghuuuls.everfillingflasks.player.DrinkController.advanceRecharge(
+                    (net.minecraft.entity.player.EntityPlayerMP) player, ticks);
+        }
+        return 0;
+    }
 }
