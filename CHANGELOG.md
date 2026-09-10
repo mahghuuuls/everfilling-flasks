@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 (unreleased)
+
+### Changed
+
+- The three built-in flasks show plain white names. Sturdy and Radiant no longer carry the
+  yellow and aqua rarity colours, so they read like add-on flasks in a list.
+- The Inhibited link (`general.inhibitedIntegration`) is off by default. The feature is unchanged;
+  a pack that wants recharge to freeze under the Inhibited effect turns it on. A config file
+  written by 1.0.0 keeps the value it has.
+
 ## 1.0.0
 
 First public release.

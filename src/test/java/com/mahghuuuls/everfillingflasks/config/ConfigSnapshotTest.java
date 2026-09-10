@@ -166,14 +166,14 @@ class ConfigSnapshotTest {
         }
     }
     @Test
-    void theInhibitedLinkCanBeSwitchedOff() {
-        // A pack that wants the two mods to ignore each other, and the mod page says it can.
+    void theInhibitedLinkCanBeSwitchedOn() {
+        // Off unless a pack turns it on (owner decision, 1.1.0); the mod page says it can.
         boolean original = FlaskConfig.general.inhibitedIntegration;
         try {
-            assertTrue(ConfigSnapshot.current().inhibitedIntegration(), "on by default");
-            FlaskConfig.general.inhibitedIntegration = false;
+            assertFalse(ConfigSnapshot.current().inhibitedIntegration(), "off by default");
+            FlaskConfig.general.inhibitedIntegration = true;
             ConfigSnapshot.refresh();
-            assertFalse(ConfigSnapshot.current().inhibitedIntegration());
+            assertTrue(ConfigSnapshot.current().inhibitedIntegration());
         } finally {
             FlaskConfig.general.inhibitedIntegration = original;
             ConfigSnapshot.refresh();

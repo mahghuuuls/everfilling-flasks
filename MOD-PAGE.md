@@ -19,7 +19,7 @@ API for add-ons to bring the variety.
 Flask recharge freezes while the Inhibited effect is active. That is in there because I play with
 [Combat Inhibited](https://www.curseforge.com/minecraft/mc-mods/combat-inhibited) myself. What
 the mod looks for is the effect rather than that particular mod, so anything providing it works.
-It is not required, and the link can be switched off in the config.
+It is not required, it is off by default, and the config switches it on.
 
 ---
 
@@ -35,7 +35,7 @@ The config file provides options for:
   another source provides them
 - Dropping flasks on death instead of keeping them
 - Changing how much drinking slows movement, or removing the slowdown
-- Switching off the Inhibited link
+- Switching on the Inhibited link
 - Replacing or hiding any journal entry's text, per item, for when a pack moves something
   elsewhere
 - A diagnostics log that records every flask decision and its reason, for tracking down reports
