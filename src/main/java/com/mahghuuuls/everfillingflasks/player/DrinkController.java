@@ -216,14 +216,22 @@ public final class DrinkController {
         FlaskStackState.setCharges(flask, charges - 1);
         float heal = FlaskMechanics.healAmount(player.getMaxHealth(),
                 effective.healPercentage());
+        // The two reads bracket the one heal call and nothing else, so the difference is what
+        // the heal did: 0 at full health, and whatever another mod's heal listener left of it.
+        float healthBefore = player.getHealth();
         if (heal > 0.0F) {
             player.heal(heal);
         }
+        float applied = FlaskMechanics.healApplied(healthBefore, player.getHealth());
+        com.mahghuuuls.everfillingflasks.api.DrinkOutcome outcome =
+                new com.mahghuuuls.everfillingflasks.api.DrinkOutcome(healthBefore, heal,
+                        applied, 0.0F, charges - 1, effective.effectPower());
         clearDrinkState(player, data,
                 com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage.OUTCOME_COMPLETED);
-        Diagnostics.drinkCompleted(player, charges - 1, effective.maxCharges(), heal);
+        Diagnostics.drinkCompleted(player, charges - 1, effective.maxCharges(), heal, applied,
+                effective.effectPower());
         completionFeedback(player, flask);
-        runCompletionHook(player, flask);
+        runCompletionHook(player, flask, outcome);
         // After the Flask's own hook, each placed infusion's post-drink hook, each isolated.
         // Reachable only below capacity: an over-capacity Flask cannot start a drink.
         InfusionRegistry.dispatchDrinkCompleted(
@@ -271,14 +279,19 @@ public final class DrinkController {
         }
     }
 
-    /** Hook isolation: a hook may do anything except break the Flask or the player. */
-    private static void runCompletionHook(EntityPlayerMP player, ItemStack flask) {
+    /**
+     * Hook isolation: a hook may do anything except break the Flask or the player. Only the
+     * outcome form is called; its default forwards to the plain form, so a 1.0.0 definition
+     * still runs exactly once.
+     */
+    private static void runCompletionHook(EntityPlayerMP player, ItemStack flask,
+                                          com.mahghuuuls.everfillingflasks.api.DrinkOutcome outcome) {
         FlaskDefinition definition = FlaskRegistry.definition(flask);
         if (definition == null) {
             return;
         }
         try {
-            definition.onDrinkCompleted(flask, player);
+            definition.onDrinkCompleted(flask, player, outcome);
         } catch (Throwable failure) {
             if (FAILED_HOOKS.add(definition.getClass().getName())) {
                 com.mahghuuuls.everfillingflasks.EverfillingFlasksMod.LOGGER.error(

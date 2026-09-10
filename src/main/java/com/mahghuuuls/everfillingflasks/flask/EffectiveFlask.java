@@ -12,14 +12,16 @@ public final class EffectiveFlask {
     private final int rechargeTicks;
     private final int drinkTicks;
     private final float hitThreshold;
+    private final float effectPower;
 
     EffectiveFlask(int maxCharges, float healPercentage, int rechargeTicks, int drinkTicks,
-                   float hitThreshold) {
+                   float hitThreshold, float effectPower) {
         this.maxCharges = maxCharges;
         this.healPercentage = healPercentage;
         this.rechargeTicks = rechargeTicks;
         this.drinkTicks = drinkTicks;
         this.hitThreshold = hitThreshold;
+        this.effectPower = effectPower;
     }
 
     public int maxCharges() {
@@ -40,5 +42,10 @@ public final class EffectiveFlask {
 
     public float hitThreshold() {
         return hitThreshold;
+    }
+
+    /** {@code 1 + effect power sum}, never below 0; carried to the Flask, never used here. */
+    public float effectPower() {
+        return effectPower;
     }
 }

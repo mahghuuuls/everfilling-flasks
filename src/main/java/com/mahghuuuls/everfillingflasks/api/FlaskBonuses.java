@@ -7,6 +7,9 @@ package com.mahghuuuls.everfillingflasks.api;
  * adding {@code 0.5f} and {@code 0.3f} healing give {@code base * 1.8}. Negative bonuses are
  * allowed; the core clamps each combined multiplier so it never drops below 0. Maximum charges
  * take flat additions instead, because a percentage of small whole numbers rounds badly.
+ *
+ * <p>Effect power (since 1.1.0) is the one channel the core carries without using: it reaches a
+ * Flask as {@link DrinkOutcome#effectPower()} for whatever secondary effect that Flask has.
  */
 public final class FlaskBonuses {
 
@@ -15,6 +18,7 @@ public final class FlaskBonuses {
     private float hitResistanceSum;
     private float rechargeSpeedSum;
     private int maxChargesFlat;
+    private float effectPowerSum;
 
     /** Add a healing bonus: {@code 0.5f} means 50 percent more healing. */
     public void healing(float percent) {
@@ -41,6 +45,14 @@ public final class FlaskBonuses {
         maxChargesFlat += flat;
     }
 
+    /**
+     * Add effect power: {@code 0.5f} means a Flask's secondary effect 50 percent stronger. The
+     * healing half is untouched; use {@link #healing} for that. Since 1.1.0.
+     */
+    public void effectPower(float percent) {
+        effectPowerSum += percent;
+    }
+
     public float healingSum() {
         return healingSum;
     }
@@ -59,5 +71,9 @@ public final class FlaskBonuses {
 
     public int maxChargesFlat() {
         return maxChargesFlat;
+    }
+
+    public float effectPowerSum() {
+        return effectPowerSum;
     }
 }

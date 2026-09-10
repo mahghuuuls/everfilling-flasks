@@ -48,7 +48,17 @@ public final class FlaskMechanics {
                 divideByMultiplier(Math.max(MIN_BASE_TICKS, baseDrinkTicks),
                         bonuses.drinkSpeedSum()));
         float threshold = baseHitThreshold * multiplier(bonuses.hitResistanceSum());
-        return new EffectiveFlask(maxCharges, heal, recharge, drink, threshold);
+        float effectPower = multiplier(bonuses.effectPowerSum());
+        return new EffectiveFlask(maxCharges, heal, recharge, drink, threshold, effectPower);
+    }
+
+    /**
+     * Health actually gained by one heal call: after minus before, never below 0. Below 0 can
+     * happen only if something else lowered health between the two reads, which the core does
+     * not do; the floor keeps the reported value honest rather than negative.
+     */
+    public static float healApplied(float healthBefore, float healthAfter) {
+        return Math.max(0.0F, healthAfter - healthBefore);
     }
 
     /** A declared slot count brought inside the range the screen can draw. */

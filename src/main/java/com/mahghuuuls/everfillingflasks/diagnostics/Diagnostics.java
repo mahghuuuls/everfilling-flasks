@@ -77,13 +77,16 @@ public final class Diagnostics {
     }
 
     public static void drinkCompleted(EntityPlayer player, int charges, int maxCharges,
-                                      float healed) {
+                                      float requested, float applied, float effectPower) {
         if (!enabled()) {
             return;
         }
+        // Requested and applied differ at full health or under another mod's heal listener;
+        // both are printed so a report can tell which. Effect power only when a source set it.
+        String power = effectPower == 1.0F ? "" : ", effect power " + effectPower;
         EverfillingFlasksMod.LOGGER.info(
-                "{}: drink completed ({}/{} charges left, healed {} half-hearts)",
-                player.getName(), charges, maxCharges, healed);
+                "{}: drink completed ({}/{} charges left, heal {} requested, {} applied{})",
+                player.getName(), charges, maxCharges, requested, applied, power);
     }
 
     /**

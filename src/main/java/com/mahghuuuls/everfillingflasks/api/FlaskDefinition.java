@@ -78,6 +78,17 @@ public interface FlaskDefinition {
     }
 
     /**
+     * The same moment as {@link #onDrinkCompleted(ItemStack, EntityPlayer)}, with what the drink
+     * actually did. The core calls this form only; its default forwards to the two-argument
+     * form, so a definition written against 1.0.0 is called exactly once, as before. Override
+     * one or the other, not both. Same isolation: a throw is caught and logged once per
+     * definition class and cannot touch the drink. Since 1.1.0.
+     */
+    default void onDrinkCompleted(ItemStack stack, EntityPlayer player, DrinkOutcome outcome) {
+        onDrinkCompleted(stack, player);
+    }
+
+    /**
      * Completion presentation, particle half. Called on the logical server when a drink
      * completes, before {@link #onDrinkCompleted}. Return {@code true} for the core's default
      * burst around the drinker; return {@code false} to disable it, or spawn a replacement
