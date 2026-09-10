@@ -50,8 +50,7 @@ public final class ItemFlask extends Item {
         tooltip.add(net.minecraft.util.text.TextFormatting.GREEN
                 + I18n.format("everfillingflasks.tooltip.flaskHeader"));
         ConfigSnapshot.TierConfig values = ConfigSnapshot.current().tier(tier);
-        tooltip.add(I18n.format("everfillingflasks.tooltip.heals",
-                Math.round(values.healPercentage() * 100.0F)));
+        tooltip.add(healLine(stack, values.healPercentage()));
         // Maximum only, owner decision 2026-08-25: current charges are the HUD's job.
         tooltip.add(I18n.format("everfillingflasks.tooltip.charges", values.maxCharges()));
         // The two grid numbers together, slots before budget: how many pieces fit, then how
@@ -73,6 +72,28 @@ public final class ItemFlask extends Item {
         tooltip.add(I18n.format("everfillingflasks.tooltip.usage",
                 EverfillingFlasksMod.proxy.useFlaskKeyName()));
         addInfusionLines(stack, tooltip);
+    }
+
+    /**
+     * The heal line, with the over-time part when the Flask's definition declares one
+     * (REQ-047). The built-in tiers never do, but the line reads the definition rather than
+     * the tier so the surface tells the truth for any definition behind this item, and so the
+     * same key serves an add-on that copies the pattern.
+     */
+    @SideOnly(Side.CLIENT)
+    private static String healLine(ItemStack stack, float instantPercentage) {
+        int instant = Math.round(instantPercentage * 100.0F);
+        com.mahghuuuls.everfillingflasks.api.FlaskDefinition definition =
+                com.mahghuuuls.everfillingflasks.flask.FlaskRegistry.definition(stack);
+        if (definition != null) {
+            int ticks = definition.healOverTimeTicks(stack, null);
+            float percentage = definition.healOverTimePercentage(stack, null);
+            if (ticks > 0 && percentage > 0.0F) {
+                return I18n.format("everfillingflasks.tooltip.heals.overTime", instant,
+                        Math.round(percentage * 100.0F), seconds(ticks));
+            }
+        }
+        return I18n.format("everfillingflasks.tooltip.heals", instant);
     }
 
     /** Ticks as seconds, with a decimal only when there is one: "30", "1.5". */

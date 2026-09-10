@@ -27,6 +27,9 @@ public final class FlaskMechanics {
     /** Base durations below one tick are treated as one tick (the FlaskDefinition contract). */
     private static final int MIN_BASE_TICKS = 1;
 
+    /** An over-time heal runs at most an hour; longer is a mistake, not a design. */
+    public static final int MAX_PAYOUT_TICKS = 72000;
+
     private FlaskMechanics() {
     }
 
@@ -39,8 +42,22 @@ public final class FlaskMechanics {
     public static EffectiveFlask effective(int baseMaxCharges, float baseHealPercentage,
                                            int baseRechargeTicks, int baseDrinkTicks,
                                            float baseHitThreshold, FlaskBonuses bonuses) {
+        return effective(baseMaxCharges, baseHealPercentage, baseRechargeTicks, baseDrinkTicks,
+                baseHitThreshold, 0.0F, 0, bonuses);
+    }
+
+    /**
+     * As {@link #effective(int, float, int, int, float, FlaskBonuses)}, with an over-time heal
+     * (REQ-047). The over-time fraction takes the same healing multiplier as the instant part;
+     * the fraction is clamped to 0..1 and the ticks to 0..{@link #MAX_PAYOUT_TICKS}.
+     */
+    public static EffectiveFlask effective(int baseMaxCharges, float baseHealPercentage,
+                                           int baseRechargeTicks, int baseDrinkTicks,
+                                           float baseHitThreshold, float baseOverTimePercentage,
+                                           int baseOverTimeTicks, FlaskBonuses bonuses) {
         int maxCharges = Math.max(MIN_MAX_CHARGES, baseMaxCharges + bonuses.maxChargesFlat());
-        float heal = baseHealPercentage * multiplier(bonuses.healingSum());
+        float healMultiplier = multiplier(bonuses.healingSum());
+        float heal = baseHealPercentage * healMultiplier;
         int recharge = Math.max(MIN_RECHARGE_TICKS,
                 divideByMultiplier(Math.max(MIN_BASE_TICKS, baseRechargeTicks),
                         bonuses.rechargeSpeedSum()));
@@ -49,7 +66,23 @@ public final class FlaskMechanics {
                         bonuses.drinkSpeedSum()));
         float threshold = baseHitThreshold * multiplier(bonuses.hitResistanceSum());
         float effectPower = multiplier(bonuses.effectPowerSum());
-        return new EffectiveFlask(maxCharges, heal, recharge, drink, threshold, effectPower);
+        float overTime = Math.max(0.0F, Math.min(1.0F, baseOverTimePercentage)) * healMultiplier;
+        int overTimeTicks = Math.max(0, Math.min(MAX_PAYOUT_TICKS, baseOverTimeTicks));
+        return new EffectiveFlask(maxCharges, heal, recharge, drink, threshold, effectPower,
+                overTime, overTimeTicks);
+    }
+
+    /**
+     * One tick of an over-time payout (REQ-047): an even share of what is still owed over the
+     * ticks still to run. Recomputed from the remainder each tick, so the shares always sum to
+     * the total exactly: on the last tick the division is by one, which pays whatever is left
+     * to the bit. Zero when nothing is owed or no ticks remain.
+     */
+    public static float payoutStep(float remainingPoints, int remainingTicks) {
+        if (remainingTicks <= 0 || remainingPoints <= 0.0F) {
+            return 0.0F;
+        }
+        return remainingPoints / remainingTicks;
     }
 
     /**

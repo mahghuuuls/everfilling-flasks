@@ -90,16 +90,29 @@ public final class Diagnostics {
     }
 
     public static void drinkCompleted(EntityPlayer player, int charges, int maxCharges,
-                                      float requested, float applied, float effectPower) {
+                                      float requested, float applied, float effectPower,
+                                      float overTimePoints, int overTimeTicks) {
         if (!enabled()) {
             return;
         }
         // Requested and applied differ at full health or under another mod's heal listener;
-        // both are printed so a report can tell which. Effect power only when a source set it.
+        // both are printed so a report can tell which. Effect power only when a source set it;
+        // the over-time part only when the Flask declares one.
         String power = effectPower == 1.0F ? "" : ", effect power " + effectPower;
+        String overTime = overTimeTicks > 0
+                ? ", plus " + overTimePoints + " over " + overTimeTicks + " ticks" : "";
         EverfillingFlasksMod.LOGGER.info(
-                "{}: drink completed ({}/{} charges left, heal {} requested, {} applied{})",
-                player.getName(), charges, maxCharges, requested, applied, power);
+                "{}: drink completed ({}/{} charges left, heal {} requested, {} applied{}{})",
+                player.getName(), charges, maxCharges, requested, applied, power, overTime);
+    }
+
+    /** An over-time payout stopped, and why: completed, died, logged out, or replaced. */
+    public static void payoutEnded(EntityPlayer player, String reason, float unpaidPoints) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("{}: over-time heal ended: {} ({} half-hearts unpaid)",
+                player.getName(), reason, unpaidPoints);
     }
 
     /**

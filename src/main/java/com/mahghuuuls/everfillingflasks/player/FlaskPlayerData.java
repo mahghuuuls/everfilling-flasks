@@ -43,9 +43,26 @@ public final class FlaskPlayerData {
     com.mahghuuuls.everfillingflasks.flask.EffectiveFlask drinkEffective;
     ItemStack drinkStack = ItemStack.EMPTY;
 
+    // Transient over-time heal payout (REQ-047), owned by DrinkController and never persisted:
+    // health points still owed and ticks still to run. Written at completion, paid down each
+    // tick, cleared on death and logout. A relog therefore forfeits it, by design.
+    float payoutRemaining;
+    int payoutTicks;
+
     /** Whether this player is mid-drink; the guards and renderers key off this alone. */
     public boolean drinking() {
         return drinking;
+    }
+
+    /** Whether an over-time heal is still paying out. */
+    public boolean payoutRunning() {
+        return payoutTicks > 0;
+    }
+
+    /** Forgets any running payout; the caller says why through diagnostics. */
+    public void clearPayout() {
+        payoutRemaining = 0.0F;
+        payoutTicks = 0;
     }
 
     /**

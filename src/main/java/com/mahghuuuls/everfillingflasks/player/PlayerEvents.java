@@ -63,6 +63,7 @@ public final class PlayerEvents {
     public static void onPlayerLoggedOut(PlayerLoggedOutEvent event) {
         if (event.player instanceof EntityPlayerMP) {
             DrinkController.cancelDrink((EntityPlayerMP) event.player, "logged out");
+            DrinkController.clearPayout((EntityPlayerMP) event.player, "logged out");
             DrinkController.flush((EntityPlayerMP) event.player);
         }
     }
@@ -73,6 +74,9 @@ public final class PlayerEvents {
     public static void onLivingDeath(net.minecraftforge.event.entity.living.LivingDeathEvent event) {
         if (!event.isCanceled() && event.getEntityLiving() instanceof EntityPlayerMP) {
             DrinkController.cancelDrink((EntityPlayerMP) event.getEntityLiving(), "died");
+            // The respawned player is a fresh entity with fresh data, but the dying one may
+            // still tick before it goes; an over-time heal must not keep paying a corpse.
+            DrinkController.clearPayout((EntityPlayerMP) event.getEntityLiving(), "died");
         }
     }
 
