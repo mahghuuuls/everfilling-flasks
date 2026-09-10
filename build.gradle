@@ -451,6 +451,7 @@ tasks.named('runClient', JavaExec).configure {
         devmodQuietFlask  : 'eff.devfixtures.quietflask',
         devmodHud         : 'eff.devfixtures.hud',
         devmodThrowingHud : 'eff.devfixtures.throwinghud',
+        devmodEffectPower : 'eff.devfixtures.effectpower',
     ].each { flag, property ->
         if (project.hasProperty(flag)) {
             systemProperty property, project.property(flag)

@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,12 +22,17 @@ import org.apache.logging.log4j.Logger;
  * <li>{@code -Deff.devfixtures.modifiers=true}: while the player holds a stick in the off-hand,
  * +50 percent healing, +100 percent drink speed, +100 percent hit resistance, +100 percent
  * recharge speed, and +1 maximum charge.</li>
+ * <li>{@code -Deff.devfixtures.effectpower=true}: one source adding 0.5 effect power, always
+ * (1.1.0, REQ-050).</li>
  * <li>{@code -Deff.devfixtures.throwing=true}: one source that always throws, for watching the
  * isolation contain it.</li>
  * <li>{@code -Deff.devfixtures.infusion=true}: registers the vanilla gold nugget as a Flask
  * Infusion through the public API: cost 2, +25 percent healing, proving the REQ-031
  * number and the add-on registration path.</li>
  * </ul>
+ *
+ * <p>The {@code eff_advance} command (1.1.0, REQ-048) is always registered; it calls
+ * {@code FlaskApi.advanceRecharge} for the sender and reports the ticks applied.
  *
  * <p>Registration happens in init, one phase after the core mod's preInit, deliberately: it
  * proves late registration works the way the API promises.
@@ -44,6 +50,10 @@ public class DevFixturesMod {
             FlaskApi.registerModifierSource(new StickBonuses());
             LOGGER.info("Fixture modifier source active: off-hand stick grants flask bonuses");
         }
+        if (Boolean.getBoolean("eff.devfixtures.effectpower")) {
+            FlaskApi.registerModifierSource(new HalfEffectPower());
+            LOGGER.info("Fixture effect power source active: +0.5, always");
+        }
         if (Boolean.getBoolean("eff.devfixtures.throwing")) {
             FlaskApi.registerModifierSource(new AlwaysThrows());
             LOGGER.info("Fixture throwing modifier source active");
@@ -56,8 +66,8 @@ public class DevFixturesMod {
             // In init, one phase after the core's preInit, on purpose: late registration is
             // part of the API promise.
             FlaskApi.registerFlask(DevItems.manaFlask(), new ManaFlaskDefinition());
-            LOGGER.info("Fixture Mana Flask active: heal 0, NBT-tiered charges, Speed hook"
-                    + " (throwinghook={}, quietflask={})",
+            LOGGER.info("Fixture Mana Flask active: NBT-driven heal, over-time heal, outcome"
+                    + " report, tiered charges, Speed hook (throwinghook={}, quietflask={})",
                     Boolean.getBoolean("eff.devfixtures.throwinghook"),
                     Boolean.getBoolean("eff.devfixtures.quietflask"));
         }
@@ -67,6 +77,11 @@ public class DevFixturesMod {
             FixtureHuds.register(throwingHud);
             LOGGER.info("Fixture HUD replacement active (throwing={})", throwingHud);
         }
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new AdvanceRechargeCommand());
     }
 
     /** The API-registered infusion fixture, exactly REQ-031's example numbers. */
@@ -97,6 +112,15 @@ public class DevFixturesMod {
                 bonuses.rechargeSpeed(1.0F);
                 bonuses.maxCharges(1);
             }
+        }
+    }
+
+    /** Effect power alone, so the outcome must read 1.5 with every other value untouched. */
+    static final class HalfEffectPower implements FlaskModifierSource {
+
+        @Override
+        public void contribute(EntityPlayer player, FlaskBonuses bonuses) {
+            bonuses.effectPower(0.5F);
         }
     }
 
