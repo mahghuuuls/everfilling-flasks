@@ -19,7 +19,7 @@ API for add-ons to bring the variety.
 Flask recharge freezes while the Inhibited effect is active. That is in there because I play with
 [Combat Inhibited](https://www.curseforge.com/minecraft/mc-mods/combat-inhibited) myself. What
 the mod looks for is the effect rather than that particular mod, so anything providing it works.
-It is not required, it is off by default, and the config switches it on.
+It is not required, it is off by default.
 
 ---
 
@@ -50,6 +50,8 @@ Using the API, add-ons can:
 - Alter the properties of any flask a player drinks, for example a bauble that speeds up drinking
   or increases healing
 - Run their own effect when a drink completes, and replace the burst and chime that follow it
+- Declare a heal that pays out over time, push a flask's refill forward on their own events,
+  read what a drink actually did, and scale a secondary effect through the effect power bonus
 
 ## Installation
 
@@ -59,6 +61,7 @@ Requires:
 [Inventory Button Bar](https://www.curseforge.com/minecraft/mc-mods/inventory-button-bar), which
 adds the inventory button that opens the flask screen, and
 [Patchouli ROFL Edition](https://www.curseforge.com/minecraft/mc-mods/patchouli-rofl-edition),
-which draws the journal.
+which draws the journal. If the flask button does not appear in a pack with many bar buttons, move or
+resize the bar in Inventory Button Bar's config.
 
 Source and add-on API: [GitHub](https://github.com/mahghuuuls/everfilling-flasks)
