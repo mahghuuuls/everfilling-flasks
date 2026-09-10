@@ -448,6 +448,46 @@ public final class DrinkController {
         return true;
     }
 
+    /**
+     * An add-on pushing the equipped Flask's refill forward by up to {@code ticks} (REQ-048).
+     * Goes through the same closed-form rule as the per-tick recharge, so the two can never
+     * disagree on carry-over. The Inhibited pause is deliberately not consulted: the pause
+     * models a stopped clock, and this is not the clock. Returns the ticks actually applied;
+     * 0 with no Flask, a full Flask, or nothing to apply, and nothing changes then.
+     */
+    public static int advanceRecharge(EntityPlayerMP player, int ticks) {
+        FlaskPlayerData data = FlaskPlayerCapability.get(player);
+        if (data == null || ticks <= 0) {
+            return 0;
+        }
+        long now = player.world.getTotalWorldTime();
+        trackSlotChange(data, now);
+        ItemStack flask = data.trackedStack;
+        if (flask.isEmpty() || !FlaskRegistry.isFlask(flask)) {
+            return 0;
+        }
+        EffectiveFlask effective = effectiveFor(player, data, flask);
+        int chargesBefore = FlaskMechanics.clampCharges(FlaskStackState.charges(flask),
+                effective.maxCharges());
+        int progressBefore = data.liveProgress;
+        FlaskMechanics.AdvanceResult result = FlaskMechanics.advanceBy(progressBefore, ticks,
+                effective.rechargeTicks(), chargesBefore, effective.maxCharges());
+        if (result.ticksApplied() == 0) {
+            return 0;
+        }
+        data.liveProgress = result.progress();
+        FlaskStackState.setProgress(flask, result.progress());
+        if (result.charges() != chargesBefore) {
+            FlaskStackState.setCharges(flask, result.charges());
+            data.cachedEffective = null;
+        }
+        data.lastFlushTick = now;
+        data.syncDirty = true;
+        Diagnostics.rechargeAdvanced(player, result.ticksApplied(), chargesBefore,
+                result.charges(), progressBefore, result.progress(), effective.rechargeTicks());
+        return result.ticksApplied();
+    }
+
     private static EffectiveFlask effectiveFor(EntityPlayerMP player, FlaskPlayerData data,
                                                ItemStack flask) {
         if (data.cachedEffective == null) {

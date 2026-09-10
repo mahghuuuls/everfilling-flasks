@@ -116,6 +116,12 @@ public abstract class FlaskApiBridge {
         return bridge.snapshotNow(player);
     }
 
+    /** Nothing to advance before the mod binds; 0, never a throw. */
+    public static int advanceRecharge(EntityPlayer player, int ticks) {
+        FlaskApiBridge bridge = instance;
+        return bridge == null ? 0 : bridge.advanceRechargeNow(player, ticks);
+    }
+
     protected abstract void registerModifierSourceNow(FlaskModifierSource source);
 
     protected abstract void registerInfusionNow(Item item, InfusionDefinition definition);
@@ -129,4 +135,6 @@ public abstract class FlaskApiBridge {
     protected abstract FlaskDefinition definitionNow(ItemStack stack);
 
     protected abstract FlaskSnapshot snapshotNow(EntityPlayer player);
+
+    protected abstract int advanceRechargeNow(EntityPlayer player, int ticks);
 }

@@ -36,6 +36,19 @@ public final class Diagnostics {
                 player.getName(), charges, maxCharges);
     }
 
+    /** An add-on pushed the refill forward (REQ-048); one line with before and after. */
+    public static void rechargeAdvanced(EntityPlayer player, int ticksApplied, int chargesBefore,
+                                        int chargesAfter, int progressBefore, int progressAfter,
+                                        int rechargeTicks) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info(
+                "{}: recharge advanced by {} ticks: charges {} -> {}, progress {}/{} -> {}/{}",
+                player.getName(), ticksApplied, chargesBefore, chargesAfter,
+                progressBefore, rechargeTicks, progressAfter, rechargeTicks);
+    }
+
     public static void rechargePaused(EntityPlayer player, int progressTicks, int rechargeTicks) {
         if (!enabled()) {
             return;

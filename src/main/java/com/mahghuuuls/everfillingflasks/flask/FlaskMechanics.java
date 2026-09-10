@@ -95,6 +95,59 @@ public final class FlaskMechanics {
         return new RechargeStep(progress + 1, false);
     }
 
+    /**
+     * Many recharge ticks at once, for an add-on pushing the refill forward (REQ-048). The same
+     * rule as {@link #advance} applied {@code ticks} times, in closed form: a charge completes
+     * after {@code max(1, rechargeTicks - progress)} more ticks, the remainder carries into the
+     * next charge, and the Flask never exceeds {@code maxCharges}. Ticks past a full Flask are
+     * not applied, so {@link AdvanceResult#ticksApplied} is at most {@code ticks} and at most
+     * what full needed. Zero or fewer ticks, or an already full Flask, apply nothing.
+     */
+    public static AdvanceResult advanceBy(int progress, int ticks, int rechargeTicks,
+                                          int charges, int maxCharges) {
+        int applied = 0;
+        while (ticks > 0 && charges < maxCharges) {
+            int needed = Math.max(1, rechargeTicks - progress);
+            if (ticks >= needed) {
+                ticks -= needed;
+                applied += needed;
+                charges++;
+                progress = 0;
+            } else {
+                progress += ticks;
+                applied += ticks;
+                ticks = 0;
+            }
+        }
+        return new AdvanceResult(progress, charges, applied);
+    }
+
+    /** The outcome of {@link #advanceBy}: where progress and charges ended, and the ticks used. */
+    public static final class AdvanceResult {
+
+        private final int progress;
+        private final int charges;
+        private final int ticksApplied;
+
+        AdvanceResult(int progress, int charges, int ticksApplied) {
+            this.progress = progress;
+            this.charges = charges;
+            this.ticksApplied = ticksApplied;
+        }
+
+        public int progress() {
+            return progress;
+        }
+
+        public int charges() {
+            return charges;
+        }
+
+        public int ticksApplied() {
+            return ticksApplied;
+        }
+    }
+
     /** The outcome of one recharge tick: the stored progress and whether a charge was gained. */
     public static final class RechargeStep {
 
