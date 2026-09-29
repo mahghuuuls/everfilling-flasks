@@ -1,6 +1,7 @@
 package com.mahghuuuls.everfillingflasks.flask;
 
 import com.mahghuuuls.everfillingflasks.EverfillingFlasksMod;
+import com.mahghuuuls.everfillingflasks.api.DrinkOutcome;
 import com.mahghuuuls.everfillingflasks.api.FlaskBonuses;
 import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import net.minecraft.entity.player.EntityPlayer;
@@ -105,16 +106,19 @@ public final class InfusionRegistry {
         }
     }
 
-    /** The post-drink hooks, one call per placed piece, each isolated. */
+    /**
+     * The post-drink hooks, one call per placed piece, each isolated, each through the outcome
+     * form so every piece sees the same outcome the Flask's own hook saw.
+     */
     public static void dispatchDrinkCompleted(NonNullList<ItemStack> grid, ItemStack flask,
-                                              EntityPlayer player) {
+                                              EntityPlayer player, DrinkOutcome outcome) {
         for (ItemStack piece : grid) {
             InfusionDefinition definition = definition(piece);
             if (definition == null) {
                 continue;
             }
             try {
-                definition.onDrinkCompleted(piece, flask, player);
+                definition.onDrinkCompleted(piece, flask, player, outcome);
             } catch (Throwable failure) {
                 logOnce(definition, "onDrinkCompleted", failure);
             }

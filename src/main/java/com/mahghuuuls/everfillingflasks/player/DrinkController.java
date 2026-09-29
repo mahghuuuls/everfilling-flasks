@@ -242,7 +242,7 @@ public final class DrinkController {
         // After the Flask's own hook, each placed infusion's post-drink hook, each isolated.
         // Reachable only below capacity: an over-capacity Flask cannot start a drink.
         InfusionRegistry.dispatchDrinkCompleted(
-                FlaskStackState.infusions(flask), flask, player);
+                FlaskStackState.infusions(flask), flask, player, outcome);
         playDrinkSound(player);
         data.syncDirty = true;
     }

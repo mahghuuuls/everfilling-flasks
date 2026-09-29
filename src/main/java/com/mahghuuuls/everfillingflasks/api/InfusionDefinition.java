@@ -16,7 +16,7 @@ import net.minecraft.item.ItemStack;
  * contributions use the same bonus types and the same combination formulas as player Flask
  * modifiers: percentages of one kind, from every source, add together before multiplying the
  * base. Methods are called on the logical server; keep them cheap and free of side effects,
- * except {@link #onDrinkCompleted}.
+ * except the {@code onDrinkCompleted} hooks.
  */
 public interface InfusionDefinition {
 
@@ -40,11 +40,25 @@ public interface InfusionDefinition {
     /**
      * Called on the logical server after a drink of the hosting Flask completes, once per
      * placed piece, after the Flask definition's own
-     * {@link FlaskDefinition#onDrinkCompleted}. Isolated the same way: a throw is caught and
+     * {@link FlaskDefinition#onDrinkCompleted(ItemStack, EntityPlayer, DrinkOutcome)}. Isolated the same way: a throw is caught and
      * logged and cannot touch the completed drink.
      */
     default void onDrinkCompleted(ItemStack infusion, ItemStack flask, EntityPlayer player) {
     }
+
+    /**
+     * The same moment as {@link #onDrinkCompleted(ItemStack, ItemStack, EntityPlayer)}, with the
+     * drink's outcome: the very object the hosting Flask's own hook received, so its
+     * {@link DrinkOutcome#effectPower()} already includes every placed piece's contribution. The
+     * core calls this form only; its default forwards to the three-argument form, so a
+     * definition written against 1.1.0 runs exactly once per placed piece, as before. Override
+     * one or the other, not both. Since 1.2.0.
+     */
+    default void onDrinkCompleted(ItemStack infusion, ItemStack flask, EntityPlayer player,
+                                  DrinkOutcome outcome) {
+        onDrinkCompleted(infusion, flask, player);
+    }
+
     /**
      * An optional sentence describing what this infusion does, shown on the item tooltip.
      *
