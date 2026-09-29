@@ -11,14 +11,16 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * The fixture item's registration. The item always exists in the development runtime; whether
- * it IS a Flask is decided later, in the fixture mod's init, by the property-gated API call —
- * which is the point: registration timing and item ownership are the add-on's business.
+ * The fixture items' registration. The items always exist in the development runtime; whether
+ * they ARE a Flask or an infusion is decided later, in the fixture mod's init, by the
+ * property-gated API calls, which is the point: registration timing and item ownership are the
+ * add-on's business.
  */
 @Mod.EventBusSubscriber(modid = DevFixturesMod.MOD_ID)
 public final class DevItems {
 
     private static FixtureManaFlask manaFlask;
+    private static FixtureTradeoffHerb tradeoffHerb;
 
     private DevItems() {
     }
@@ -26,7 +28,9 @@ public final class DevItems {
     @SubscribeEvent
     public static void onRegisterItems(RegistryEvent.Register<Item> event) {
         manaFlask = new FixtureManaFlask();
+        tradeoffHerb = new FixtureTradeoffHerb();
         event.getRegistry().register(manaFlask);
+        event.getRegistry().register(tradeoffHerb);
     }
 
     @SideOnly(Side.CLIENT)
@@ -34,9 +38,15 @@ public final class DevItems {
     public static void onRegisterModels(ModelRegistryEvent event) {
         ModelLoader.setCustomModelResourceLocation(manaFlask, 0,
                 new ModelResourceLocation(manaFlask.getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(tradeoffHerb, 0,
+                new ModelResourceLocation(tradeoffHerb.getRegistryName(), "inventory"));
     }
 
     public static FixtureManaFlask manaFlask() {
         return manaFlask;
+    }
+
+    public static FixtureTradeoffHerb tradeoffHerb() {
+        return tradeoffHerb;
     }
 }

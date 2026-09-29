@@ -452,6 +452,7 @@ tasks.named('runClient', JavaExec).configure {
         devmodHud         : 'eff.devfixtures.hud',
         devmodThrowingHud : 'eff.devfixtures.throwinghud',
         devmodEffectPower : 'eff.devfixtures.effectpower',
+        devmodInfusionApi : 'eff.devfixtures.infusionapi',
     ].each { flag, property ->
         if (project.hasProperty(flag)) {
             systemProperty property, project.property(flag)
