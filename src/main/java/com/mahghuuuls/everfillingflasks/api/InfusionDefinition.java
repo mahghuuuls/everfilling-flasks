@@ -47,6 +47,22 @@ public interface InfusionDefinition {
     }
 
     /**
+     * Whether this infusion refuses to share a grid with {@code other}. Two pieces conflict
+     * when either side's definition says so, so a one-sided answer is enough. Whether two
+     * identical items conflict is this method's own answer, with {@code other} an equal item.
+     *
+     * <p>A conflicting piece cannot be placed: click, swap, and shift-click all refuse it, on
+     * both sides, and the refused piece stays where it was. A grid that holds a conflict anyway
+     * (an old save, a command, a creative copy, a definition that changed) is inert exactly like
+     * an over-capacity grid: no piece contributes, no infusion hook runs, and the Flask cannot
+     * start a drink until a piece is removed. Called on both sides with no player; answer from
+     * the two stacks alone. A throw is logged once and counts as no conflict. Since 1.2.0.
+     */
+    default boolean conflictsWith(ItemStack self, ItemStack other) {
+        return false;
+    }
+
+    /**
      * The same moment as {@link #onDrinkCompleted(ItemStack, ItemStack, EntityPlayer)}, with the
      * drink's outcome: the very object the hosting Flask's own hook received, so its
      * {@link DrinkOutcome#effectPower()} already includes every placed piece's contribution. The

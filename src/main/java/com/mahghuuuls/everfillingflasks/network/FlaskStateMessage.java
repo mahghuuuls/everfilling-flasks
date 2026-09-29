@@ -31,6 +31,7 @@ public final class FlaskStateMessage implements IMessage {
     private float hitThreshold;
     private int potencyUsed;
     private int potency;
+    private boolean gridConflicted;
 
     public FlaskStateMessage() {
     }
@@ -39,6 +40,17 @@ public final class FlaskStateMessage implements IMessage {
                              int progressTicks, int rechargeTicks, boolean rechargePaused,
                              boolean drinking, int drinkProgressTicks, int drinkTicks,
                              float hitThreshold, int potencyUsed, int potency) {
+        this(hasFlask, flask, charges, maxCharges, progressTicks, rechargeTicks, rechargePaused,
+                drinking, drinkProgressTicks, drinkTicks, hitThreshold, potencyUsed, potency,
+                false);
+    }
+
+    public FlaskStateMessage(boolean hasFlask, ItemStack flask, int charges, int maxCharges,
+                             int progressTicks, int rechargeTicks, boolean rechargePaused,
+                             boolean drinking, int drinkProgressTicks, int drinkTicks,
+                             float hitThreshold, int potencyUsed, int potency,
+                             boolean gridConflicted) {
+        this.gridConflicted = gridConflicted;
         this.drinking = drinking;
         this.drinkProgressTicks = drinkProgressTicks;
         this.drinkTicks = drinkTicks;
@@ -114,6 +126,11 @@ public final class FlaskStateMessage implements IMessage {
         return potency;
     }
 
+    /** Whether the grid holds a conflicting pair and is therefore inert (REQ-051). */
+    public boolean gridConflicted() {
+        return gridConflicted;
+    }
+
     @Override
     public void fromBytes(ByteBuf buf) {
         hasFlask = buf.readBoolean();
@@ -129,6 +146,7 @@ public final class FlaskStateMessage implements IMessage {
         hitThreshold = buf.readFloat();
         potencyUsed = buf.readInt();
         potency = buf.readInt();
+        gridConflicted = buf.readBoolean();
     }
 
     @Override
@@ -146,6 +164,7 @@ public final class FlaskStateMessage implements IMessage {
         buf.writeFloat(hitThreshold);
         buf.writeInt(potencyUsed);
         buf.writeInt(potency);
+        buf.writeBoolean(gridConflicted);
     }
 
     public static final class Handler implements IMessageHandler<FlaskStateMessage, IMessage> {

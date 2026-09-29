@@ -192,10 +192,18 @@ public final class FlaskScreen extends GuiContainer {
             fontRenderer.drawString(used + " / " + capacity, FlaskContainer.GRID_X, pipTop,
                     over ? TEXT_OVER : 0x404040);
         }
+        int warningY = 6;
         if (over) {
             String warning = I18n.format("everfillingflasks.screen.overCapacity");
             fontRenderer.drawString(warning,
-                    xSize - 8 - fontRenderer.getStringWidth(warning), 6, TEXT_OVER);
+                    xSize - 8 - fontRenderer.getStringWidth(warning), warningY, TEXT_OVER);
+            warningY += 10;
+        }
+        // The second way a grid goes inert (REQ-051), under the first so both can show.
+        if (ClientFlaskState.gridConflicted()) {
+            String warning = I18n.format("everfillingflasks.screen.conflict");
+            fontRenderer.drawString(warning,
+                    xSize - 8 - fontRenderer.getStringWidth(warning), warningY, TEXT_OVER);
         }
     }
 

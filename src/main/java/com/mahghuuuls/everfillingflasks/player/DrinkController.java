@@ -105,12 +105,10 @@ public final class DrinkController {
         // Frozen for the whole drink: a modifier change mid-drink alters nothing committed.
         EffectiveFlask effective = computeEffective(player, flask);
         int charges = FlaskStackState.charges(flask);
-        PotencyState potency = potencyOf(player, flask);
-        if (!FlaskMechanics.canStartDrink(true, charges, data.drinking, potency.overCapacity())) {
+        GridState gridState = gridOf(player, flask);
+        if (!FlaskMechanics.canStartDrink(true, charges, data.drinking, gridState.inert())) {
             Diagnostics.drinkRefused(player, data.drinking ? "already drinking"
-                    : potency.overCapacity()
-                            ? "over capacity: " + potency.used + " of " + potency.capacity
-                                    + " potency"
+                    : gridState.inert() ? gridState.inertReason()
                             : "no charges");
             return;
         }
@@ -240,9 +238,12 @@ public final class DrinkController {
         completionFeedback(player, flask);
         runCompletionHook(player, flask, outcome);
         // After the Flask's own hook, each placed infusion's post-drink hook, each isolated.
-        // Reachable only below capacity: an over-capacity Flask cannot start a drink.
-        InfusionRegistry.dispatchDrinkCompleted(
-                FlaskStackState.infusions(flask), flask, player, outcome);
+        // An inert grid cannot start a drink, so this guard matters only if the grid changed
+        // mid-drink; it keeps "no infusion hook on an inert grid" (REQ-051) true regardless.
+        if (!gridOf(player, flask).inert()) {
+            InfusionRegistry.dispatchDrinkCompleted(
+                    FlaskStackState.infusions(flask), flask, player, outcome);
+        }
         playDrinkSound(player);
         data.syncDirty = true;
     }
@@ -563,10 +564,10 @@ public final class DrinkController {
         // percentages together before the base is multiplied, the one combination formula.
         com.mahghuuuls.everfillingflasks.api.FlaskBonuses bonuses =
                 ModifierRegistry.collect(player);
-        PotencyState potency = potencyOf(player, flask);
-        if (!potency.overCapacity()) {
-            // An over-capacity infusion is inert: the Flask is unusable, and its infusions
-            // grant nothing, so overfilling can never be a way to farm passive bonuses.
+        GridState gridState = gridOf(player, flask);
+        if (!gridState.inert()) {
+            // An inert grid (over capacity, or holding a conflicting pair) grants nothing, so
+            // neither overfilling nor stacking forbidden pairs can farm passive bonuses.
             InfusionRegistry.contribute(FlaskStackState.infusions(flask), player, bonuses);
         }
         return FlaskMechanics.effective(
@@ -580,26 +581,50 @@ public final class DrinkController {
                 bonuses);
     }
 
-    /** The grid's cost accounting against this Flask's potency, both floored at 0. */
-    private static PotencyState potencyOf(EntityPlayerMP player, ItemStack flask) {
+    /**
+     * The grid's standing: cost accounting against this Flask's potency (both floored at 0),
+     * and whether any two placed pieces conflict.
+     */
+    private static GridState gridOf(EntityPlayerMP player, ItemStack flask) {
         FlaskDefinition definition = FlaskRegistry.definition(flask);
         int capacity = definition == null ? 0
                 : Math.max(0, definition.potency(flask, player));
-        int used = InfusionRegistry.usedPotency(FlaskStackState.infusions(flask));
-        return new PotencyState(used, capacity);
+        net.minecraft.util.NonNullList<ItemStack> grid = FlaskStackState.infusions(flask);
+        int used = InfusionRegistry.usedPotency(grid);
+        return new GridState(used, capacity, InfusionRegistry.hasConflict(grid));
     }
 
-    private static final class PotencyState {
+    /**
+     * The grid's two ways of being inert (REQ-032, REQ-051): over capacity, and holding a
+     * conflicting pair. Every question about whether the grid counts goes through
+     * {@link #inert()}; nothing else re-derives it.
+     */
+    private static final class GridState {
         final int used;
         final int capacity;
+        final boolean conflicted;
 
-        PotencyState(int used, int capacity) {
+        GridState(int used, int capacity, boolean conflicted) {
             this.used = used;
             this.capacity = capacity;
+            this.conflicted = conflicted;
         }
 
         boolean overCapacity() {
             return FlaskMechanics.overCapacity(used, capacity);
+        }
+
+        boolean inert() {
+            return conflicted || overCapacity();
+        }
+
+        /** The diagnostics reason, naming each cause present. */
+        String inertReason() {
+            String over = "over capacity: " + used + " of " + capacity + " potency";
+            if (conflicted && overCapacity()) {
+                return over + "; conflicting infusions";
+            }
+            return conflicted ? "conflicting infusions" : over;
         }
     }
 
@@ -617,12 +642,13 @@ public final class DrinkController {
             int charges = FlaskMechanics.clampCharges(
                     FlaskStackState.charges(flask), effective.maxCharges());
             int drinkTicks = data.drinking ? data.drinkEffective.drinkTicks() : 1;
-            PotencyState potency = potencyOf(player, flask);
+            GridState gridState = gridOf(player, flask);
             message = new FlaskStateMessage(true, flask,
                     charges, effective.maxCharges(),
                     data.liveProgress, effective.rechargeTicks(), data.rechargePaused,
                     data.drinking, data.drinkElapsed, drinkTicks,
-                    effective.hitThreshold(), potency.used, potency.capacity);
+                    effective.hitThreshold(), gridState.used, gridState.capacity,
+                    gridState.conflicted);
             Diagnostics.stateSent(player, charges, effective.maxCharges(), data.liveProgress);
         }
         PacketHandler.CHANNEL.sendTo(message, player);

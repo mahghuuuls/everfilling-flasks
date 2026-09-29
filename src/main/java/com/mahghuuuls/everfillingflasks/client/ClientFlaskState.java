@@ -99,6 +99,11 @@ public final class ClientFlaskState {
         return last == null ? 0 : last.potency();
     }
 
+    /** Whether the server says the grid holds a conflicting pair; display only. */
+    public static boolean gridConflicted() {
+        return last != null && last.gridConflicted();
+    }
+
     /** Client ticks since the local player's last interruption; large when none is recent. */
     public static int ticksSinceInterrupt() {
         return ticksSinceInterrupt;

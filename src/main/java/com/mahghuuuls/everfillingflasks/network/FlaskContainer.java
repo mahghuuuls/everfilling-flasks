@@ -48,6 +48,24 @@ public final class FlaskContainer extends Container {
     public FlaskContainer(InventoryPlayer playerInventory, FlaskPlayerData data) {
         this.data = data;
         this.grid = new InfusionGridHandler(data);
+        final EntityPlayer player = playerInventory.player;
+        if (player != null && player.world != null && !player.world.isRemote) {
+            // Server side only: the side that decided tells the player, once a second at most,
+            // since vanilla asks a slot's validity more than once per click.
+            grid.setRefusalListener(clash -> {
+                if (data.takeRefusalMessageSlot(player.world.getTotalWorldTime())) {
+                    // The name travels as a translation key, so each player reads it in their
+                    // own language; an anvil-renamed piece keeps the name its owner gave it.
+                    net.minecraft.util.text.ITextComponent name = clash.hasDisplayName()
+                            ? new net.minecraft.util.text.TextComponentString(
+                                    clash.getDisplayName())
+                            : new net.minecraft.util.text.TextComponentTranslation(
+                                    clash.getTranslationKey() + ".name");
+                    player.sendStatusMessage(new net.minecraft.util.text.TextComponentTranslation(
+                            "everfillingflasks.message.conflictsWith", name), true);
+                }
+            });
+        }
         addSlotToContainer(new FlaskSlot(playerInventory.player, data.slot(),
                 FLASK_SLOT_X, FLASK_SLOT_Y));
         // The grid slots sit over the stateless handler, so a Flask swap swaps their contents

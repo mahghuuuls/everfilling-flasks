@@ -49,6 +49,22 @@ public final class FlaskPlayerData {
     float payoutRemaining;
     int payoutTicks;
 
+    // Transient: when the player was last told a grid placement conflicts (REQ-051), so a burst
+    // of validity checks from one click becomes one message.
+    private long lastRefusalMessageTick = Long.MIN_VALUE / 2;
+
+    /**
+     * Whether a refusal message may be shown now, at most once per 20 ticks; records the slot
+     * when it is. A world clock that went backwards (a new world) allows the message at once.
+     */
+    public boolean takeRefusalMessageSlot(long now) {
+        if (now >= lastRefusalMessageTick && now - lastRefusalMessageTick < 20) {
+            return false;
+        }
+        lastRefusalMessageTick = now;
+        return true;
+    }
+
     /** Whether this player is mid-drink; the guards and renderers key off this alone. */
     public boolean drinking() {
         return drinking;

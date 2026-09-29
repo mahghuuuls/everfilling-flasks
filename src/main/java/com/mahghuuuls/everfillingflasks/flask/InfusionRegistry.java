@@ -90,6 +90,56 @@ public final class InfusionRegistry {
         return used;
     }
 
+    /**
+     * Whether two pieces refuse to share a grid (REQ-051): either side's definition saying so
+     * is enough. A throw is logged once per definition and counts as no conflict, so a broken
+     * add-on cannot lock a player's grid. Pure over the stacks and the registry, so the client
+     * and the server always agree.
+     */
+    public static boolean conflicts(ItemStack a, ItemStack b) {
+        return declares(a, b) || declares(b, a);
+    }
+
+    private static boolean declares(ItemStack self, ItemStack other) {
+        InfusionDefinition definition = definition(self);
+        if (definition == null || other.isEmpty()) {
+            return false;
+        }
+        try {
+            return definition.conflictsWith(self, other);
+        } catch (Throwable failure) {
+            logOnce(definition, "conflictsWith", failure);
+            return false;
+        }
+    }
+
+    /** The first placed piece {@code candidate} conflicts with, or empty when none does. */
+    public static ItemStack firstConflict(NonNullList<ItemStack> grid, ItemStack candidate) {
+        for (ItemStack piece : grid) {
+            if (!piece.isEmpty() && conflicts(candidate, piece)) {
+                return piece;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /** Whether any two placed pieces conflict: the grid is then inert. */
+    public static boolean hasConflict(NonNullList<ItemStack> grid) {
+        for (int i = 0; i < grid.size(); i++) {
+            ItemStack a = grid.get(i);
+            if (a.isEmpty()) {
+                continue;
+            }
+            for (int j = i + 1; j < grid.size(); j++) {
+                ItemStack b = grid.get(j);
+                if (!b.isEmpty() && conflicts(a, b)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /** Every placed piece's contribution into the one shared accumulator. */
     public static void contribute(NonNullList<ItemStack> grid, EntityPlayer player,
                                   FlaskBonuses bonuses) {
