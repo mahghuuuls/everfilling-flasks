@@ -29,10 +29,13 @@ public interface InfusionDefinition {
 
     /**
      * This piece's contribution to the hosting Flask's effective values, consulted whenever
-     * they are computed. An over-capacity grid is inert: while the summed costs exceed the
-     * Flask's potency, no placed piece contributes anything. A thrown exception is caught and
-     * logged once; the piece then contributes nothing for that computation and everything
-     * else applies normally.
+     * they are computed. An inert grid (over capacity, or since 1.2.0 holding a conflicting
+     * pair) contributes nothing. A thrown exception is caught and logged once; the piece then
+     * contributes nothing for that computation and everything else applies normally.
+     *
+     * <p>Since 1.2.0 it is also asked on the client, with a null player and a fresh
+     * accumulator, to write the tooltip lines when {@link #effectDescription} is null. Answer
+     * from the stack; a throw there costs only the generated lines.
      */
     default void contribute(ItemStack infusion, EntityPlayer player, FlaskBonuses bonuses) {
     }
@@ -40,8 +43,9 @@ public interface InfusionDefinition {
     /**
      * Called on the logical server after a drink of the hosting Flask completes, once per
      * placed piece, after the Flask definition's own
-     * {@link FlaskDefinition#onDrinkCompleted(ItemStack, EntityPlayer, DrinkOutcome)}. Isolated the same way: a throw is caught and
-     * logged and cannot touch the completed drink.
+     * {@link FlaskDefinition#onDrinkCompleted(ItemStack, EntityPlayer, DrinkOutcome)}.
+     * Isolated the same way: a throw is caught and logged and cannot touch the completed
+     * drink.
      */
     default void onDrinkCompleted(ItemStack infusion, ItemStack flask, EntityPlayer player) {
     }
@@ -79,11 +83,14 @@ public interface InfusionDefinition {
      * An optional sentence describing what this infusion does, shown on the item tooltip.
      *
      * <p>Supply it when your infusion has something to say that its {@link #contribute}
-     * cannot show on its own, such as an effect that happens after a drink. The core reads it
-     * for the built-in infusions' own tooltips, so one sentence serves everywhere.
+     * cannot show on its own, such as an effect that happens after a drink. Since 1.2.0 the core
+     * writes every registered infusion's tooltip, directly under the item name: a header, the
+     * potency cost, then this sentence; or, when this returns null, one signed line per bonus
+     * channel {@link #contribute} changes ("+20% healing", "-15% drink speed"). Your item's own
+     * tooltip lines come after those, so write only extras there.
      *
      * <p>Return a translation component rather than finished text, so it reads in the player's
-     * own language. Null means "let the journal describe whatever I contribute".
+     * own language.
      */
     default net.minecraft.util.text.ITextComponent effectDescription(ItemStack infusion) {
         return null;

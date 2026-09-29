@@ -17,6 +17,13 @@ everfillingflasks.tooltip.usage=When equipped, hold [%s] to drink
 everfillingflasks.tooltip.conflict=Infusions conflict: the grid is inert
 everfillingflasks.screen.conflict=Conflicting infusions!
 everfillingflasks.message.conflictsWith=Conflicts with %s
+everfillingflasks.tooltip.bonus.healing=%s healing
+everfillingflasks.tooltip.bonus.drinkSpeed=%s drink speed
+everfillingflasks.tooltip.bonus.hitThreshold=%s damage threshold
+everfillingflasks.tooltip.bonus.rechargeSpeed=%s recharge speed
+everfillingflasks.tooltip.bonus.maxCharge=%s max charge
+everfillingflasks.tooltip.bonus.maxCharges=%s max charges
+everfillingflasks.tooltip.bonus.effectPower=%s effect power
 
 everfillingflasks.tooltip.infused=Infused:
 everfillingflasks.tooltip.infusedLine=  %s x%d
