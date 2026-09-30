@@ -26,7 +26,7 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
 
     private final FlaskPlayerData data;
 
-    /** Told which placed piece a refused piece conflicts with; set on the server side only. */
+    /** Told which placed piece a refused piece conflicts with; set on the client side only. */
     private java.util.function.Consumer<ItemStack> refusalListener;
 
     public InfusionGridHandler(FlaskPlayerData data) {
@@ -34,8 +34,9 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
     }
 
     /**
-     * Who to tell when a placement is refused for a conflict. Only the server-side container
-     * sets one, so the player hears about it once, from the side that decided.
+     * Who to tell when a placement is refused for a conflict. Only the client-side container
+     * sets one: it reaches the same refusal as the server from the same data, and it owns the
+     * screen the message is shown in.
      */
     public void setRefusalListener(java.util.function.Consumer<ItemStack> listener) {
         this.refusalListener = listener;

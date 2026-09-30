@@ -55,6 +55,12 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
+    public void showPlacementRefused(net.minecraft.item.ItemStack clash) {
+        // Called from the container on the client's main thread, mid-click.
+        ClientFlaskState.placementRefused(clash);
+    }
+
+    @Override
     public void handleDrinkVisual(final com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage message) {
         Minecraft.getMinecraft().addScheduledTask(new Runnable() {
             @Override

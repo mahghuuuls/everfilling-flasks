@@ -1,5 +1,6 @@
 package com.mahghuuuls.everfillingflasks.network;
 
+import com.mahghuuuls.everfillingflasks.EverfillingFlasksMod;
 import com.mahghuuuls.everfillingflasks.diagnostics.Diagnostics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskMechanics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
@@ -13,7 +14,8 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 /**
- * The Flask screen's server-side container: the one Flask slot above the player's inventory.
+ * The Flask screen's container, built on both sides: the one Flask slot above the player's
+ * inventory, and the infusion grid.
  *
  * <p>The equip rule lives in {@link FlaskSlot#putStack}: every stack a player places into the
  * slot is emptied, on the server only. Vanilla routes each placement path that can put a Flask
@@ -49,22 +51,11 @@ public final class FlaskContainer extends Container {
         this.data = data;
         this.grid = new InfusionGridHandler(data);
         final EntityPlayer player = playerInventory.player;
-        if (player != null && player.world != null && !player.world.isRemote) {
-            // Server side only: the side that decided tells the player, once a second at most,
-            // since vanilla asks a slot's validity more than once per click.
-            grid.setRefusalListener(clash -> {
-                if (data.takeRefusalMessageSlot(player.world.getTotalWorldTime())) {
-                    // The name travels as a translation key, so each player reads it in their
-                    // own language; an anvil-renamed piece keeps the name its owner gave it.
-                    net.minecraft.util.text.ITextComponent name = clash.hasDisplayName()
-                            ? new net.minecraft.util.text.TextComponentString(
-                                    clash.getDisplayName())
-                            : new net.minecraft.util.text.TextComponentTranslation(
-                                    clash.getTranslationKey() + ".name");
-                    player.sendStatusMessage(new net.minecraft.util.text.TextComponentTranslation(
-                            "everfillingflasks.message.conflictsWith", name), true);
-                }
-            });
+        if (player != null && player.world != null && player.world.isRemote) {
+            // Client side only: it reaches the same refusal as the server from the same data,
+            // and it owns the open screen, where the message is shown (the action bar would be
+            // hidden behind it). Nothing crosses the network for this.
+            grid.setRefusalListener(EverfillingFlasksMod.proxy::showPlacementRefused);
         }
         addSlotToContainer(new FlaskSlot(playerInventory.player, data.slot(),
                 FLASK_SLOT_X, FLASK_SLOT_Y));

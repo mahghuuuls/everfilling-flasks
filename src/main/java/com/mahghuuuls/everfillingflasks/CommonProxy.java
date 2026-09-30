@@ -24,6 +24,14 @@ public class CommonProxy {
     public void handleFlaskState(com.mahghuuuls.everfillingflasks.network.FlaskStateMessage message) {
     }
 
+    /**
+     * A grid placement was refused because it conflicts with {@code clash}, a placed piece.
+     * Only a client has a screen to say so in; the server never sets the listener that calls
+     * this, so this default is unreachable there.
+     */
+    public void showPlacementRefused(net.minecraft.item.ItemStack clash) {
+    }
+
     /** Receives a drink-visual broadcast; client-only for the same reason as the state above. */
     public void handleDrinkVisual(com.mahghuuuls.everfillingflasks.network.DrinkVisualMessage message) {
     }

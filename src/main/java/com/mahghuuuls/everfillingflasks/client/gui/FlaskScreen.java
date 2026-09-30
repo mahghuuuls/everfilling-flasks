@@ -192,19 +192,38 @@ public final class FlaskScreen extends GuiContainer {
             fontRenderer.drawString(used + " / " + capacity, FlaskContainer.GRID_X, pipTop,
                     over ? TEXT_OVER : 0x404040);
         }
-        int warningY = 6;
+        String status = statusLine(over);
+        if (status != null) {
+            // Trimmed, since a renamed piece can carry any name.
+            fontRenderer.drawString(fontRenderer.trimStringToWidth(status, xSize - 16), 8,
+                    STATUS_Y, TEXT_OVER);
+        }
+    }
+
+    /** The status line sits under the title, above the slots, so it never meets either. */
+    private static final int STATUS_Y = 17;
+
+    /**
+     * What the one red line under the title says, or null for nothing. A just-refused
+     * placement wins, since the player is acting on it now; otherwise why the grid is inert:
+     * over capacity, a conflicting pair (REQ-051), or both in one line.
+     */
+    private String statusLine(boolean over) {
+        net.minecraft.item.ItemStack clash = ClientFlaskState.recentRefusal();
+        if (!clash.isEmpty()) {
+            return I18n.format("everfillingflasks.screen.conflictsWith", clash.getDisplayName());
+        }
+        boolean conflicted = ClientFlaskState.gridConflicted();
+        if (over && conflicted) {
+            return I18n.format("everfillingflasks.screen.overAndConflict");
+        }
         if (over) {
-            String warning = I18n.format("everfillingflasks.screen.overCapacity");
-            fontRenderer.drawString(warning,
-                    xSize - 8 - fontRenderer.getStringWidth(warning), warningY, TEXT_OVER);
-            warningY += 10;
+            return I18n.format("everfillingflasks.screen.overCapacity");
         }
-        // The second way a grid goes inert (REQ-051), under the first so both can show.
-        if (ClientFlaskState.gridConflicted()) {
-            String warning = I18n.format("everfillingflasks.screen.conflict");
-            fontRenderer.drawString(warning,
-                    xSize - 8 - fontRenderer.getStringWidth(warning), warningY, TEXT_OVER);
+        if (conflicted) {
+            return I18n.format("everfillingflasks.screen.conflict");
         }
+        return null;
     }
 
     /**

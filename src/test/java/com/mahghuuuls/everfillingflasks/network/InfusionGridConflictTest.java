@@ -19,12 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The placement veto at the one point every player path consults (REQ-051), the message
- * throttle, and the new state-message field on the wire.
+ * The placement veto at the one point every player path consults (REQ-051) and the new
+ * state-message field on the wire.
  */
 class InfusionGridConflictTest {
 
@@ -115,16 +114,6 @@ class InfusionGridConflictTest {
         assertEquals(Items.BLAZE_POWDER, handler.getStackInSlot(1).getItem());
         assertTrue(InfusionRegistry.hasConflict(
                 FlaskStackState.infusions(data.equippedFlask())));
-    }
-
-    @Test
-    void refusalMessagesAreThrottledToOnePerSecond() {
-        assertTrue(data.takeRefusalMessageSlot(1000L));
-        assertFalse(data.takeRefusalMessageSlot(1005L));
-        assertFalse(data.takeRefusalMessageSlot(1019L));
-        assertTrue(data.takeRefusalMessageSlot(1020L));
-        // A clock that went backwards (another world) allows a message at once.
-        assertTrue(data.takeRefusalMessageSlot(10L));
     }
 
     @Test
