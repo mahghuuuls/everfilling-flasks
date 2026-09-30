@@ -405,7 +405,7 @@ apply from: 'gradle/scripts/extra.gradle'
 
 // A development-only fixture add-on in its own source set, compiled against the built jar so it
 // exercises the mod the way a third-party add-on would, and packaged into a separate jar under
-// build/tmp so nothing in build/libs can be mistaken for it. Only runClient loads it. The shape
+// build/tmp so nothing in build/libs can be mistaken for it. The dev launches load it. The shape
 // follows the harness arrangement proven in this build family; the reasoning lives with it.
 sourceSets {
     devmod
@@ -431,7 +431,10 @@ tasks.named('assemble').configure {
     dependsOn devmodJar
 }
 
-tasks.named('runClient', JavaExec).configure {
+// Both dev launches load it, so a dedicated-server campaign has the same fixtures on both
+// sides; the server flags off any fixture that only makes sense on a client.
+['runClient', 'runServer'].each { taskName ->
+tasks.named(taskName, JavaExec).configure {
     // `gradlew runClient -PnoDevmod=true` launches without the fixture add-on entirely,
     // proving the mod stands alone (campaign card C9).
     if (!project.hasProperty('noDevmod')) {
@@ -458,4 +461,5 @@ tasks.named('runClient', JavaExec).configure {
             systemProperty property, project.property(flag)
         }
     }
+}
 }
