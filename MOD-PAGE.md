@@ -23,6 +23,12 @@ It is not required, it is off by default.
 
 ---
 
+## Add-ons
+
+Mods that build on Everfilling Flasks:
+- [Flasks Additions](https://www.curseforge.com/minecraft/mc-mods/flask-additions): many new
+  flasks, each crafted from the rare items of other mods and each healing in its own way
+
 ## For modpack creators
 
 The config file provides options for:
