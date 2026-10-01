@@ -52,6 +52,8 @@ Using the API, add-ons can:
 - Run their own effect when a drink completes, and replace the burst and chime that follow it
 - Declare a heal that pays out over time, push a flask's refill forward on their own events,
   read what a drink actually did, and scale a secondary effect through the effect power bonus
+- Mark infusions that refuse to share a grid, read the drink outcome from an infusion, and get
+  the infusion tooltip written for them in the same style as the built-in ones
 
 ## Installation
 
