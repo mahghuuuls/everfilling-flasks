@@ -220,13 +220,14 @@ public final class FlaskMechanics {
     }
 
     /**
-     * The drink-start rule: a valid Flask with a charge, not already drinking, and not over
-     * capacity. Health does not matter: a full-health drink is allowed and simply wastes its
-     * heal, because an add-on Flask can carry a completion effect a player wants at any health.
+     * The drink-start rule: a valid Flask with a charge, not already drinking, and an infusion
+     * grid that is not inert (over capacity, or since 1.2.0 holding a conflicting pair). Health
+     * does not matter: a full-health drink is allowed and simply wastes its heal, because an
+     * add-on Flask can carry a completion effect a player wants at any health.
      */
     public static boolean canStartDrink(boolean validFlask, int charges, boolean alreadyDrinking,
-                                        boolean overCapacity) {
-        return validFlask && charges >= 1 && !alreadyDrinking && !overCapacity;
+                                        boolean inertGrid) {
+        return validFlask && charges >= 1 && !alreadyDrinking && !inertGrid;
     }
 
     /**

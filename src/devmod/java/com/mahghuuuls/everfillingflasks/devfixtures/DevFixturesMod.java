@@ -62,6 +62,9 @@ public class DevFixturesMod {
             FlaskApi.registerInfusion(Items.GOLD_NUGGET, new GoldNuggetInfusion());
             LOGGER.info("Fixture infusion active: gold nugget, cost 2, +25 percent healing");
         }
+        if (Boolean.getBoolean("eff.devfixtures.infusionapi")) {
+            FixtureInfusions.register();
+        }
         if (Boolean.getBoolean("eff.devfixtures.manaflask")) {
             // In init, one phase after the core's preInit, on purpose: late registration is
             // part of the API promise.

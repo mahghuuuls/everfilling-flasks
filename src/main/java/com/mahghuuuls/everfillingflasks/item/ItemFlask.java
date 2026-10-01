@@ -72,6 +72,12 @@ public final class ItemFlask extends Item {
         tooltip.add(I18n.format("everfillingflasks.tooltip.usage",
                 EverfillingFlasksMod.proxy.useFlaskKeyName()));
         addInfusionLines(stack, tooltip);
+        // Read from the stack's own grid, so it is right wherever the tooltip shows (REQ-051).
+        if (com.mahghuuuls.everfillingflasks.flask.InfusionRegistry.hasConflict(
+                FlaskStackState.infusions(stack))) {
+            tooltip.add(net.minecraft.util.text.TextFormatting.RED
+                    + I18n.format("everfillingflasks.tooltip.conflict"));
+        }
     }
 
     /**

@@ -26,8 +26,20 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
 
     private final FlaskPlayerData data;
 
+    /** Told which placed piece a refused piece conflicts with; set on the client side only. */
+    private java.util.function.Consumer<ItemStack> refusalListener;
+
     public InfusionGridHandler(FlaskPlayerData data) {
         this.data = data;
+    }
+
+    /**
+     * Who to tell when a placement is refused for a conflict. Only the client-side container
+     * sets one: it reaches the same refusal as the server from the same data, and it owns the
+     * screen the message is shown in.
+     */
+    public void setRefusalListener(java.util.function.Consumer<ItemStack> listener) {
+        this.refusalListener = listener;
     }
 
     private ItemStack flask() {
@@ -86,6 +98,15 @@ public final class InfusionGridHandler implements IItemHandlerModifiable {
         }
         NonNullList<ItemStack> grid = FlaskStackState.infusions(flask, slots);
         if (!grid.get(slot).isEmpty()) {
+            return stack;
+        }
+        // The one veto point (REQ-051): click and swap reach here as the slot's simulated
+        // validity check, shift-click through the merge asking the same slot, on both sides.
+        ItemStack clash = InfusionRegistry.firstConflict(grid, stack);
+        if (!clash.isEmpty()) {
+            if (refusalListener != null) {
+                refusalListener.accept(clash);
+            }
             return stack;
         }
         ItemStack remainder = stack.copy();

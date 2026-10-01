@@ -1,5 +1,6 @@
 package com.mahghuuuls.everfillingflasks.network;
 
+import com.mahghuuuls.everfillingflasks.EverfillingFlasksMod;
 import com.mahghuuuls.everfillingflasks.diagnostics.Diagnostics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskMechanics;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
@@ -13,7 +14,8 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 /**
- * The Flask screen's server-side container: the one Flask slot above the player's inventory.
+ * The Flask screen's container, built on both sides: the one Flask slot above the player's
+ * inventory, and the infusion grid.
  *
  * <p>The equip rule lives in {@link FlaskSlot#putStack}: every stack a player places into the
  * slot is emptied, on the server only. Vanilla routes each placement path that can put a Flask
@@ -48,6 +50,13 @@ public final class FlaskContainer extends Container {
     public FlaskContainer(InventoryPlayer playerInventory, FlaskPlayerData data) {
         this.data = data;
         this.grid = new InfusionGridHandler(data);
+        final EntityPlayer player = playerInventory.player;
+        if (player != null && player.world != null && player.world.isRemote) {
+            // Client side only: it reaches the same refusal as the server from the same data,
+            // and it owns the open screen, where the message is shown (the action bar would be
+            // hidden behind it). Nothing crosses the network for this.
+            grid.setRefusalListener(EverfillingFlasksMod.proxy::showPlacementRefused);
+        }
         addSlotToContainer(new FlaskSlot(playerInventory.player, data.slot(),
                 FLASK_SLOT_X, FLASK_SLOT_Y));
         // The grid slots sit over the stateless handler, so a Flask swap swaps their contents

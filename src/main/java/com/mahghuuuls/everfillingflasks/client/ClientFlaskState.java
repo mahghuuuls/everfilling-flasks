@@ -99,6 +99,32 @@ public final class ClientFlaskState {
         return last == null ? 0 : last.potency();
     }
 
+    /** Whether the server says the grid holds a conflicting pair; display only. */
+    public static boolean gridConflicted() {
+        return last != null && last.gridConflicted();
+    }
+
+    /** How long the Flask screen keeps showing why the last placement was refused. */
+    private static final int REFUSAL_SHOW_TICKS = 40;
+
+    private static ItemStack refusedBy = ItemStack.EMPTY;
+    private static int ticksSinceRefusal = REFUSAL_SHOW_TICKS;
+
+    /**
+     * A grid placement was just refused on this client because it conflicts with {@code clash},
+     * a placed piece (REQ-051). Vanilla asks a slot's validity more than once per click, so
+     * repeats only restart the same message.
+     */
+    public static void placementRefused(ItemStack clash) {
+        refusedBy = clash.copy();
+        ticksSinceRefusal = 0;
+    }
+
+    /** The placed piece the last refused placement conflicts with, while fresh; else empty. */
+    public static ItemStack recentRefusal() {
+        return ticksSinceRefusal < REFUSAL_SHOW_TICKS ? refusedBy : ItemStack.EMPTY;
+    }
+
     /** Client ticks since the local player's last interruption; large when none is recent. */
     public static int ticksSinceInterrupt() {
         return ticksSinceInterrupt;
@@ -136,6 +162,9 @@ public final class ClientFlaskState {
         if (ticksSinceInterrupt < INTERRUPT_AGE_CAP) {
             ticksSinceInterrupt++;
         }
+        if (ticksSinceRefusal < REFUSAL_SHOW_TICKS) {
+            ticksSinceRefusal++;
+        }
         if (!VISUALS.isEmpty()) {
             java.util.Iterator<Visual> visuals = VISUALS.values().iterator();
             while (visuals.hasNext()) {
@@ -158,6 +187,8 @@ public final class ClientFlaskState {
         VISUALS.clear();
         pendingOutcome = DrinkVisualMessage.OUTCOME_NONE;
         ticksSinceInterrupt = INTERRUPT_AGE_CAP;
+        refusedBy = ItemStack.EMPTY;
+        ticksSinceRefusal = REFUSAL_SHOW_TICKS;
     }
 
     /** The current read-only view. Without a server message yet: an empty snapshot. */
