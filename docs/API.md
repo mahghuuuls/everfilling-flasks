@@ -1,22 +1,23 @@
-# Everfilling Flasks — add-on API
+# Everfilling Flasks add-on API
 
 Everything an add-on may touch lives in two packages:
 
-- `com.mahghuuuls.everfillingflasks.api` — safe on both sides.
-- `com.mahghuuuls.everfillingflasks.api.client` — client only. Never load these classes in
+- `com.mahghuuuls.everfillingflasks.api`: safe on both sides.
+- `com.mahghuuuls.everfillingflasks.api.client`: client only. Never load these classes in
   code a dedicated server can reach; call them from your client proxy.
 
 Everything else, including `api.internal`, is internal and may change between versions
 without notice.
 
 Add a dependency on `everfillingflasks` in your `@Mod` line if you require it, or use
-`after:everfillingflasks` for a soft dependency. If you use anything marked *since 1.1.0*
-below, require that version: `required-after:everfillingflasks@[1.1.0,)`, minimum only, no
-upper bound. Everything from 1.0.0 still works unchanged.
+`after:everfillingflasks` for a soft dependency. If you use anything marked *since 1.1.0* or
+*since 1.2.0* below, require the version the feature was added in, for example
+`required-after:everfillingflasks@[1.2.0,)`, minimum only, no upper bound. Everything from
+1.0.0 still works unchanged.
 
 ## Registering your own Flask
 
-Register your item — any `Item`, no inheritance, no casts — with a `FlaskDefinition`:
+Register your item (any `Item`, no inheritance, no casts) with a `FlaskDefinition`:
 
 ```java
 FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
@@ -41,7 +42,7 @@ FlaskApi.registerFlask(MY_ITEM, new FlaskDefinition() {
   player to ask. A value outside the range is clamped and your definition is named once in the
   log. Answer from the stack and nothing else: each side works the count out for itself, so a
   count that depends on world state or a server-only setting draws a grid on one side the other
-  refuses. Never read the stack's own infusions from it — that read asks this method back.
+  refuses. Never read the stack's own infusions from it: that read asks this method back.
 - Slots and potency are independent, and that is the point: a Flask with ten slots and a budget
   of six plays differently from one with three slots and a budget of twelve.
 - First registration per item wins. A duplicate is refused with a log line, never an
@@ -119,13 +120,70 @@ FlaskApi.registerInfusion(MY_ITEM, new InfusionDefinition() {
 });
 ```
 
-- The core provides the grid, cost accounting, the over-capacity unusable state,
-  effective-value merging, and post-drink dispatch (`onDrinkCompleted(infusion, flask,
-  player)`, once per placed piece). You describe only cost and effect.
+- The core provides the grid, cost accounting, the inert states, effective-value merging,
+  the tooltip, and post-drink dispatch (`onDrinkCompleted`, once per placed piece). You
+  describe only cost and effect.
 - While the summed costs exceed the Flask's potency, the grid is inert: drinking refuses and
   no piece contributes.
 - Contributions use the same `FlaskBonuses` accumulator as player modifiers: percentages of
   one kind, from every source, add together before multiplying the base.
+
+### Conflicts (since 1.2.0)
+
+An infusion can refuse to share a grid with another:
+
+```java
+@Override public boolean conflictsWith(ItemStack self, ItemStack other) {
+    return other.getItem() == OTHER_ITEM;
+}
+```
+
+- Two pieces conflict when either side's definition says so. A one-sided answer is enough;
+  you do not need the other mod to know about you. Whether two copies of the same item
+  conflict is your own answer, asked with `other` an equal item.
+- A conflicting piece cannot be placed. Clicking, swapping, and shift-clicking all refuse it,
+  on both sides, and the refused piece stays where it was. The flask screen tells the player
+  which placed piece it conflicts with.
+- A grid that holds a conflict anyway (an old save, a command, a creative copy, a definition
+  that changed) is inert exactly like an over-capacity grid: no piece contributes, no infusion
+  hook runs, the Flask cannot start a drink, and the screen and the Flask tooltip say so. The
+  grid becomes usable again the moment one of the pair is taken out.
+- Answer from the two stacks alone. The method is called on both sides with no player, so an
+  answer that depends on anything only the server knows would let the client place a piece
+  the server then refuses. A throw is logged once and counts as no conflict.
+
+### The drink outcome (since 1.2.0)
+
+The post-drink hook has a four-argument form:
+
+```java
+@Override public void onDrinkCompleted(ItemStack infusion, ItemStack flask,
+                                       EntityPlayer player, DrinkOutcome outcome) {
+    float power = outcome.effectPower();
+}
+```
+
+The outcome is the very object the hosting Flask's own hook received, so its effect power
+already includes every placed piece's contribution, yours among them. The core calls only
+this form; its default forwards to the three-argument one, so a definition written against
+1.1.0 runs exactly once per placed piece, as before. Override one or the other, not both.
+
+### Tooltips (since 1.2.0)
+
+The core writes every registered infusion's tooltip, directly under the item name, in this
+order:
+
+1. A header line naming it as a Flask Infusion.
+2. The potency cost.
+3. What it does: your `effectDescription` sentence when you return one, otherwise one signed
+   line per bonus channel your `contribute` changes, such as `+20% healing` and
+   `-15% drink speed`. Zero channels are left out; a count of charges reads `+1 max charge`.
+4. Whatever your item's own `addInformation` adds, after all of the above.
+
+So write only extras in your own tooltip, never the cost or the effect, or the player reads
+them twice. The built-in infusions read the same way, so yours look like theirs in any list.
+To generate the lines, `contribute` is called on the client with a null player and a fresh
+accumulator; answer from the stack. A throw there costs only the generated lines.
 
 ### HUD appearance
 
@@ -199,9 +257,9 @@ FlaskHudApi.setRenderer((state, resolution, partialTicks) -> {
   default.
 - Your renderer runs once per frame during the game overlay with the local player's
   snapshot. If it throws, it is disabled for the rest of the session and the default stays
-  suppressed — a broken HUD fails visibly rather than half-drawing.
+  suppressed; a broken HUD fails visibly rather than half-drawing.
 - Known gap in 1.0: the snapshot does not carry the drink outcome, so a replacement cannot
-  reproduce the default cast bar's "interrupted" flash — it can tell a drink stopped, not
+  reproduce the default cast bar's "interrupted" flash: it can tell a drink stopped, not
   why. If you need this, ask; it is a candidate for a later snapshot field.
 
 ## The journal
@@ -217,7 +275,7 @@ that added it, deliberately: the journal is written in the game's voice, not the
 ### An item that is neither
 
 The journal has a third section, Items, for anything that belongs to this ecosystem without
-being a flask or an infusion — a vessel part, a brewing tool, whatever your add-on invents:
+being a flask or an infusion (a vessel part, a brewing tool, whatever your add-on invents):
 
 ```java
 FlaskApi.registerJournalItem(MY_ITEM, "mymod.journal.teainfuser");
@@ -239,7 +297,7 @@ public String journalText(ItemStack stack) {
 ```
 
 Write whatever a player should be told beyond the item itself. Where the thing is normally found
-is the usual answer, but it is not required to be — the entry is perfectly valid as the item
+is the usual answer, but it is not required to be; the entry is perfectly valid as the item
 alone. Keep it separate in your head from the recipe: a recipe says how something can be made,
 which is a different question and one the journal already answers on its own.
 
@@ -251,8 +309,8 @@ It is called while the journal is built, on the client, and a throw costs your e
 Escape a literal percent sign in that translation as `%%`, because the line goes through
 Minecraft's own formatter.
 
-An infusion whose effect cannot be read off `FlaskBonuses` — one that acts after a drink, or
-through a system this mod knows nothing about — can put it into words for its own tooltip:
+An infusion whose effect cannot be read off `FlaskBonuses`, one that acts after a drink, or
+through a system this mod knows nothing about, can put it into words:
 
 ```java
 @Override
@@ -261,15 +319,17 @@ public ITextComponent effectDescription(ItemStack infusion) {
 }
 ```
 
-Return a translation component, not finished text. The built-in infusions use this for their
-own tooltips, so one sentence serves wherever the effect is shown.
+Return a translation component, not finished text. The built-in infusions use this, so one
+sentence serves wherever the effect is shown: the journal, and since 1.2.0 the tooltip the
+core writes for you (see Tooltips above).
 
 One contract note: building the journal also calls your definition's ordinary value methods
 (`maxCharges`, `healPercentage`, `rechargeTicks`, `drinkTicks`, `hitThreshold`, `potency`,
 `potencyCost`, `contribute`) **on the client**, with a bare stack of your item and a viewer that
-may be null during startup; the built-in tooltip does the same with `healOverTimePercentage`
-and `healOverTimeTicks`, and your own tooltip may copy that pattern. Gameplay still calls them only on the server. Answer for a plain
-stack and do not require a server to be present, or your entry will be the only casualty.
+may be null during startup; the tooltips do the same with `healOverTimePercentage`,
+`healOverTimeTicks`, and `contribute`. Gameplay still calls them only on the server. Answer for
+a plain stack and do not require a server to be present, or your entry will be the only
+casualty.
 
 The values shown come from the client's own configuration file. A dedicated server that changes
 its configuration without shipping the same file to its players will have a journal that reads
@@ -282,8 +342,8 @@ do not depend on Patchouli yourself, and you never call it.
 ## Registration timing
 
 Registrations are buffered: calls made before this mod's pre-initialization are applied when
-it binds, so load order against this mod cannot matter. Registering later — your init or
-even at runtime — also works; recognition is immediate.
+it binds, so load order against this mod cannot matter. Registering later, in your init or
+even at runtime, also works; recognition is immediate.
 
 ## What is guaranteed, and what is not
 
@@ -295,4 +355,5 @@ an over-time payout is never persisted.
 
 Not guaranteed: anything outside `api`/`api.client` (including NBT layouts and network
 formats); call frequency of definition methods beyond "not every tick"; HUD layering; hook
-ordering between multiple systems beyond "Flask hook before infusion hooks".
+ordering between multiple systems beyond "Flask hook before infusion hooks"; the exact
+wording and colours of the tooltip lines the core writes.

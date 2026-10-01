@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.2.0
+
+Infusion API additions, all backward compatible: an add-on built against 1.1.0 runs unchanged.
+
+### Added
+
+- Infusion conflicts. An infusion definition may declare which pieces it refuses to share a
+  grid with. Either side's answer is enough. A conflicting piece cannot be placed by clicking,
+  swapping, or shift-clicking, and the flask screen names the placed piece it conflicts with.
+- The drink outcome for infusion hooks. The post-drink hook has a four-argument form that
+  receives the same outcome the flask's own hook received, effect power included. The older
+  three-argument form keeps working.
+- The core writes the tooltip of every registered infusion: a header, the potency cost, then
+  the effect sentence or one signed line per bonus, such as "+20% healing" and "-15% drink
+  speed". An add-on's own tooltip lines come after those; an add-on that wrote its own cost or
+  effect lines should drop them, or they show twice.
+
+### Changed
+
+- A grid that holds a conflicting pair anyway, from an old save or a command, is inert like an
+  over-capacity grid: no piece contributes, no hook runs, and the flask cannot drink until a
+  piece is removed. The screen and the flask tooltip say so.
+- The flask screen shows its warnings on one line under the title instead of beside it.
+
 ## 1.1.0
 
 Add-on API additions, all backward compatible: an add-on built against 1.0.0 runs unchanged.

@@ -9,14 +9,16 @@ import net.minecraft.item.ItemStack;
  * through {@link FlaskApi#registerInfusion}, exactly like Flask registration.
  *
  * <p>The core owns everything around the definition: the nine-slot grid, cost accounting, the
- * over-capacity unusable state, merging contributions into effective values, and post-drink
- * dispatch. A definition describes only what its infusion costs and does.
+ * inert states (over capacity, or a conflicting pair), merging contributions into effective
+ * values, the tooltip, and post-drink dispatch. A definition describes only what its infusion
+ * costs and does.
  *
  * <p>Placed infusions are permanent while placed and never consumed by drinking. Their
  * contributions use the same bonus types and the same combination formulas as player Flask
  * modifiers: percentages of one kind, from every source, add together before multiplying the
- * base. Methods are called on the logical server; keep them cheap and free of side effects,
- * except the {@code onDrinkCompleted} hooks.
+ * base. Gameplay calls these methods on the logical server; the tooltip, the journal, and the
+ * conflict check also ask them on the client, with no player. Keep them cheap and free of side
+ * effects, except the {@code onDrinkCompleted} hooks.
  */
 public interface InfusionDefinition {
 
