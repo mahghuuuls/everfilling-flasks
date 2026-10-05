@@ -28,6 +28,9 @@ It is not required, it is off by default.
 Mods that build on Everfilling Flasks:
 - [Flasks Additions](https://www.curseforge.com/minecraft/mc-mods/flask-additions): many new
   flasks, each crafted from the rare items of other mods and each healing in its own way
+- [Elusive Infusions](https://www.curseforge.com/minecraft/mc-mods/elusive-infusions): infusions
+  crafted from Elusive Flora plants, with after-drink effects, flask modifiers with trade-offs,
+  and stronger Concentrated versions
 
 ## For modpack creators
 
