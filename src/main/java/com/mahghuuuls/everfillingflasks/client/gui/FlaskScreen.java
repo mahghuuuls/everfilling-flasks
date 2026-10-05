@@ -194,9 +194,7 @@ public final class FlaskScreen extends GuiContainer {
         }
         String status = statusLine(over);
         if (status != null) {
-            // Trimmed, since a renamed piece can carry any name.
-            fontRenderer.drawString(fontRenderer.trimStringToWidth(status, xSize - 16), 8,
-                    STATUS_Y, TEXT_OVER);
+            fontRenderer.drawString(status, 8, STATUS_Y, TEXT_OVER);
         }
     }
 
@@ -204,15 +202,12 @@ public final class FlaskScreen extends GuiContainer {
     private static final int STATUS_Y = 17;
 
     /**
-     * What the one red line under the title says, or null for nothing. A just-refused
-     * placement wins, since the player is acting on it now; otherwise why the grid is inert:
-     * over capacity, a conflicting pair (REQ-051), or both in one line.
+     * What the one red line under the title says, or null for nothing: why the grid is inert,
+     * over capacity, a conflicting pair (REQ-051), or both in one line. Fixed strings only,
+     * each of which fits the line; anything that carries an item name goes to a tooltip,
+     * because an add-on's name can be longer than the line (1.2.1).
      */
     private String statusLine(boolean over) {
-        net.minecraft.item.ItemStack clash = ClientFlaskState.recentRefusal();
-        if (!clash.isEmpty()) {
-            return I18n.format("everfillingflasks.screen.conflictsWith", clash.getDisplayName());
-        }
         boolean conflicted = ClientFlaskState.gridConflicted();
         if (over && conflicted) {
             return I18n.format("everfillingflasks.screen.overAndConflict");
@@ -255,6 +250,18 @@ public final class FlaskScreen extends GuiContainer {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
+        // A just-refused placement (REQ-051): named at the cursor, which is on the refused
+        // slot at that moment, and wrapped, since an add-on's name can be longer than any
+        // line of the panel. While it shows it is the only tooltip, so nothing sits under it
+        // (a shift-click refusal leaves the cursor over the piece's own inventory slot).
+        net.minecraft.item.ItemStack clash = ClientFlaskState.recentRefusal();
+        if (!clash.isEmpty()) {
+            String message = net.minecraft.util.text.TextFormatting.RED
+                    + I18n.format("everfillingflasks.screen.conflictsWith", clash.getDisplayName());
+            drawHoveringText(fontRenderer.listFormattedStringToWidth(message, REFUSAL_WRAP_WIDTH),
+                    mouseX, mouseY);
+            return;
+        }
         renderHoveredToolTip(mouseX, mouseY);
         // The journal button is a plain button, not a slot, so its label is drawn here rather
         // than by the container's own hover handling.
@@ -269,4 +276,7 @@ public final class FlaskScreen extends GuiContainer {
                     mouseX, mouseY);
         }
     }
+
+    /** Wrap width for the refusal tooltip, about two words of a long add-on name per line. */
+    private static final int REFUSAL_WRAP_WIDTH = 140;
 }

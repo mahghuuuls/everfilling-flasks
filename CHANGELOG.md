@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+
+### Fixed
+
+- The "Conflicts with ..." message in the flask screen was cut off for long infusion names. It
+  now appears as a tooltip at the cursor, wrapped, so the full name shows.
+
 ## 1.2.0
 
 Infusion API additions, all backward compatible: an add-on built against 1.1.0 runs unchanged.
