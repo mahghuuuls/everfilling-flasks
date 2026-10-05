@@ -93,6 +93,20 @@ class InfusionGridConflictTest {
     }
 
     @Test
+    void theRefusalNamesThePieceAsItWasPlaced() {
+        // A piece keeps its NBT through the grid, so an anvil name or an add-on's own data
+        // survives placement; the refusal then names the piece as the player knows it.
+        ItemStack named = new ItemStack(Items.GHAST_TEAR);
+        named.setStackDisplayName("Concentrated Heartroot Infusion");
+        assertTrue(handler.insertItem(0, named, false).isEmpty());
+        assertEquals("Concentrated Heartroot Infusion", handler.getStackInSlot(0).getDisplayName());
+
+        handler.insertItem(1, new ItemStack(Items.BLAZE_POWDER), true);
+
+        assertEquals("Concentrated Heartroot Infusion", refusals.get(0).getDisplayName());
+    }
+
+    @Test
     void aNonConflictingPieceStillPlaces() {
         handler.insertItem(0, new ItemStack(Items.GHAST_TEAR), false);
 
