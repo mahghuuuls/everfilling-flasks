@@ -110,6 +110,9 @@ rounds to the nearest one. Several active foods add up. The bonus ends when the 
 and comes back after a relog while the food is active. Death clears foods unless JAFS's
 `keepFoodsOnDeath` is on; with it on, the bonus comes back after the respawn.
 
+Food entries go in `config/jafs/foods.json`, which holds one list. Put the entry below inside
+that list, next to any entries already there, then run `/jafs reload` or restart.
+
 ```json
 [
   {
@@ -131,5 +134,5 @@ refills twice as fast, and holds one more charge.
 ## Other mods
 
 Another mod that adds attribute modifiers to players by attribute name can use these six
-names the same way; only the three above were tested. Add-on authors can also reach the same stats through the code API
-([API.md](API.md)).
+names the same way; only the three above were tested. Add-on authors can also reach the same
+stats through the code API ([API.md](API.md)).
