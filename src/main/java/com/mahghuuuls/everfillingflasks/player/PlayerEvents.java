@@ -47,7 +47,7 @@ public final class PlayerEvents {
         if (event.player instanceof EntityPlayerMP) {
             // A crash mid-drink must not leave the slowdown on a saved attribute map.
             DrinkController.removeSlowdown((EntityPlayerMP) event.player);
-            DrinkController.syncNow((EntityPlayerMP) event.player);
+            DrinkController.requestSync((EntityPlayerMP) event.player);
         }
     }
 
@@ -83,7 +83,7 @@ public final class PlayerEvents {
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
         if (event.player instanceof EntityPlayerMP) {
-            DrinkController.syncNow((EntityPlayerMP) event.player);
+            DrinkController.requestSync((EntityPlayerMP) event.player);
         }
     }
 
@@ -91,7 +91,7 @@ public final class PlayerEvents {
     public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
         if (event.player instanceof EntityPlayerMP) {
             DrinkController.cancelDrink((EntityPlayerMP) event.player, "changed dimension");
-            DrinkController.syncNow((EntityPlayerMP) event.player);
+            DrinkController.requestSync((EntityPlayerMP) event.player);
         }
     }
 

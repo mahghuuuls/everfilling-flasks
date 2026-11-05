@@ -391,13 +391,19 @@ public final class DrinkController {
                 player.world.rand.nextFloat() * 0.1F + 0.9F);
     }
 
-    /** Sends the owner a fresh state message regardless of cadence; used at login and respawn. */
-    public static void syncNow(EntityPlayerMP player) {
+    /**
+     * Asks for a fresh state message at the player's next tick, regardless of cadence; used at
+     * login, respawn, and dimension change. Not computed now: other mods put their attribute
+     * modifiers back in these same events, possibly after this handler, and a value read now
+     * would miss them. The next tick would then cut the stored charges down to that lower
+     * maximum. By the next tick every handler of the event has run.
+     */
+    public static void requestSync(EntityPlayerMP player) {
         FlaskPlayerData data = FlaskPlayerCapability.get(player);
         if (data != null) {
-            long now = player.world.getTotalWorldTime();
-            trackSlotChange(data, now);
-            sendState(player, data, now);
+            trackSlotChange(data, player.world.getTotalWorldTime());
+            data.cachedEffective = null;
+            data.syncDirty = true;
         }
     }
 
