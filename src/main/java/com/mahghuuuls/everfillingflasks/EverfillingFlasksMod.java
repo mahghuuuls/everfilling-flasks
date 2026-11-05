@@ -59,6 +59,9 @@ public class EverfillingFlasksMod {
         }
         FlaskPlayerCapability.register();
         PacketHandler.register();
+        // The stat attributes are the core's own player modifier source.
+        com.mahghuuuls.everfillingflasks.flask.ModifierRegistry.register(
+                com.mahghuuuls.everfillingflasks.flask.FlaskAttributes.SOURCE);
         com.mahghuuuls.everfillingflasks.flask.InternalFlaskApiBridge.install();
     }
 
