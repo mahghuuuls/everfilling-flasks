@@ -34,7 +34,8 @@ import org.apache.logging.log4j.Logger;
         dependencies =
                 "required-after:forge@[14.23.5.2847,);"
                         + "required-after:inventorybuttonbar@[1.0.0,);"
-                        + "required-after:patchouli")
+                        + "required-after:patchouli;"
+                        + "after:jafs@[1.0.0,)")
 public class EverfillingFlasksMod {
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);
@@ -59,7 +60,14 @@ public class EverfillingFlasksMod {
         }
         FlaskPlayerCapability.register();
         PacketHandler.register();
+        // The stat attributes are the core's own player modifier source.
+        com.mahghuuuls.everfillingflasks.flask.ModifierRegistry.register(
+                com.mahghuuuls.everfillingflasks.flask.FlaskAttributes.SOURCE);
         com.mahghuuuls.everfillingflasks.flask.InternalFlaskApiBridge.install();
+        // Optional: the link names JAFS types, so its class loads only when JAFS is present.
+        if (net.minecraftforge.fml.common.Loader.isModLoaded("jafs")) {
+            com.mahghuuuls.everfillingflasks.integration.jafs.JafsFlaskProperties.register();
+        }
     }
 
     @Mod.EventHandler

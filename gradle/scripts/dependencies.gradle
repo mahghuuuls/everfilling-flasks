@@ -17,6 +17,17 @@ repositories {
     exclusiveContent {
         forRepository {
             maven {
+                name 'BlameJared'
+                url 'https://maven.blamejared.com'
+            }
+        }
+        filter {
+            includeGroup 'CraftTweaker2'
+        }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
                 name 'Modrinth'
                 url 'https://api.modrinth.com/maven'
             }
@@ -49,6 +60,23 @@ dependencies {
     // annotation names the mod without a version bound, because this fork's version string does not
     // order reliably as a Maven range.
     implementation rfg.deobf('curse.maven:patchouli-rofl-edition-905159:6178311')
+
+    // Just Another Food System 1.0.0, the first release with its property API: compiled against for
+    // the optional food-property link, never packaged. The shipping constraint is after:jafs@[1.0.0,).
+    compileOnly rfg.deobf('curse.maven:just-another-food-system-1758738:9283113')
+    testImplementation rfg.deobf('curse.maven:just-another-food-system-1758738:9283113')
+
+    // Development runtime with the mods that can change the flask stats, opt-in: pass
+    // -Pdev_runtime_targets=true to runClient or runServer. Never packaged or declared.
+    if (propertyBool('dev_runtime_targets')) {
+        runtimeOnly rfg.deobf('curse.maven:just-another-food-system-1758738:9283113')
+        runtimeOnly rfg.deobf('curse.maven:quality-tools-264756:2732994')
+        // Quality Tools requires Potion Core.
+        runtimeOnly rfg.deobf('curse.maven:potion-core-242872:2905184')
+        runtimeOnly rfg.deobf('curse.maven:setworks-1768283:9434914')
+        // CraftTweaker runs the Setworks test script.
+        runtimeOnly rfg.deobf('CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.20.716')
+    }
 
     // Example - Dependency descriptor:
     // 'com.google.code.gson:gson:2.8.6' << group: com.google.code.gson, name:gson, version:2.8.6

@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.3.0
+
+### Added
+
+- The six flask stats are player attributes: `everfillingflasks.healing`,
+  `everfillingflasks.drinkSpeed`, `everfillingflasks.hitThreshold`,
+  `everfillingflasks.rechargeSpeed`, `everfillingflasks.maxCharges`, and
+  `everfillingflasks.effectPower`. Mods that change player
+  attributes by name, such as [Quality Tools](https://www.curseforge.com/minecraft/mc-mods/quality-tools)
+  and [Setworks](https://www.curseforge.com/minecraft/mc-mods/setworks), can now change a player's
+  flasks. Item tooltips name them "Flask Healing" and so on.
+- With [Just Another Food System](https://www.curseforge.com/minecraft/mc-mods/just-another-food-system)
+  1.0.0 or later installed, foods can change the flask stats through six food properties. Not
+  required.
+- `docs/PACK-MAKERS.md`: the attribute names and one working example for each of those mods.
+
+### Changed
+
+- The flask's state is computed on the tick after a login, a respawn, or a dimension change, so a
+  bonus to max charges that Just Another Food System or Setworks puts back in those events is
+  counted and does not cost a full flask a charge.
+
 ## 1.2.1
 
 ### Fixed

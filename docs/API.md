@@ -221,12 +221,30 @@ Sources are consulted when effective values are computed: at drink start, on cha
 on state sync, and about once per second otherwise. A source that throws stays registered,
 is logged once, and only its own contribution is lost.
 
+### The stats as attributes (since 1.3.0)
+
+The six stats are also player attributes, registered on every player: `everfillingflasks.healing`,
+`.drinkSpeed`, `.hitThreshold`, `.rechargeSpeed`, `.maxCharges`, and `.effectPower`. Find them by
+name (`player.getAttributeMap().getAttributeInstanceByName(...)`); the class that holds them is
+internal. The core reads their final values as one more modifier source: a percentage stat starts at 1.0 and contributes its value
+minus 1, max charges starts at 0 and contributes its value rounded to a whole charge. An add-on
+may add a vanilla `AttributeModifier` to one of them instead of registering a source. The
+differences: attribute values are clamped (0 to 1024; max charges -64 to 64, rounded to a whole
+charge), and a saved modifier stays in the player file after your add-on is removed, so mark it
+`setSaved(false)` and put it back at login, as the
+[Just Another Food System](https://www.curseforge.com/minecraft/mc-mods/just-another-food-system)
+link does. Prefer operation 0 (add) so your bonus sums with others. The core computes the
+values on the tick after a login, a respawn, or a dimension change, so a modifier you put back in
+one of those events is seen. Read a flask snapshot on a later tick, not inside such an event. See
+`docs/PACK-MAKERS.md` for the attribute names and what each operation means.
+
 ### Effect power (since 1.1.0)
 
 Effect power is the one channel the core carries without using. Sources and infusions add to
 it like the other percentages; the core delivers `1 + sum`, floored at 0, to the Flask as
 `DrinkOutcome.effectPower()`. What it scales is the Flask's own business: a duration, a mana
-amount, a flat damage, anything the healing half does not cover. Nothing shows it to players;
+amount, a flat damage, anything the healing half does not cover. The core itself never shows it to players (since 1.3.0 its attribute name appears in item
+tooltips when another mod adds to it);
 no built-in infusion adds to it. Cap your own use of it if a runaway value would matter.
 
 ## Reading state

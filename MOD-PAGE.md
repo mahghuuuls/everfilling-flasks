@@ -32,6 +32,103 @@ Mods that build on Everfilling Flasks:
   crafted from Elusive Flora plants, with after-drink effects, flask modifiers with trade-offs,
   and stronger Concentrated versions
 
+## Integrations
+
+The six flask stats are player attributes. Pack makers can raise or lower them with the mods
+below. This mod adds no quality, set bonus, or food of its own, and none of these mods is
+required.
+
+The attributes:
+- `everfillingflasks.healing`, starts at 1.0: how much a drink heals
+- `everfillingflasks.drinkSpeed`, starts at 1.0: how fast a drink finishes
+- `everfillingflasks.hitThreshold`, starts at 1.0: how much damage it takes to interrupt a drink
+- `everfillingflasks.rechargeSpeed`, starts at 1.0: how fast charges refill
+- `everfillingflasks.maxCharges`, starts at 0: extra charges, in whole charges
+- `everfillingflasks.effectPower`, starts at 1.0: how strong a flask's secondary effect is (add-on
+  flasks and infusions use it; the built-in flasks have none)
+
+The five that start at 1.0 are multipliers: adding 0.2 is +20 percent, adding -0.5 is -50
+percent. Max charges takes "add" only and rounds to a whole charge. Tooltips name them "Flask
+Healing", "Flask Drink Speed", "Flask Damage Threshold", "Flask Recharge Speed", "Flask Max
+Charges", and "Flask Effect Power". The
+[pack-maker guide](https://github.com/mahghuuuls/everfilling-flasks/blob/main/docs/PACK-MAKERS.md)
+has the full rules. The examples below were tested as written.
+
+### Quality Tools
+
+[Quality Tools](https://www.curseforge.com/minecraft/mc-mods/quality-tools) (needs
+[Potion Core](https://www.curseforge.com/minecraft/mc-mods/potion-core)): a quality file in
+`config/qualitytools/Quailities/` (the folder name is spelled that way).
+
+```json
+{
+  "slot": "mainhand",
+  "whitelist": [ { "item": "minecraft:carrot_on_a_stick" } ],
+  "blacklist": [],
+  "qualities": [
+    {
+      "name": "Flask Blessed",
+      "color": "aqua",
+      "weight": 1,
+      "attributes": [
+        { "name": "everfillingflasks.healing", "amount": 0.5, "operation": 1 },
+        { "name": "everfillingflasks.maxCharges", "amount": 1, "operation": 0 }
+      ]
+    }
+  ]
+}
+```
+
+Held in the main hand, the item reads "+50% Flask Healing" and "+1 Flask Max Charges", and the
+flask heals 50 percent more with one more charge.
+
+### Setworks
+
+[Setworks](https://www.curseforge.com/minecraft/mc-mods/setworks) (needs
+[CraftTweaker](https://www.curseforge.com/minecraft/mc-mods/crafttweaker)): a script in
+`scripts/`.
+
+```
+#loader setworks
+import mods.setworks.Setworks;
+
+Setworks.armorSet("mypack:leather", "Leather Set",
+    <minecraft:leather_helmet>, <minecraft:leather_chestplate>, <minecraft:leather_leggings>, <minecraft:leather_boots>);
+
+Setworks.fullSetBonus("mypack:leather_flask", "mypack:leather", "Drinks twice as fast, +50% damage threshold")
+    .attribute("everfillingflasks.drinkSpeed", 1.0, "add")
+    .attribute("everfillingflasks.hitThreshold", 0.5, "add");
+```
+
+Wearing the full set, drinks take half as long and need 50 percent more damage to interrupt.
+
+### Just Another Food System
+
+[Just Another Food System](https://www.curseforge.com/minecraft/mc-mods/just-another-food-system)
+uses food properties instead of attribute names. With it installed, this mod adds six:
+`everfillingflasks:healing`, `everfillingflasks:drink_speed`, `everfillingflasks:hit_threshold`,
+`everfillingflasks:recharge_speed`, and `everfillingflasks:effect_power` take `percent` (20 is
++20 percent); `everfillingflasks:max_charges` takes `flat` whole charges. Food entries go in the
+list in `config/jafs/foods.json`.
+
+```json
+[
+  {
+    "id": "golden_carrot",
+    "match": [ { "item": "minecraft:golden_carrot" } ],
+    "fullDuration": 3600,
+    "modifiers": [
+      { "property": "everfillingflasks:healing", "operation": "percent", "amount": 20 },
+      { "property": "everfillingflasks:recharge_speed", "operation": "percent", "amount": 100 },
+      { "property": "everfillingflasks:max_charges", "operation": "flat", "amount": 1 }
+    ]
+  }
+]
+```
+
+For an hour after eating (at the default timer speed), the flask heals 20 percent more, refills
+twice as fast, and holds one more charge.
+
 ## For modpack creators
 
 The config file provides options for:
@@ -63,6 +160,7 @@ Using the API, add-ons can:
   read what a drink actually did, and scale a secondary effect through the effect power bonus
 - Mark infusions that refuse to share a grid, read the drink outcome from an infusion, and get
   the infusion tooltip written for them in the same style as the built-in ones
+- Change the flask stats with ordinary attribute modifiers, as the integrations above do
 
 ## Installation
 
