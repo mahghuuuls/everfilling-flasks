@@ -7,7 +7,7 @@ can be interrupted by hits, and flasks can be infused with infusions found in tr
 - Player-facing description: [MOD-PAGE.md](MOD-PAGE.md)
 - Release history: [CHANGELOG.md](CHANGELOG.md)
 - Add-on API for other mods: [docs/API.md](docs/API.md)
-- Flask stats in qualities, set bonuses, and food bonuses: [docs/PACK-MAKERS.md](docs/PACK-MAKERS.md)
+- Flask stats in qualities, set bonuses, food bonuses, and statuses: [docs/PACK-MAKERS.md](docs/PACK-MAKERS.md)
 - License: [MIT](LICENSE) , see also [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)
 
 ## Identity and installation
@@ -51,4 +51,6 @@ One file, `config/everfillingflasks.cfg`, read at game start:
 - Since 1.3.0 the six flask stats are player attributes (`everfillingflasks.healing` and the
   rest), so mods that change attributes by name can change flasks; with
   [Just Another Food System](https://www.curseforge.com/minecraft/mc-mods/just-another-food-system)
-  installed, foods can too. See `docs/PACK-MAKERS.md`.
+  installed, foods can too, and
+  [Statusworks](https://www.curseforge.com/minecraft/mc-mods/statusworks) statuses can name them
+  in a script. See `docs/PACK-MAKERS.md`.

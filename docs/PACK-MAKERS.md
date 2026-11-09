@@ -1,9 +1,9 @@
 # Everfilling Flasks for pack makers
 
 Since 1.3.0 the six flask stats are player attributes, so mods that add attribute modifiers by
-attribute name can change a player's flasks. The three below were tested: item qualities, set
-bonuses, and food bonuses. Everfilling Flasks adds no quality, set, or food of its own; this page
-shows how to make yours.
+attribute name can change a player's flasks. The four below were tested: item qualities, set
+bonuses, food bonuses, and statuses. Everfilling Flasks adds no quality, set, food, or status of
+its own; this page shows how to make yours.
 
 ## The six attributes
 
@@ -131,8 +131,53 @@ that list, next to any entries already there, then run `/jafs reload` or restart
 For an hour after eating (at JAFS's default timer speed), the flask heals 20 percent more,
 refills twice as fast, and holds one more charge.
 
+## Statusworks
+
+[Statusworks](https://www.curseforge.com/minecraft/mc-mods/statusworks) statuses, pools, and
+marks take the attribute name as written in `.contributeAttribute(...)`, with `add`,
+`multiply_base`, or `multiply_total`, and a value form: `fixed` or `per_stack` on a status,
+`fixed`, `per_amount`, or `per_fill` on a pool, and `fixed` on a mark. A mark's
+`.contributeAttribute(...)` takes the side (`source` or `target`) first. Scripts go in `scripts/`
+and need [CraftTweaker](https://www.curseforge.com/minecraft/mc-mods/crafttweaker) 4.1.20 or
+later. Only the status below was tested, with Statusworks 1.2.0; pools and marks use the same
+attribute names. Without Everfilling Flasks installed, Statusworks turns a definition that names
+these attributes off at server start and logs it (in its strict mode, the server stops instead).
+
+```zenscript
+import mods.statusworks.Statuses;
+import mods.statusworks.Presentation;
+
+// Flask Blessing: up to 3 stacks, 5 minutes.
+// Each stack: +25% flask healing.
+// While active: +50% drink speed, +50% hit threshold, double recharge speed,
+// one more charge, +20% effect power.
+Statuses.define("mypack:flask_blessing")
+    .limit(3)
+    .defaultDuration(6000)
+    .contributeAttribute("everfillingflasks.healing", "add", "per_stack", 0.25)
+    .contributeAttribute("everfillingflasks.drinkSpeed", "multiply_base", "fixed", 0.5)
+    .contributeAttribute("everfillingflasks.hitThreshold", "add", "fixed", 0.5)
+    .contributeAttribute("everfillingflasks.rechargeSpeed", "multiply_total", "fixed", 1.0)
+    .contributeAttribute("everfillingflasks.maxCharges", "add", "fixed", 1.0)
+    .contributeAttribute("everfillingflasks.effectPower", "add", "fixed", 0.2)
+    .presentation(Presentation.create()
+        .name("Flask Blessing")
+        .description("Flasks heal more, drink faster, and hold one more charge.")
+        .iconItem("minecraft:glass_bottle", 0))
+    .register();
+```
+
+Give it with `/statusworks status apply @p mypack:flask_blessing 1`. With one stack, the
+starting flask drinks in two thirds of the time, heals 25 percent more, needs 50 percent more
+damage to interrupt, refills twice as fast, and holds one more charge. Each extra stack adds
+another 25 percent healing, up to 3 stacks. When the status ends or is removed, the flask is back
+to normal within about a second.
+
+Only players have the six attributes. Applied to a mob, the status still counts its stacks, but
+Statusworks skips the flask attributes with no error.
+
 ## Other mods
 
 Another mod that adds attribute modifiers to players by attribute name can use these six
-names the same way; only the three above were tested. Add-on authors can also reach the same
+names the same way; only the four above were tested. Add-on authors can also reach the same
 stats through the code API ([API.md](API.md)).
