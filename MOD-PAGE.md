@@ -35,8 +35,7 @@ Mods that build on Everfilling Flasks:
 ## Integrations
 
 The six flask stats are player attributes. Pack makers can raise or lower them with the mods
-below. This mod adds no quality, set bonus, or food of its own, and none of these mods is
-required.
+below. This mod adds no such bonus of its own, and none of these mods is required.
 
 The attributes:
 - `everfillingflasks.healing`, starts at 1.0: how much a drink heals
@@ -128,6 +127,46 @@ list in `config/jafs/foods.json`.
 
 For an hour after eating (at the default timer speed), the flask heals 20 percent more, refills
 twice as fast, and holds one more charge.
+
+### Statusworks
+
+[Statusworks](https://www.curseforge.com/minecraft/mc-mods/statusworks) (needs
+[CraftTweaker](https://www.curseforge.com/minecraft/mc-mods/crafttweaker)): a script in
+`scripts/`. Pools and marks can use the attributes too; the
+[pack-maker guide](https://github.com/mahghuuuls/everfilling-flasks/blob/main/docs/PACK-MAKERS.md#statusworks)
+shows how.
+
+```
+import mods.statusworks.Statuses;
+import mods.statusworks.Presentation;
+
+// Flask Blessing: up to 3 stacks, 5 minutes.
+// Each stack: +25% flask healing.
+// While active: +50% drink speed, +50% hit threshold, double recharge speed,
+// one more charge, +20% effect power.
+Statuses.define("mypack:flask_blessing")
+    .limit(3)
+    .defaultDuration(6000)
+    .contributeAttribute("everfillingflasks.healing", "add", "per_stack", 0.25)
+    .contributeAttribute("everfillingflasks.drinkSpeed", "multiply_base", "fixed", 0.5)
+    .contributeAttribute("everfillingflasks.hitThreshold", "add", "fixed", 0.5)
+    .contributeAttribute("everfillingflasks.rechargeSpeed", "multiply_total", "fixed", 1.0)
+    .contributeAttribute("everfillingflasks.maxCharges", "add", "fixed", 1.0)
+    .contributeAttribute("everfillingflasks.effectPower", "add", "fixed", 0.2)
+    .presentation(Presentation.create()
+        .name("Flask Blessing")
+        .description("Flasks heal more, drink faster, and hold one more charge.")
+        .iconItem("minecraft:glass_bottle", 0))
+    .register();
+```
+
+Give it with `/statusworks status apply @p mypack:flask_blessing 1`. With one stack, the flask
+drinks in two thirds of the time, heals 25 percent more, needs 50 percent more damage to
+interrupt, refills twice as fast, and holds one more charge. Each extra stack adds another 25
+percent healing, up to 3 stacks (+75 percent). On a player with no other bonus, the three
+operations give the same result on the five stats that start at 1.0; the guide's attribute rules
+explain how they combine with other bonuses. On a mob the status still applies, without the flask
+bonuses and without an error.
 
 ## For modpack creators
 
