@@ -82,22 +82,18 @@ class BuiltinInfusionDefinitionTest {
     }
 
     @Test
-    void theChestHintIsOfferedOnlyWhileTheHerbsComeFromChests() {
-        // A hint must not outlive the behaviour it describes: a pack that takes the herbs out
-        // of world loot would otherwise ship a journal sending players to chests that no longer
-        // hold them.
+    void theBuiltInHerbsHaveNoTextOfTheirOwnWithChestLootOnOrOff() {
+        // Where they come from is the wild plant's text, chests included; a text of their own
+        // would say it twice.
         boolean original = FlaskConfig.general.infusionLoot;
         try {
-            FlaskConfig.general.infusionLoot = true;
-            ConfigSnapshot.refresh();
-            assertEquals("everfillingflasks.journal.text.chests",
-                    new BuiltinInfusionDefinition(InfusionKind.SUNPETAL_LEAF)
-                            .journalText(ItemStack.EMPTY));
-
-            FlaskConfig.general.infusionLoot = false;
-            ConfigSnapshot.refresh();
-            assertNull(new BuiltinInfusionDefinition(InfusionKind.SUNPETAL_LEAF)
-                    .journalText(ItemStack.EMPTY));
+            for (boolean loot : new boolean[] {true, false}) {
+                FlaskConfig.general.infusionLoot = loot;
+                ConfigSnapshot.refresh();
+                for (InfusionKind kind : InfusionKind.values()) {
+                    assertNull(new BuiltinInfusionDefinition(kind).journalText(ItemStack.EMPTY), kind + " " + loot);
+                }
+            }
         } finally {
             FlaskConfig.general.infusionLoot = original;
             ConfigSnapshot.refresh();

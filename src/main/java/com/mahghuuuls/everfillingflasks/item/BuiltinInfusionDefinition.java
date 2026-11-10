@@ -55,15 +55,13 @@ public final class BuiltinInfusionDefinition implements InfusionDefinition {
     }
 
     /**
-     * Where these herbs come from, and only while they actually come from there: a pack that
-     * turns the loot injection off gets no hint rather than a false one, and can write its own
-     * in the config (REQ-041).
+     * None of its own: where a built-in herb comes from is what the journal says about the wild
+     * plant that gives it, including the chests while chest loot is on. A pack can still write
+     * its own text in the config.
      */
     @Override
     public String journalText(ItemStack infusion) {
-        return ConfigSnapshot.current().infusionLoot()
-                ? "everfillingflasks.journal.text.chests"
-                : null;
+        return null;
     }
 
     @Override

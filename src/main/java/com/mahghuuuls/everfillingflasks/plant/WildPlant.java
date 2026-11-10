@@ -62,4 +62,17 @@ public enum WildPlant {
     public Item givenItem() {
         return infusion == null ? ModItems.seed() : ModItems.infusion(infusion);
     }
+
+    /** The plant that gives this item, or null when no wild plant gives it. */
+    public static WildPlant givingItem(Item item) {
+        if (item == null) {
+            return null;
+        }
+        for (WildPlant plant : values()) {
+            if (plant.givenItem() == item) {
+                return plant;
+            }
+        }
+        return null;
+    }
 }

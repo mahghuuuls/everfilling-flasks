@@ -6,6 +6,7 @@ import com.mahghuuuls.everfillingflasks.api.FlaskDefinition;
 import com.mahghuuuls.everfillingflasks.api.InfusionDefinition;
 import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
 import com.mahghuuuls.everfillingflasks.journal.JournalTextOverrides;
+import com.mahghuuuls.everfillingflasks.plant.WildPlant;
 import java.util.function.Supplier;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;
@@ -65,8 +66,8 @@ final class JournalEntryWriter {
      * <p>The pack author is asked first, because only they know what their pack did with this
      * content: their text replaces the mod's, and their empty text hides it. Asking them first
      * also means a mod whose own text is broken can still be corrected, which is the case that
-     * most needs correcting. With no override the content's own text stands, and with neither
-     * the entry is the item alone (REQ-041).
+     * most needs correcting. With no override the content's own text stands, followed for an item
+     * a wild plant gives by where that plant grows; with neither the entry is the item alone.
      */
     private static String text(Item item, Supplier<String> ownKey) {
         ResourceLocation name = item.getRegistryName();
@@ -75,7 +76,13 @@ final class JournalEntryWriter {
             return overrides.text(name.toString());
         }
         String key = ownKey.get();
-        return key == null || key.isEmpty() ? "" : I18n.format(key);
+        String own = key == null || key.isEmpty() ? "" : I18n.format(key);
+        WildPlant plant = WildPlant.givingItem(item);
+        if (plant == null) {
+            return own;
+        }
+        String wild = PlantJournalText.describe(plant);
+        return PlantJournalText.withOwnText(own, wild, PlantJournalText.GAME_WORDS);
     }
 
     /**

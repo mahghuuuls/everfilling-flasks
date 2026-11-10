@@ -69,11 +69,12 @@ public final class FlaskConfig {
 
         @Config.Name("infusionLoot")
         @Config.Comment({
-                "Add Everlasting Seeds and Flask Infusions to dungeon, mineshaft, and village",
-                "blacksmith chests. false removes them from world loot entirely, which also makes",
-                "every Flask uncraftable in survival: the Humble Flask needs a seed, and each",
-                "other tier is crafted from the one below it."})
-        public boolean infusionLoot = true;
+                "Also put Everlasting Seeds and Flask Infusions in dungeon, mineshaft, and village",
+                "blacksmith chests. Off by default: they grow as wild plants (see plants). A file",
+                "written by 1.3.0 or earlier keeps its own value; only a missing key takes the",
+                "default. With chest loot off and a plant turned off, its item has no source in",
+                "survival."})
+        public boolean infusionLoot = false;
 
         @Config.Name("inhibitedIntegration")
         @Config.Comment({

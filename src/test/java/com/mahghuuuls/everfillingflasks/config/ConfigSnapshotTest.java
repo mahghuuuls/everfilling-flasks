@@ -86,8 +86,8 @@ class ConfigSnapshotTest {
     }
 
     @Test
-    void infusionLootDefaultsOn() {
-        assertTrue(ConfigSnapshot.current().infusionLoot());
+    void infusionLootDefaultsOff() {
+        assertFalse(ConfigSnapshot.current().infusionLoot());
     }
 
     @Test
