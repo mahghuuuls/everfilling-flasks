@@ -67,6 +67,25 @@ class PlantLifecycleTest {
     }
 
     @Test
+    void onlyTheEverlastingSproutSparkles() {
+        for (WildPlant plant : WildPlant.values()) {
+            assertEquals(plant == WildPlant.EVERLASTING_SPROUT, plant.sparkles(), plant + " sparkles");
+        }
+    }
+
+    @Test
+    void onlyTheEverlastingSproutInBloomGivesOffLight() {
+        assertEquals(5, PlantLifecycle.lightFor(WildPlant.EVERLASTING_SPROUT, PlantStage.BLOOM));
+        assertEquals(0, PlantLifecycle.lightFor(WildPlant.EVERLASTING_SPROUT, PlantStage.STEM));
+        for (WildPlant plant : WildPlant.values()) {
+            if (plant != WildPlant.EVERLASTING_SPROUT) {
+                assertEquals(0, PlantLifecycle.lightFor(plant, PlantStage.BLOOM), plant + " bloom");
+                assertEquals(0, PlantLifecycle.lightFor(plant, PlantStage.STEM), plant + " stem");
+            }
+        }
+    }
+
+    @Test
     void theMetadataOfEachStageIsFixed() {
         assertEquals(0, PlantStage.BLOOM.ordinal());
         assertEquals(1, PlantStage.STEM.ordinal());

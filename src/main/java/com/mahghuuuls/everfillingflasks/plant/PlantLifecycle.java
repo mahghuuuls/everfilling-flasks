@@ -9,8 +9,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * The one owner of what a pick does and of when a stem blooms again. The block delegates here
- * and decides no stage itself.
+ * What a pick does, when a stem blooms again, and the light each stage gives off. The block
+ * delegates here and decides no stage itself.
  *
  * <p>Picking a bloom drops one item and leaves a stem with a fresh deadline; breaking a stem
  * removes it. Deadlines use the world's total time ({@code getTotalWorldTime}), which runs while
@@ -37,6 +37,11 @@ public final class PlantLifecycle {
     /** The total world time at which a stem picked now blooms again. */
     public static long regrowAt(long now, int baseMinutes, double factor) {
         return now + regrowTicks(baseMinutes, factor);
+    }
+
+    /** The light a plant gives off at a stage: its bloom light in bloom, none as a stem. */
+    public static int lightFor(WildPlant plant, PlantStage stage) {
+        return stage == PlantStage.BLOOM ? plant.bloomLight() : 0;
     }
 
     /**

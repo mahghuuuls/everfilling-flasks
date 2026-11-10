@@ -1,6 +1,18 @@
 {
-  "parent": "block/cross",
-  "textures": {
-    "cross": "everfillingflasks:blocks/ironroot_bloom"
-  }
+  "ambientocclusion": false,
+  "textures": 
+{"particle":"everfillingflasks:blocks/ironroot_plant","plant":"everfillingflasks:blocks/ironroot_plant","parts":"everfillingflasks:blocks/ironroot_parts","stem":"everfillingflasks:blocks/ironroot_stem"}
+,
+  "elements": [
+    {"name":"trunk","from":[7.5,0,7.5],"to":[8.5,6,8.5],"faces":{"north":{"texture":"#parts","uv":[12,8,13,12]},"south":{"texture":"#parts","uv":[12,8,13,12]},"west":{"texture":"#parts","uv":[12,8,13,12]},"east":{"texture":"#parts","uv":[12,8,13,12]},"up":{"texture":"#parts","uv":[12,8,13,9]},"down":{"texture":"#parts","uv":[12,8,13,9]}}},
+    {"name":"branch up","from":[7.5,6,7.5],"to":[8.5,11,8.5],"faces":{"north":{"texture":"#parts","uv":[12,8,13,12]},"south":{"texture":"#parts","uv":[12,8,13,12]},"west":{"texture":"#parts","uv":[12,8,13,12]},"east":{"texture":"#parts","uv":[12,8,13,12]},"up":{"texture":"#parts","uv":[12,8,13,9]},"down":{"texture":"#parts","uv":[12,8,13,9]}}},
+    {"name":"branch west","from":[7.6,6,7.6],"to":[8.4,12,8.4],"faces":{"north":{"texture":"#parts","uv":[12,8,13,12]},"south":{"texture":"#parts","uv":[12,8,13,12]},"west":{"texture":"#parts","uv":[12,8,13,12]},"east":{"texture":"#parts","uv":[12,8,13,12]},"up":{"texture":"#parts","uv":[12,8,13,9]},"down":{"texture":"#parts","uv":[12,8,13,9]}},"rotation":{"origin":[8,6,8],"axis":"z","angle":22.5}},
+    {"name":"branch east","from":[7.6,6,7.6],"to":[8.4,12,8.4],"faces":{"north":{"texture":"#parts","uv":[12,8,13,12]},"south":{"texture":"#parts","uv":[12,8,13,12]},"west":{"texture":"#parts","uv":[12,8,13,12]},"east":{"texture":"#parts","uv":[12,8,13,12]},"up":{"texture":"#parts","uv":[12,8,13,9]},"down":{"texture":"#parts","uv":[12,8,13,9]}},"rotation":{"origin":[8,6,8],"axis":"z","angle":-22.5}},
+    {"name":"bud up","from":[7,11,7],"to":[9,12.5,9],"faces":{"north":{"texture":"#parts","uv":[12,4,16,8]},"south":{"texture":"#parts","uv":[12,4,16,8]},"west":{"texture":"#parts","uv":[12,4,16,8]},"east":{"texture":"#parts","uv":[12,4,16,8]},"up":{"texture":"#parts","uv":[12,4,16,8]},"down":{"texture":"#parts","uv":[12,4,16,8]}}},
+    {"name":"bud west","from":[7,12,7],"to":[9,13.5,9],"faces":{"north":{"texture":"#parts","uv":[12,4,16,8]},"south":{"texture":"#parts","uv":[12,4,16,8]},"west":{"texture":"#parts","uv":[12,4,16,8]},"east":{"texture":"#parts","uv":[12,4,16,8]},"up":{"texture":"#parts","uv":[12,4,16,8]},"down":{"texture":"#parts","uv":[12,4,16,8]}},"rotation":{"origin":[8,6,8],"axis":"z","angle":22.5}},
+    {"name":"bud east","from":[7,12,7],"to":[9,13.5,9],"faces":{"north":{"texture":"#parts","uv":[12,4,16,8]},"south":{"texture":"#parts","uv":[12,4,16,8]},"west":{"texture":"#parts","uv":[12,4,16,8]},"east":{"texture":"#parts","uv":[12,4,16,8]},"up":{"texture":"#parts","uv":[12,4,16,8]},"down":{"texture":"#parts","uv":[12,4,16,8]}},"rotation":{"origin":[8,6,8],"axis":"z","angle":-22.5}},
+    {"name":"stone","from":[9,0,8.5],"to":[12,1.5,11],"faces":{"north":{"texture":"#parts","uv":[8,8,11,10]},"south":{"texture":"#parts","uv":[8,8,11,10]},"west":{"texture":"#parts","uv":[8,8,11,10]},"east":{"texture":"#parts","uv":[8,8,11,10]},"up":{"texture":"#parts","uv":[8,8,11,11]},"down":{"texture":"#parts","uv":[8,8,11,11]}}},
+    {"name":"cross a","from":[4,0,8],"to":[12,4,8],"shade":false,"faces":{"north":{"texture":"#plant","uv":[4,12,12,16]},"south":{"texture":"#plant","uv":[4,12,12,16]}},"rotation":{"origin":[8,0,8],"axis":"y","angle":45.0}},
+    {"name":"cross b","from":[4,0,8],"to":[12,4,8],"shade":false,"faces":{"north":{"texture":"#plant","uv":[4,12,12,16]},"south":{"texture":"#plant","uv":[4,12,12,16]}},"rotation":{"origin":[8,0,8],"axis":"y","angle":-45.0}}
+  ]
 }

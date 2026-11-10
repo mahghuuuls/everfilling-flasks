@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -36,7 +37,11 @@ public final class BlockWildPlant extends Block {
 
     public static final PropertyEnum<PlantStage> STAGE = PropertyEnum.create("stage", PlantStage.class);
 
-    private static final AxisAlignedBB PLANT_AABB = new AxisAlignedBB(0.3D, 0.0D, 0.3D, 0.7D, 0.6D, 0.7D);
+    /** The click and outline box of a bloom: the reach of the tallest and widest model. */
+    private static final AxisAlignedBB BLOOM_AABB = new AxisAlignedBB(0.15D, 0.0D, 0.15D, 0.85D, 0.85D, 0.85D);
+
+    /** The click and outline box of a stem: the short stub and its leaves. */
+    private static final AxisAlignedBB STEM_AABB = new AxisAlignedBB(0.25D, 0.0D, 0.25D, 0.75D, 0.35D, 0.75D);
 
     /** About one and a half seconds to break by hand. */
     private static final float STEM_HARDNESS = 1.0F;
@@ -106,6 +111,24 @@ public final class BlockWildPlant extends Block {
         PlantLifecycle.tick(world, pos, state);
     }
 
+    @Override
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return PlantLifecycle.lightFor(plant, state.getValue(STAGE));
+    }
+
+    /** Now and then a small purple sparkle above a sparkling plant's bloom, drawn on the client only. */
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random random) {
+        if (!plant.sparkles() || state.getValue(STAGE) != PlantStage.BLOOM || random.nextInt(3) != 0) {
+            return;
+        }
+        double x = pos.getX() + 0.5D + (random.nextDouble() - 0.5D) * 0.25D;
+        double y = pos.getY() + 0.75D + random.nextDouble() * 0.15D;
+        double z = pos.getZ() + 0.5D + (random.nextDouble() - 0.5D) * 0.25D;
+        world.spawnParticle(EnumParticleTypes.SPELL_WITCH, x, y, z, 0.0D, 0.0D, 0.0D);
+    }
+
     /**
      * A bloom breaks at once; a stem takes a held break. Without the split, a click
      * held for a few ticks would pick the bloom and then remove the stem the client still saw as
@@ -170,7 +193,7 @@ public final class BlockWildPlant extends Block {
 
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-        return PLANT_AABB;
+        return state.getValue(STAGE) == PlantStage.STEM ? STEM_AABB : BLOOM_AABB;
     }
 
     @Nullable

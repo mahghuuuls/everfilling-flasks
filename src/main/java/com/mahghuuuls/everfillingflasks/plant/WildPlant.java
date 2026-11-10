@@ -14,20 +14,36 @@ import java.util.Locale;
  */
 public enum WildPlant {
 
-    SUNPETAL(PlantGround.GRASS, InfusionKind.SUNPETAL_LEAF, 0.5D),
-    IRONROOT(PlantGround.GRASS_OR_STONE, InfusionKind.IRONROOT_SPRIG, 0.5D),
-    QUICKMINT(PlantGround.GRASS_OR_DIRT, InfusionKind.QUICKMINT_LEAF, 0.5D),
-    SECOND_WIND(PlantGround.GRASS, InfusionKind.SECOND_WIND_PETAL, 1.0D),
-    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 1.0D);
+    SUNPETAL(PlantGround.GRASS, InfusionKind.SUNPETAL_LEAF, 0.5D, 0, false),
+    IRONROOT(PlantGround.GRASS_OR_STONE, InfusionKind.IRONROOT_SPRIG, 0.5D, 0, false),
+    QUICKMINT(PlantGround.GRASS_OR_DIRT, InfusionKind.QUICKMINT_LEAF, 0.5D, 0, false),
+    SECOND_WIND(PlantGround.GRASS, InfusionKind.SECOND_WIND_PETAL, 1.0D, 0, false),
+    /** The mystic one: a faint glow, noticeable at night and less than a torch, and a rare sparkle. */
+    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 1.0D, 5, true);
 
     private final PlantGround ground;
     private final InfusionKind infusion;
     private final double defaultRegrowFactor;
+    private final int bloomLight;
+    private final boolean sparkles;
 
-    WildPlant(PlantGround ground, InfusionKind infusion, double defaultRegrowFactor) {
+    WildPlant(PlantGround ground, InfusionKind infusion, double defaultRegrowFactor, int bloomLight,
+              boolean sparkles) {
         this.ground = ground;
         this.infusion = infusion;
         this.defaultRegrowFactor = defaultRegrowFactor;
+        this.bloomLight = bloomLight;
+        this.sparkles = sparkles;
+    }
+
+    /** The light a plant gives off in bloom; a stem gives none. */
+    public int bloomLight() {
+        return bloomLight;
+    }
+
+    /** Whether a plant in bloom shows a sparkle now and then. */
+    public boolean sparkles() {
+        return sparkles;
     }
 
     /** The regrow factor a plant has when the configuration does not set one. */

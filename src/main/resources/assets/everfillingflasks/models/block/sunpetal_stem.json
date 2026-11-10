@@ -1,6 +1,11 @@
 {
-  "parent": "block/cross",
-  "textures": {
-    "cross": "everfillingflasks:blocks/sunpetal_stem"
-  }
+  "ambientocclusion": false,
+  "textures": 
+{"particle":"everfillingflasks:blocks/sunpetal_stem","plant":"everfillingflasks:blocks/sunpetal_plant","parts":"everfillingflasks:blocks/sunpetal_parts","stem":"everfillingflasks:blocks/sunpetal_stem"}
+,
+  "elements": [
+    {"name":"stub","from":[7,0,7],"to":[9,3,9],"faces":{"north":{"texture":"#parts","uv":[8,0,10,3]},"south":{"texture":"#parts","uv":[8,0,10,3]},"west":{"texture":"#parts","uv":[8,0,10,3]},"east":{"texture":"#parts","uv":[8,0,10,3]},"up":{"texture":"#parts","uv":[12,0,14,2]},"down":{"texture":"#parts","uv":[12,0,14,2]}}},
+    {"name":"cross a","from":[3,0,8],"to":[13,5,8],"shade":false,"faces":{"north":{"texture":"#stem","uv":[3,11,13,16]},"south":{"texture":"#stem","uv":[3,11,13,16]}},"rotation":{"origin":[8,0,8],"axis":"y","angle":45.0}},
+    {"name":"cross b","from":[3,0,8],"to":[13,5,8],"shade":false,"faces":{"north":{"texture":"#stem","uv":[3,11,13,16]},"south":{"texture":"#stem","uv":[3,11,13,16]}},"rotation":{"origin":[8,0,8],"axis":"y","angle":-45.0}}
+  ]
 }
