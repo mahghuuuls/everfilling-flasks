@@ -7,6 +7,7 @@ import com.mahghuuuls.everfillingflasks.player.FlaskPlayerCapability;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.LogManager;
@@ -74,5 +75,13 @@ public class EverfillingFlasksMod {
     public void init(FMLInitializationEvent event) {
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new FlaskGuiHandler());
         proxy.registerSidedHandlers();
+        net.minecraftforge.fml.common.registry.GameRegistry.registerWorldGenerator(
+                new com.mahghuuuls.everfillingflasks.world.PlantWorldGenerator(), 10);
+    }
+
+    @Mod.EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        // After every mod has registered its biomes, so plants can name them.
+        com.mahghuuuls.everfillingflasks.world.ResolvedBiomeRules.resolveAll();
     }
 }

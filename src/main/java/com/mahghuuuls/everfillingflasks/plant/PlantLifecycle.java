@@ -1,5 +1,6 @@
 package com.mahghuuuls.everfillingflasks.plant;
 
+import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
@@ -22,9 +23,6 @@ public final class PlantLifecycle {
 
     /** Ticks of world time in one minute at the normal tick rate. */
     public static final long TICKS_PER_MINUTE = 1200L;
-
-    /** Minutes a picked plant needs to bloom again at a regrow factor of 1. */
-    static final int DEFAULT_REGROW_MINUTES = 180;
 
     private PlantLifecycle() {
     }
@@ -95,10 +93,15 @@ public final class PlantLifecycle {
         world.setBlockState(pos, stem, 3);
         TileEntity tile = world.getTileEntity(pos);
         if (tile instanceof TileEntityStem) {
-            ((TileEntityStem) tile).setRegrowAt(
-                    regrowAt(world.getTotalWorldTime(), DEFAULT_REGROW_MINUTES, plant.defaultRegrowFactor()));
+            ((TileEntityStem) tile).setRegrowAt(deadlineFor(plant, world.getTotalWorldTime()));
         }
         return false;
+    }
+
+    /** The deadline a plant picked at this total world time gets, from the current settings. */
+    static long deadlineFor(WildPlant plant, long now) {
+        ConfigSnapshot config = ConfigSnapshot.current();
+        return regrowAt(now, config.plantRegrowMinutes(), config.plant(plant.key()).regrowFactor());
     }
 
     private static long deadlineOf(World world, BlockPos pos) {

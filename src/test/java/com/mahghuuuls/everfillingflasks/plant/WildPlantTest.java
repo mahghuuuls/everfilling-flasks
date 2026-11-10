@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The five plants: their registry paths, the infusion each gives (none for the seed plant), what
- * each may stand on, and its default regrow factor. Which item object a plant drops needs the
+ * The five plants: their registry paths, the infusion each gives (none for the seed plant), and
+ * what each may stand on. Which item object a plant drops needs the
  * registered items and is checked in game.
  */
 class WildPlantTest {
@@ -36,18 +36,17 @@ class WildPlantTest {
     }
 
     @Test
-    void eachPlantHasItsApprovedInfusionGroundAndRegrowFactor() {
-        assertPlant(WildPlant.SUNPETAL, InfusionKind.SUNPETAL_LEAF, PlantGround.GRASS, 0.5D);
-        assertPlant(WildPlant.IRONROOT, InfusionKind.IRONROOT_SPRIG, PlantGround.GRASS_OR_STONE, 0.5D);
-        assertPlant(WildPlant.QUICKMINT, InfusionKind.QUICKMINT_LEAF, PlantGround.GRASS_OR_DIRT, 0.5D);
-        assertPlant(WildPlant.SECOND_WIND, InfusionKind.SECOND_WIND_PETAL, PlantGround.GRASS, 1.0D);
-        assertPlant(WildPlant.EVERLASTING_SPROUT, null, PlantGround.GRASS_OR_DIRT, 1.0D);
+    void eachPlantHasItsApprovedInfusionAndGround() {
+        assertPlant(WildPlant.SUNPETAL, InfusionKind.SUNPETAL_LEAF, PlantGround.GRASS);
+        assertPlant(WildPlant.IRONROOT, InfusionKind.IRONROOT_SPRIG, PlantGround.GRASS_OR_STONE);
+        assertPlant(WildPlant.QUICKMINT, InfusionKind.QUICKMINT_LEAF, PlantGround.GRASS_OR_DIRT);
+        assertPlant(WildPlant.SECOND_WIND, InfusionKind.SECOND_WIND_PETAL, PlantGround.GRASS);
+        assertPlant(WildPlant.EVERLASTING_SPROUT, null, PlantGround.GRASS_OR_DIRT);
     }
 
-    private static void assertPlant(WildPlant plant, InfusionKind infusion, PlantGround ground, double factor) {
+    private static void assertPlant(WildPlant plant, InfusionKind infusion, PlantGround ground) {
         assertEquals(infusion, plant.infusion(), plant + " infusion");
         assertEquals(ground, plant.ground(), plant + " ground");
-        assertEquals(factor, plant.defaultRegrowFactor(), 0.0D, plant + " regrow factor");
     }
 
     @Test

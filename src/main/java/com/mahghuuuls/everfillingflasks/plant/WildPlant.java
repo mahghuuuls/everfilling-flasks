@@ -8,30 +8,28 @@ import java.util.Locale;
 
 /**
  * The five wild plants: one for each built-in infusion and one for the Everlasting Seed. The
- * key is the block's registry path and the name of its config category. The item a plant gives
+ * key is the block's registry path and the name of its config category, where its chance,
+ * biomes, and regrow factor are set. The item a plant gives
  * is looked up when it is needed, never when this enum loads, because the items exist only
  * after item registration.
  */
 public enum WildPlant {
 
-    SUNPETAL(PlantGround.GRASS, InfusionKind.SUNPETAL_LEAF, 0.5D, 0, false),
-    IRONROOT(PlantGround.GRASS_OR_STONE, InfusionKind.IRONROOT_SPRIG, 0.5D, 0, false),
-    QUICKMINT(PlantGround.GRASS_OR_DIRT, InfusionKind.QUICKMINT_LEAF, 0.5D, 0, false),
-    SECOND_WIND(PlantGround.GRASS, InfusionKind.SECOND_WIND_PETAL, 1.0D, 0, false),
+    SUNPETAL(PlantGround.GRASS, InfusionKind.SUNPETAL_LEAF, 0, false),
+    IRONROOT(PlantGround.GRASS_OR_STONE, InfusionKind.IRONROOT_SPRIG, 0, false),
+    QUICKMINT(PlantGround.GRASS_OR_DIRT, InfusionKind.QUICKMINT_LEAF, 0, false),
+    SECOND_WIND(PlantGround.GRASS, InfusionKind.SECOND_WIND_PETAL, 0, false),
     /** The mystic one: a faint glow, noticeable at night and less than a torch, and a rare sparkle. */
-    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 1.0D, 5, true);
+    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 5, true);
 
     private final PlantGround ground;
     private final InfusionKind infusion;
-    private final double defaultRegrowFactor;
     private final int bloomLight;
     private final boolean sparkles;
 
-    WildPlant(PlantGround ground, InfusionKind infusion, double defaultRegrowFactor, int bloomLight,
-              boolean sparkles) {
+    WildPlant(PlantGround ground, InfusionKind infusion, int bloomLight, boolean sparkles) {
         this.ground = ground;
         this.infusion = infusion;
-        this.defaultRegrowFactor = defaultRegrowFactor;
         this.bloomLight = bloomLight;
         this.sparkles = sparkles;
     }
@@ -44,11 +42,6 @@ public enum WildPlant {
     /** Whether a plant in bloom shows a sparkle now and then. */
     public boolean sparkles() {
         return sparkles;
-    }
-
-    /** The regrow factor a plant has when the configuration does not set one. */
-    public double defaultRegrowFactor() {
-        return defaultRegrowFactor;
     }
 
     /** Registry path, translation key part, and config category name. */

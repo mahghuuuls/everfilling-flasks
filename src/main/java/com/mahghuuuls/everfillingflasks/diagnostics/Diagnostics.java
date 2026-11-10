@@ -5,10 +5,12 @@ import com.mahghuuuls.everfillingflasks.config.ConfigSnapshot;
 import com.mahghuuuls.everfillingflasks.flask.FlaskStackState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
 
 /**
- * The diagnostic switch (REQ: one log line per Flask decision, off by default) and the fixed
- * wording of every line. All lines go through here so the vocabulary stays consistent and no
+ * The diagnostic switch (one log line per Flask decision and per wild plant placed, off by
+ * default) and the fixed wording of every line. All lines go through here so the vocabulary stays consistent and no
  * caller can accidentally log per tick: every method describes a discrete transition.
  */
 public final class Diagnostics {
@@ -26,6 +28,15 @@ public final class Diagnostics {
         }
         EverfillingFlasksMod.LOGGER.info("{}: starting flask granted: {}",
                 player.getName(), describe(flask));
+    }
+
+    /** A wild plant was placed while a new chunk generated. */
+    public static void plantPlaced(String plant, BlockPos pos, Biome biome) {
+        if (!enabled()) {
+            return;
+        }
+        EverfillingFlasksMod.LOGGER.info("wild plant {} placed at {} {} {} in {}",
+                plant, pos.getX(), pos.getY(), pos.getZ(), biome.getRegistryName());
     }
 
     public static void chargeRestored(EntityPlayer player, int charges, int maxCharges) {

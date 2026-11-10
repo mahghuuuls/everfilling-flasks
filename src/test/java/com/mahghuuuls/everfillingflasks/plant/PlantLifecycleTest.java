@@ -32,8 +32,19 @@ class PlantLifecycleTest {
     }
 
     @Test
-    void theUnconfiguredRegrowTimeIsThreeHours() {
-        assertEquals(180, PlantLifecycle.DEFAULT_REGROW_MINUTES);
+    void aPickReadsTheRegrowTimeAndFactorFromTheConfiguration() {
+        int minutes = com.mahghuuuls.everfillingflasks.config.FlaskConfig.general.plantRegrowMinutes;
+        double factor = com.mahghuuuls.everfillingflasks.config.FlaskConfig.plants.quickmint.regrowFactor;
+        try {
+            com.mahghuuuls.everfillingflasks.config.FlaskConfig.general.plantRegrowMinutes = 2;
+            com.mahghuuuls.everfillingflasks.config.FlaskConfig.plants.quickmint.regrowFactor = 0.25D;
+            com.mahghuuuls.everfillingflasks.config.ConfigSnapshot.refresh();
+            assertEquals(1000L + 600L, PlantLifecycle.deadlineFor(WildPlant.QUICKMINT, 1000L));
+        } finally {
+            com.mahghuuuls.everfillingflasks.config.FlaskConfig.general.plantRegrowMinutes = minutes;
+            com.mahghuuuls.everfillingflasks.config.FlaskConfig.plants.quickmint.regrowFactor = factor;
+            com.mahghuuuls.everfillingflasks.config.ConfigSnapshot.refresh();
+        }
     }
 
     @Test
