@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "stage=bloom": { "model": "everfillingflasks:second_wind_bloom" },
+    "stage=stem": { "model": "everfillingflasks:second_wind_stem" }
+  }
+}

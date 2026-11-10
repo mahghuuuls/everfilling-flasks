@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "stage=bloom": { "model": "everfillingflasks:sunpetal_bloom" },
+    "stage=stem": { "model": "everfillingflasks:sunpetal_stem" }
+  }
+}

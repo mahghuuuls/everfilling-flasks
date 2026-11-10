@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "stage=bloom": { "model": "everfillingflasks:ironroot_bloom" },
+    "stage=stem": { "model": "everfillingflasks:ironroot_stem" }
+  }
+}

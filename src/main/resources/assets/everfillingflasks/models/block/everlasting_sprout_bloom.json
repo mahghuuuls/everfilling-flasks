@@ -1,0 +1,6 @@
+{
+  "parent": "block/cross",
+  "textures": {
+    "cross": "everfillingflasks:blocks/everlasting_sprout_bloom"
+  }
+}
