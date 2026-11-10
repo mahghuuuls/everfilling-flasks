@@ -15,23 +15,25 @@ import java.util.Locale;
  */
 public enum WildPlant {
 
-    SUNPETAL(PlantGround.GRASS, InfusionKind.SUNPETAL_LEAF, 0, false),
-    IRONROOT(PlantGround.GRASS_OR_STONE, InfusionKind.IRONROOT_SPRIG, 0, false),
-    QUICKMINT(PlantGround.GRASS_OR_DIRT, InfusionKind.QUICKMINT_LEAF, 0, false),
-    SECOND_WIND(PlantGround.GRASS, InfusionKind.SECOND_WIND_PETAL, 0, false),
+    SUNPETAL(PlantGround.GRASS, InfusionKind.SUNPETAL_LEAF, 0, false, 0.85D),
+    IRONROOT(PlantGround.GRASS_OR_STONE, InfusionKind.IRONROOT_SPRIG, 0, false, 0.85D),
+    QUICKMINT(PlantGround.GRASS_OR_DIRT, InfusionKind.QUICKMINT_LEAF, 0, false, 0.85D),
+    SECOND_WIND(PlantGround.GRASS, InfusionKind.SECOND_WIND_PETAL, 0, false, 0.85D),
     /** The mystic one: a faint glow, noticeable at night and less than a torch, and a rare sparkle. */
-    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 5, true);
+    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 5, true, 0.95D);
 
     private final PlantGround ground;
     private final InfusionKind infusion;
     private final int bloomLight;
     private final boolean sparkles;
+    private final double bloomTop;
 
-    WildPlant(PlantGround ground, InfusionKind infusion, int bloomLight, boolean sparkles) {
+    WildPlant(PlantGround ground, InfusionKind infusion, int bloomLight, boolean sparkles, double bloomTop) {
         this.ground = ground;
         this.infusion = infusion;
         this.bloomLight = bloomLight;
         this.sparkles = sparkles;
+        this.bloomTop = bloomTop;
     }
 
     /** The light a plant gives off in bloom; a stem gives none. */
@@ -42,6 +44,11 @@ public enum WildPlant {
     /** Whether a plant in bloom shows a sparkle now and then. */
     public boolean sparkles() {
         return sparkles;
+    }
+
+    /** The top of the bloom's click and outline box, in blocks: at or above its model's highest point. */
+    public double bloomTop() {
+        return bloomTop;
     }
 
     /** Registry path, translation key part, and config category name. */

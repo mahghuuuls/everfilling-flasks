@@ -37,9 +37,6 @@ public final class BlockWildPlant extends Block {
 
     public static final PropertyEnum<PlantStage> STAGE = PropertyEnum.create("stage", PlantStage.class);
 
-    /** The click and outline box of a bloom: the reach of the tallest and widest model. */
-    private static final AxisAlignedBB BLOOM_AABB = new AxisAlignedBB(0.15D, 0.0D, 0.15D, 0.85D, 0.85D, 0.85D);
-
     /** The click and outline box of a stem: the short stub and its leaves. */
     private static final AxisAlignedBB STEM_AABB = new AxisAlignedBB(0.25D, 0.0D, 0.25D, 0.75D, 0.35D, 0.75D);
 
@@ -48,9 +45,13 @@ public final class BlockWildPlant extends Block {
 
     private final WildPlant plant;
 
+    /** The click and outline box of a bloom: the widest model's reach, as tall as this plant's model. */
+    private final AxisAlignedBB bloomBox;
+
     public BlockWildPlant(WildPlant plant) {
         super(Material.PLANTS);
         this.plant = plant;
+        this.bloomBox = new AxisAlignedBB(0.15D, 0.0D, 0.15D, 0.85D, plant.bloomTop(), 0.85D);
         setRegistryName(Tags.MOD_ID, plant.key());
         setTranslationKey(Tags.MOD_ID + "." + plant.key());
         setTickRandomly(true);
@@ -124,7 +125,7 @@ public final class BlockWildPlant extends Block {
             return;
         }
         double x = pos.getX() + 0.5D + (random.nextDouble() - 0.5D) * 0.25D;
-        double y = pos.getY() + 0.75D + random.nextDouble() * 0.15D;
+        double y = pos.getY() + 0.85D + random.nextDouble() * 0.15D;
         double z = pos.getZ() + 0.5D + (random.nextDouble() - 0.5D) * 0.25D;
         world.spawnParticle(EnumParticleTypes.SPELL_WITCH, x, y, z, 0.0D, 0.0D, 0.0D);
     }
@@ -193,7 +194,7 @@ public final class BlockWildPlant extends Block {
 
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-        return state.getValue(STAGE) == PlantStage.STEM ? STEM_AABB : BLOOM_AABB;
+        return state.getValue(STAGE) == PlantStage.STEM ? STEM_AABB : bloomBox;
     }
 
     @Nullable
