@@ -18,7 +18,8 @@ import java.util.Random;
 /**
  * Places wild plants while new Overworld chunks are decorated. For each enabled plant, one roll
  * against its chance; on success up to {@link #CANDIDATES} random columns, and the plant goes in
- * the first whose biome allows it and whose top stands on the plant's ground. At most one plant
+ * the first whose biome allows it and where {@link ColumnFinder} finds a spot on the plant's
+ * ground, under leaves and in tall grass too. At most one plant
  * of each kind per chunk, never a group.
  *
  * <p>Columns are offset by 8 like vanilla decoration, so placement never reaches into a chunk that

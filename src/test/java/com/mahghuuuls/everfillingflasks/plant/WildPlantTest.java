@@ -93,6 +93,11 @@ class WildPlantTest {
         assertTrue(ground.accepts(Blocks.STONE.getStateFromMeta(1)));
         assertFalse(ground.accepts(Blocks.DIRT.getDefaultState()));
         assertFalse(ground.accepts(Blocks.COBBLESTONE.getDefaultState()));
+        assertFalse(ground.accepts(Blocks.STONE.getStateFromMeta(2)));
+        assertFalse(ground.accepts(Blocks.STONE.getStateFromMeta(4)));
+        assertFalse(ground.accepts(Blocks.STONE.getStateFromMeta(6)));
+        assertTrue(ground.accepts(Blocks.STONE.getStateFromMeta(3)));
+        assertTrue(ground.accepts(Blocks.STONE.getStateFromMeta(5)));
         assertFalse(ground.accepts(Blocks.STONEBRICK.getDefaultState()));
         assertFalse(ground.accepts(Blocks.LOG.getDefaultState()));
     }

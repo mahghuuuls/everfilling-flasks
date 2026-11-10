@@ -1,6 +1,7 @@
 package com.mahghuuuls.everfillingflasks.plant;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 
@@ -25,6 +26,13 @@ public enum PlantGround {
         this.stone = stone;
     }
 
+    /** Polished granite, diorite, and andesite are stonework, not natural ground. */
+    private static boolean isPolished(IBlockState stone) {
+        BlockStone.EnumType type = stone.getValue(BlockStone.VARIANT);
+        return type == BlockStone.EnumType.GRANITE_SMOOTH || type == BlockStone.EnumType.DIORITE_SMOOTH
+                || type == BlockStone.EnumType.ANDESITE_SMOOTH;
+    }
+
     /** Whether a plant of this kind may stand on the given block. */
     public boolean accepts(IBlockState below) {
         Block block = below.getBlock();
@@ -34,6 +42,6 @@ public enum PlantGround {
         if (dirt && block == Blocks.DIRT) {
             return true;
         }
-        return stone && block == Blocks.STONE;
+        return stone && block == Blocks.STONE && !isPolished(below);
     }
 }
