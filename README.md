@@ -2,7 +2,7 @@
 
 A Minecraft 1.12.2 Forge mod: a rechargeable healing flask in its own equipment slot, drunk by
 holding a key, in the spirit of souls-like games. Flasks refill on their own over time, drinking
-can be interrupted by hits, and flasks can be infused with infusions found in treasure chests.
+can be interrupted by hits, and flasks can be infused with infusions picked from wild plants.
 
 - Player-facing description: [MOD-PAGE.md](MOD-PAGE.md)
 - Release history: [CHANGELOG.md](CHANGELOG.md)
@@ -26,12 +26,16 @@ can be interrupted by hits, and flasks can be infused with infusions found in tr
 
 One file, `config/everfillingflasks.cfg`, read at game start:
 
-- `general`: `startingFlask`, `keepFlaskOnDeath`, `drinkSlowdown`, `infusionLoot`,
-  `diagnostics` (one log line per flask decision, for pack authors)
+- `general`: `startingFlask`, `keepFlaskOnDeath`, `drinkSlowdown`, `infusionLoot` (chest loot,
+  off by default since 1.4.0), `plantRegrowMinutes`, `diagnostics` (one log line per flask
+  decision and per wild plant placed, for pack authors)
 - `flasks.<tier>`: `maxCharges`, `healPercentage`, `rechargeTicks`, `drinkTicks`,
   `hitThreshold`, `potency` per built-in flask
 - `infusions.<name>`: `cost` and `strength` per built-in infusion
 - `recipes.<tier>`: one switch per built-in flask recipe
+- `plants.<plant>` (`sunpetal`, `ironroot`, `quickmint`, `second_wind`, `everlasting_sprout`):
+  `enabled`, `chancePercent`, `biomeTypes` (Forge biome dictionary types, `*` for every biome),
+  `biomeNames` (biome registry names, also of other mods), `regrowFactor`
 - `journal.textOverrides`: replace or hide the text on a journal entry per registry name, as
   `everfillingflasks:sunpetal_leaf=your text` or `everfillingflasks:sunpetal_leaf=` to hide
 
@@ -41,9 +45,12 @@ One file, `config/everfillingflasks.cfg`, read at game start:
   recharge, and infusion effects. Clients only display.
 - Equipping a flask empties it. Charges are only earned while it sits in the slot, so swapping
   flasks mid-combat cannot refill anything.
-- Everlasting Seeds and infusions come from dungeon, mineshaft, and village blacksmith chests
-  (`general.infusionLoot` turns that off). Neither is craftable; the seed is what a flask is
-  built around.
+- Everlasting Seeds and infusions come from wild plants in new Overworld chunks, one plant kind
+  for each item. Hitting a plant in bloom gives the item and leaves a stem that blooms again;
+  breaking the stem removes the plant for good. Land generated before 1.4.0 gets no plants.
+  Neither item is craftable; the seed is what a flask is built around. `general.infusionLoot`
+  puts them back into dungeon, mineshaft, and village blacksmith chests; it is off by default
+  since 1.4.0, and a config file that already holds the key keeps its value.
 - The journal builds itself from the registries on the client, so its numbers follow the config
   and its recipes follow the recipe registry. Nothing in it is duplicated data to maintain.
 - Add-ons can register their own flasks, infusions, modifier bonuses, and HUD through
