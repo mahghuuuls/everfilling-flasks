@@ -86,8 +86,8 @@ class ConfigSnapshotTest {
     }
 
     @Test
-    void infusionLootDefaultsOn() {
-        assertTrue(ConfigSnapshot.current().infusionLoot());
+    void infusionLootDefaultsOff() {
+        assertFalse(ConfigSnapshot.current().infusionLoot());
     }
 
     @Test
@@ -180,4 +180,66 @@ class ConfigSnapshotTest {
         }
     }
 
+    @Test
+    void wildPlantDefaultsMatchTheApprovedTable() {
+        ConfigSnapshot.refresh();
+        ConfigSnapshot c = ConfigSnapshot.current();
+        assertEquals(180, c.plantRegrowMinutes());
+        assertPlant(c.plant("sunpetal"), 3, java.util.Arrays.asList("PLAINS", "SAVANNA"), 0.5);
+        assertPlant(c.plant("ironroot"), 3, java.util.Arrays.asList("MOUNTAIN", "HILLS"), 0.5);
+        assertPlant(c.plant("quickmint"), 3, java.util.Arrays.asList("FOREST", "JUNGLE", "SWAMP"), 0.5);
+        assertPlant(c.plant("second_wind"), 1, java.util.Arrays.asList("FOREST", "PLAINS", "MAGICAL", "LUSH"), 1.0);
+        assertPlant(c.plant("everlasting_sprout"), 3, java.util.Arrays.asList("*"), 1.0);
+    }
+
+    private static void assertPlant(ConfigSnapshot.PlantSettings settings, int chance,
+                                    java.util.List<String> types, double factor) {
+        assertTrue(settings.enabled());
+        assertEquals(chance, settings.chancePercent());
+        assertEquals(types, settings.biomeTypes());
+        assertTrue(settings.biomeNames().isEmpty());
+        assertEquals(factor, settings.regrowFactor(), 0.0);
+    }
+
+    @Test
+    void everyWildPlantHasAConfigCategoryNamedByItsKey() throws Exception {
+        ConfigSnapshot.refresh();
+        java.util.Set<String> categories = new java.util.HashSet<String>();
+        for (java.lang.reflect.Field field : FlaskConfig.Plants.class.getFields()) {
+            categories.add(field.getAnnotation(net.minecraftforge.common.config.Config.Name.class).value());
+        }
+        java.util.Set<String> keys = new java.util.HashSet<String>();
+        for (com.mahghuuuls.everfillingflasks.plant.WildPlant plant
+                : com.mahghuuuls.everfillingflasks.plant.WildPlant.values()) {
+            keys.add(plant.key());
+            org.junit.jupiter.api.Assertions.assertNotNull(ConfigSnapshot.current().plant(plant.key()), plant.key());
+        }
+        assertEquals(keys, categories);
+    }
+
+    @Test
+    void anUnknownPlantKeyIsAnError() {
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> ConfigSnapshot.current().plant("no_such_plant"));
+    }
+
+    @Test
+    void anOutOfRangeChanceIsClampedAndBlankBiomeLinesAreDropped() {
+        FlaskConfig.PlantValues values = FlaskConfig.plants.sunpetal;
+        int chance = values.chancePercent;
+        String[] names = values.biomeNames;
+        try {
+            values.chancePercent = 250;
+            values.biomeNames = new String[] {"", " minecraft:plains ", "  "};
+            ConfigSnapshot.refresh();
+            ConfigSnapshot.PlantSettings settings = ConfigSnapshot.current().plant("sunpetal");
+            assertEquals(100, settings.chancePercent());
+            assertEquals(java.util.Arrays.asList("minecraft:plains"), settings.biomeNames());
+            assertTrue(ConfigSnapshot.current().clampWarnings().toString().contains("plants.sunpetal.chancePercent"));
+        } finally {
+            values.chancePercent = chance;
+            values.biomeNames = names;
+            ConfigSnapshot.refresh();
+        }
+    }
 }

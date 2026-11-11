@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.4.0
+
+### Added
+
+- Five wild plants grow in new Overworld chunks, at most one of each kind per chunk, each with a
+  3 percent chance per chunk (Second Wind 1 percent):
+  - Sunpetal in plains and savannas, on grass.
+  - Ironroot in mountains and hills, on grass or stone.
+  - Quickmint in forests, jungles, and swamps, on grass or dirt.
+  - Second Wind in forests and plains, and with biome mods also magical and lush lands, on grass.
+  - Everlasting Sprout anywhere in the Overworld, on grass or dirt.
+
+  They also grow under trees and in tall grass. Hit one in bloom to get its infusion, or an
+  Everlasting Seed from the Everlasting Sprout. A stem stays behind and blooms again after 90
+  minutes of play for Sunpetal, Ironroot, and Quickmint, 180 minutes for Second Wind and the
+  Everlasting Sprout. Breaking the stem removes the plant for good. The Everlasting Sprout glows
+  faintly and sparkles now and then.
+- Config: `general.plantRegrowMinutes` (180), and per plant under `plants.sunpetal`,
+  `plants.ironroot`, `plants.quickmint`, `plants.second_wind`, and
+  `plants.everlasting_sprout`: `enabled`, `chancePercent`, `biomeTypes` (Forge biome dictionary
+  types, `*` for every biome), `biomeNames` (biome registry names, including biomes of other
+  mods), and `regrowFactor`.
+- The journal says where each herb and the seed grow wild, and follows the config.
+- With `general.diagnostics` on, the log gets one line per plant placed, with its position and
+  biome.
+
+### Changed
+
+- `general.infusionLoot` now defaults to false: Everlasting Seeds and infusions no longer turn up
+  in dungeon, mineshaft, and village blacksmith chests. Set it to true to bring them back.
+- Existing worlds and packs: land generated before this version gets no plants, so explore new
+  land to find them. A config file that already holds `general.infusionLoot` keeps its value, so
+  chest loot stays as it was there until you change it.
+
 ## 1.3.0
 
 ### Added

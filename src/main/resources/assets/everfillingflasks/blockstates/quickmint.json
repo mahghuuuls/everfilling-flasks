@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "stage=bloom": { "model": "everfillingflasks:quickmint_bloom" },
+    "stage=stem": { "model": "everfillingflasks:quickmint_stem" }
+  }
+}

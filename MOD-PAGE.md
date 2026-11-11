@@ -9,9 +9,14 @@ Like Black Myth: Wukong, flasks are swappable and their properties change with i
 Infusions are not consumed. They stay in the flask and keep working, making the drink faster,
 the healing larger, the drink harder to interrupt, or leaving an effect behind afterwards.
 
-Flasks are built around Everlasting Seeds, found in dungeon chests, abandoned mineshafts, and
-village blacksmiths. The infusions come from the same chests. The Humble Flask leads to the
-Sturdy and then the Radiant, each crafted from the one below.
+Flasks are built around Everlasting Seeds. You start with a Humble Flask; it leads to the Sturdy
+and then the Radiant, each crafted from the one below.
+
+The seeds and this mod's infusions come from wild plants in the Overworld, one kind of plant for
+each item, and the journal says where each grows. Hit a plant in bloom to get its seed or
+infusion. The stem left behind blooms again after a while; breaking the stem removes the plant for
+good. The Everlasting Sprout glows faintly, easiest to see at night. Plants only appear in land
+generated after this mod's 1.4.0 update, so in an older world, explore new land.
 
 This is a base rather than a big content mod. It ships a few flasks and a few infusions, and an
 API for add-ons to bring the variety.
@@ -19,7 +24,7 @@ API for add-ons to bring the variety.
 Flask recharge freezes while the Inhibited effect is active. That is in there because I play with
 [Combat Inhibited](https://www.curseforge.com/minecraft/mc-mods/combat-inhibited) myself. What
 the mod looks for is the effect rather than that particular mod, so anything providing it works.
-It is not required, it is off by default.
+Combat Inhibited is not required, and the recharge freeze is off by default.
 
 ---
 
@@ -176,14 +181,21 @@ The config file provides options for:
 - Changing each infusion's potency cost and its strength
 - Removing any of the recipes
 - Changing the starting flask, or granting none at all
-- Taking the seeds and infusions out of chest loot, which leaves flasks uncraftable unless
-  another source provides them
+- Each wild plant: on or off, its chance per chunk, the biome types or biome names it grows in
+  (biomes of other mods too), and how long its stem takes to bloom again. With the Everlasting
+  Sprout off and chest loot off, flasks cannot be crafted unless another source provides seeds
+- Putting the seeds and infusions in dungeon, mineshaft, and village blacksmith chests as well
+  (off by default; a config file from 1.3.0 or earlier keeps its own setting)
 - Dropping flasks on death instead of keeping them
 - Changing how much drinking slows movement, or removing the slowdown
 - Switching on the Inhibited link
 - Replacing or hiding any journal entry's text, per item, for when a pack moves something
   elsewhere
-- A diagnostics log that records every flask decision and its reason, for tracking down reports
+- A diagnostics log of every flask decision with its reason and every wild plant placed, for
+  tracking down reports
+
+Everything is in `config/everfillingflasks.cfg`; changes need a restart. The
+[README](https://github.com/mahghuuuls/everfilling-flasks#configuration) lists the keys.
 
 ## For mod developers
 
@@ -200,6 +212,10 @@ Using the API, add-ons can:
 - Mark infusions that refuse to share a grid, read the drink outcome from an infusion, and get
   the infusion tooltip written for them in the same style as the built-in ones
 - Change the flask stats with ordinary attribute modifiers, as the integrations above do
+
+Wild plants and the chest-loot option cover only this mod's seed and infusions; an add-on supplies
+its own items. Full reference: the
+[add-on API guide](https://github.com/mahghuuuls/everfilling-flasks/blob/main/docs/API.md).
 
 ## Installation
 

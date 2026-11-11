@@ -5,6 +5,7 @@ import com.mahghuuuls.everfillingflasks.journal.JournalTextOverrides;
 import com.mahghuuuls.everfillingflasks.item.InfusionKind;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -35,6 +36,8 @@ public final class ConfigSnapshot {
     private final Map<FlaskTier, TierConfig> tiers;
     private final Map<InfusionKind, InfusionConfig> infusions;
     private final Map<String, Boolean> recipes;
+    private final int plantRegrowMinutes;
+    private final Map<String, PlantSettings> plants;
     private final List<String> clampWarnings;
 
     private ConfigSnapshot(String startingFlask, boolean keepFlaskOnDeath, float drinkSlowdown,
@@ -43,7 +46,8 @@ public final class ConfigSnapshot {
                            JournalTextOverrides textOverrides,
                            Map<FlaskTier, TierConfig> tiers,
                            Map<InfusionKind, InfusionConfig> infusions,
-                           Map<String, Boolean> recipes, List<String> clampWarnings) {
+                           Map<String, Boolean> recipes, int plantRegrowMinutes,
+                           Map<String, PlantSettings> plants, List<String> clampWarnings) {
         this.startingFlask = startingFlask;
         this.keepFlaskOnDeath = keepFlaskOnDeath;
         this.drinkSlowdown = drinkSlowdown;
@@ -54,6 +58,8 @@ public final class ConfigSnapshot {
         this.tiers = tiers;
         this.infusions = infusions;
         this.recipes = recipes;
+        this.plantRegrowMinutes = plantRegrowMinutes;
+        this.plants = plants;
         this.clampWarnings = clampWarnings;
     }
 
@@ -93,6 +99,16 @@ public final class ConfigSnapshot {
         recipes.put(FlaskTier.UNCOMMON.key(), FlaskConfig.recipes.uncommon);
         recipes.put(FlaskTier.RARE.key(), FlaskConfig.recipes.rare);
 
+        // Keyed by the plant's key, the same name as its config category, so this package
+        // needs no reference to the plant blocks.
+        Map<String, PlantSettings> plants = new HashMap<String, PlantSettings>();
+        plants.put("sunpetal", PlantSettings.from("plants.sunpetal", FlaskConfig.plants.sunpetal, warnings));
+        plants.put("ironroot", PlantSettings.from("plants.ironroot", FlaskConfig.plants.ironroot, warnings));
+        plants.put("quickmint", PlantSettings.from("plants.quickmint", FlaskConfig.plants.quickmint, warnings));
+        plants.put("second_wind", PlantSettings.from("plants.second_wind", FlaskConfig.plants.secondWind, warnings));
+        plants.put("everlasting_sprout", PlantSettings.from("plants.everlasting_sprout",
+                FlaskConfig.plants.everlastingSprout, warnings));
+
         JournalTextOverrides textOverrides =
                 JournalTextOverrides.parse(FlaskConfig.journal.textOverrides);
         warnings.addAll(textOverrides.warnings());
@@ -109,6 +125,9 @@ public final class ConfigSnapshot {
                 Collections.unmodifiableMap(tiers),
                 Collections.unmodifiableMap(infusions),
                 Collections.unmodifiableMap(recipes),
+                clampInt(FlaskConfig.general.plantRegrowMinutes, 1, 100000,
+                        "general.plantRegrowMinutes", warnings),
+                Collections.unmodifiableMap(plants),
                 Collections.unmodifiableList(warnings));
     }
 
@@ -163,6 +182,20 @@ public final class ConfigSnapshot {
     public boolean recipeEnabled(String name) {
         Boolean enabled = recipes.get(name);
         return enabled == null || enabled;
+    }
+
+    /** Minutes of world time a picked wild plant needs to bloom again at a regrow factor of 1. */
+    public int plantRegrowMinutes() {
+        return plantRegrowMinutes;
+    }
+
+    /** The settings of the wild plant with this key. */
+    public PlantSettings plant(String key) {
+        PlantSettings settings = plants.get(key);
+        if (settings == null) {
+            throw new IllegalArgumentException("no wild plant settings for " + key);
+        }
+        return settings;
     }
 
     /** One line per clamped key, for the preInit warning pass. Empty when everything was in range. */
@@ -244,6 +277,66 @@ public final class ConfigSnapshot {
 
         public int potency() {
             return potency;
+        }
+    }
+
+    /** One wild plant's settings, clamped, with its biome lists trimmed of blank lines. */
+    public static final class PlantSettings {
+
+        private final boolean enabled;
+        private final int chancePercent;
+        private final List<String> biomeTypes;
+        private final List<String> biomeNames;
+        private final double regrowFactor;
+
+        PlantSettings(boolean enabled, int chancePercent, List<String> biomeTypes,
+                      List<String> biomeNames, double regrowFactor) {
+            this.enabled = enabled;
+            this.chancePercent = chancePercent;
+            this.biomeTypes = biomeTypes;
+            this.biomeNames = biomeNames;
+            this.regrowFactor = regrowFactor;
+        }
+
+        static PlantSettings from(String keyPrefix, FlaskConfig.PlantValues values, List<String> warnings) {
+            return new PlantSettings(
+                    values.enabled,
+                    clampInt(values.chancePercent, 0, 100, keyPrefix + ".chancePercent", warnings),
+                    cleaned(values.biomeTypes),
+                    cleaned(values.biomeNames),
+                    clampDouble(values.regrowFactor, 0.1, 10.0, keyPrefix + ".regrowFactor", warnings));
+        }
+
+        private static List<String> cleaned(String[] lines) {
+            List<String> out = new ArrayList<String>();
+            if (lines != null) {
+                for (String line : Arrays.asList(lines)) {
+                    if (line != null && !line.trim().isEmpty()) {
+                        out.add(line.trim());
+                    }
+                }
+            }
+            return Collections.unmodifiableList(out);
+        }
+
+        public boolean enabled() {
+            return enabled;
+        }
+
+        public int chancePercent() {
+            return chancePercent;
+        }
+
+        public List<String> biomeTypes() {
+            return biomeTypes;
+        }
+
+        public List<String> biomeNames() {
+            return biomeNames;
+        }
+
+        public double regrowFactor() {
+            return regrowFactor;
         }
     }
 

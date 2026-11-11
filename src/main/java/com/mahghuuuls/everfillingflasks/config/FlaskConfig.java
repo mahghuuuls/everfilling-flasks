@@ -38,6 +38,13 @@ public final class FlaskConfig {
     @Config.Comment("The in-game journal. These options change words only, never behaviour.")
     public static final Journal journal = new Journal();
 
+    @Config.Name("plants")
+    @Config.Comment({
+            "The five wild plants. Each grows alone in new Overworld chunks; hitting one in bloom",
+            "gives its item and leaves a stem that blooms again later. Land generated before",
+            "never gets plants. Every value takes effect on the next game start."})
+    public static final Plants plants = new Plants();
+
     public static final class General {
 
         @Config.Name("startingFlask")
@@ -62,11 +69,12 @@ public final class FlaskConfig {
 
         @Config.Name("infusionLoot")
         @Config.Comment({
-                "Add Everlasting Seeds and Flask Infusions to dungeon, mineshaft, and village",
-                "blacksmith chests. false removes them from world loot entirely, which also makes",
-                "every Flask uncraftable in survival: the Humble Flask needs a seed, and each",
-                "other tier is crafted from the one below it."})
-        public boolean infusionLoot = true;
+                "Also put Everlasting Seeds and Flask Infusions in dungeon, mineshaft, and village",
+                "blacksmith chests. Off by default: they grow as wild plants (see plants). A file",
+                "written by 1.3.0 or earlier keeps its own value; only a missing key takes the",
+                "default. With chest loot off and a plant turned off, its item has no source in",
+                "survival."})
+        public boolean infusionLoot = false;
 
         @Config.Name("inhibitedIntegration")
         @Config.Comment({
@@ -75,11 +83,20 @@ public final class FlaskConfig {
                 "A file written by 1.0.0 keeps its own value; only a missing key takes the default."})
         public boolean inhibitedIntegration = false;
 
+        @Config.Name("plantRegrowMinutes")
+        @Config.Comment({
+                "Minutes of world time a picked wild plant needs to bloom again, before its",
+                "plant's regrowFactor. 180 is three hours of play; 0.5 halves it for a plant."})
+        @Config.RangeInt(min = 1, max = 100000)
+        public int plantRegrowMinutes = 180;
+
         @Config.Name("diagnostics")
         @Config.Comment({
                 "Log one line per Flask decision: drink started, refused (and why), cancelled",
-                "(and why), completed, charge restored, recharge paused. For pack authors and",
-                "server owners investigating reports. Off for normal play."})
+                "(and why), completed, charge restored, recharge paused; and one line per wild",
+                "plant placed in a new chunk, with its position and biome, to find plants without",
+                "searching. For pack authors and server owners investigating reports. Off for",
+                "normal play."})
         public boolean diagnostics = false;
     }
 
@@ -185,6 +202,69 @@ public final class FlaskConfig {
                 "a language change. A name nothing matches is ignored with one log line.",
                 "For packs that change where content comes from, or want their own wording."})
         public String[] textOverrides = new String[0];
+    }
+
+    public static final class Plants {
+
+        @Config.Name("sunpetal")
+        @Config.Comment("Gives the Sunpetal Leaf. Grows on grass.")
+        public final PlantValues sunpetal = new PlantValues(3, new String[] {"PLAINS", "SAVANNA"}, 0.5);
+
+        @Config.Name("ironroot")
+        @Config.Comment("Gives the Ironroot Sprig. Grows on grass or natural stone.")
+        public final PlantValues ironroot = new PlantValues(3, new String[] {"MOUNTAIN", "HILLS"}, 0.5);
+
+        @Config.Name("quickmint")
+        @Config.Comment("Gives the Quickmint Leaf. Grows on grass or dirt.")
+        public final PlantValues quickmint =
+                new PlantValues(3, new String[] {"FOREST", "JUNGLE", "SWAMP"}, 0.5);
+
+        @Config.Name("second_wind")
+        @Config.Comment("Gives the Second Wind Petal. Grows on grass.")
+        public final PlantValues secondWind =
+                new PlantValues(1, new String[] {"FOREST", "PLAINS", "MAGICAL", "LUSH"}, 1.0);
+
+        @Config.Name("everlasting_sprout")
+        @Config.Comment("Gives the Everlasting Seed. Grows on grass or dirt.")
+        public final PlantValues everlastingSprout = new PlantValues(3, new String[] {"*"}, 1.0);
+    }
+
+    public static final class PlantValues {
+
+        @Config.Name("enabled")
+        @Config.Comment("false stops this plant from generating; plants already in the world keep working.")
+        public boolean enabled = true;
+
+        @Config.Name("chancePercent")
+        @Config.Comment({
+                "Chance per new chunk, in percent, that one of this plant grows there, when the",
+                "chunk has a matching biome and room on the right ground. 3 is 3 chunks in 100."})
+        @Config.RangeInt(min = 0, max = 100)
+        public int chancePercent;
+
+        @Config.Name("biomeTypes")
+        @Config.Comment({
+                "Forge biome dictionary types this plant grows in, one per line, for example",
+                "FOREST or SNOWY. * means every biome. An unknown type is ignored with one log line."})
+        public String[] biomeTypes;
+
+        @Config.Name("biomeNames")
+        @Config.Comment({
+                "Biome registry names this plant also grows in, one per line, for example",
+                "minecraft:plains or a biome of another mod. A name nothing has is ignored with",
+                "one log line."})
+        public String[] biomeNames = new String[0];
+
+        @Config.Name("regrowFactor")
+        @Config.Comment("Multiplies general.plantRegrowMinutes for this plant. 0.5 is half the time.")
+        @Config.RangeDouble(min = 0.1, max = 10.0)
+        public double regrowFactor;
+
+        PlantValues(int chancePercent, String[] biomeTypes, double regrowFactor) {
+            this.chancePercent = chancePercent;
+            this.biomeTypes = biomeTypes;
+            this.regrowFactor = regrowFactor;
+        }
     }
 
     public static final class Recipes {

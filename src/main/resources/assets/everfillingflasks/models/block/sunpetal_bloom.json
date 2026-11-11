@@ -1,0 +1,13 @@
+{
+  "ambientocclusion": false,
+  "textures": 
+{"particle":"everfillingflasks:blocks/sunpetal_plant","plant":"everfillingflasks:blocks/sunpetal_plant","parts":"everfillingflasks:blocks/sunpetal_parts","stem":"everfillingflasks:blocks/sunpetal_stem"}
+,
+  "elements": [
+    {"name":"stem","from":[7.5,0,7.5],"to":[8.5,9,8.5],"faces":{"north":{"texture":"#parts","uv":[9,0,10,4]},"south":{"texture":"#parts","uv":[9,0,10,4]},"west":{"texture":"#parts","uv":[9,0,10,4]},"east":{"texture":"#parts","uv":[9,0,10,4]},"up":{"texture":"#parts","uv":[9,0,10,1]},"down":{"texture":"#parts","uv":[9,0,10,1]}}},
+    {"name":"cross a","from":[2,0,8],"to":[14,8,8],"shade":false,"faces":{"north":{"texture":"#plant","uv":[2,8,14,16]},"south":{"texture":"#plant","uv":[2,8,14,16]}},"rotation":{"origin":[8,0,8],"axis":"y","angle":45.0}},
+    {"name":"cross b","from":[2,0,8],"to":[14,8,8],"shade":false,"faces":{"north":{"texture":"#plant","uv":[2,8,14,16]},"south":{"texture":"#plant","uv":[2,8,14,16]}},"rotation":{"origin":[8,0,8],"axis":"y","angle":-45.0}},
+    {"name":"petals","from":[4,9.5,4],"to":[12,9.5,12],"shade":false,"faces":{"up":{"texture":"#parts","uv":[0,4,8,12]},"down":{"texture":"#parts","uv":[0,4,8,12]}}},
+    {"name":"center","from":[7,9,7],"to":[9,10.5,9],"faces":{"north":{"texture":"#parts","uv":[8,4,10,6]},"south":{"texture":"#parts","uv":[8,4,10,6]},"west":{"texture":"#parts","uv":[8,4,10,6]},"east":{"texture":"#parts","uv":[8,4,10,6]},"up":{"texture":"#parts","uv":[9,5,11,7]},"down":{"texture":"#parts","uv":[9,5,11,7]}}}
+  ]
+}
