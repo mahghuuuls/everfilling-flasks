@@ -125,7 +125,7 @@ public final class BlockWildPlant extends Block {
             return;
         }
         double x = pos.getX() + 0.5D + (random.nextDouble() - 0.5D) * 0.25D;
-        double y = pos.getY() + 0.85D + random.nextDouble() * 0.15D;
+        double y = pos.getY() + 0.75D + random.nextDouble() * 0.15D;
         double z = pos.getZ() + 0.5D + (random.nextDouble() - 0.5D) * 0.25D;
         world.spawnParticle(EnumParticleTypes.SPELL_WITCH, x, y, z, 0.0D, 0.0D, 0.0D);
     }

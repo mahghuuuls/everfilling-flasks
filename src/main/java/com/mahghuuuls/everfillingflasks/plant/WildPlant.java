@@ -20,7 +20,7 @@ public enum WildPlant {
     QUICKMINT(PlantGround.GRASS_OR_DIRT, InfusionKind.QUICKMINT_LEAF, 0, false, 0.85D),
     SECOND_WIND(PlantGround.GRASS, InfusionKind.SECOND_WIND_PETAL, 0, false, 0.85D),
     /** The mystic one: a faint glow, noticeable at night and less than a torch, and a rare sparkle. */
-    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 5, true, 0.95D);
+    EVERLASTING_SPROUT(PlantGround.GRASS_OR_DIRT, null, 5, true, 0.85D);
 
     private final PlantGround ground;
     private final InfusionKind infusion;

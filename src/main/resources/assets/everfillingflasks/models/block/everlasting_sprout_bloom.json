@@ -4,11 +4,13 @@
 {"particle":"everfillingflasks:blocks/everlasting_sprout_plant","plant":"everfillingflasks:blocks/everlasting_sprout_plant","parts":"everfillingflasks:blocks/everlasting_sprout_parts","stem":"everfillingflasks:blocks/everlasting_sprout_stem"}
 ,
   "elements": [
-    {"name":"stalk","from":[7.5,0,7.5],"to":[8.5,10,8.5],"faces":{"north":{"uv":[8,0,9,4],"texture":"#parts"},"south":{"uv":[8,0,9,4],"texture":"#parts"},"west":{"uv":[8,0,9,4],"texture":"#parts"},"east":{"uv":[8,0,9,4],"texture":"#parts"},"up":{"uv":[12,0,13,1],"texture":"#parts"},"down":{"uv":[12,0,13,1],"texture":"#parts"}}},
-    {"name":"leaves a","from":[4,0,8],"to":[12,5,8],"shade":false,"faces":{"north":{"uv":[4,11,12,16],"texture":"#plant"},"south":{"uv":[4,11,12,16],"texture":"#plant"}},"rotation":{"origin":[8,0,8],"axis":"y","angle":45.0}},
-    {"name":"leaves b","from":[4,0,8],"to":[12,5,8],"shade":false,"faces":{"north":{"uv":[4,11,12,16],"texture":"#plant"},"south":{"uv":[4,11,12,16],"texture":"#plant"}},"rotation":{"origin":[8,0,8],"axis":"y","angle":-45.0}},
-    {"name":"petal cup a","from":[5,9,8],"to":[11,15,8],"shade":false,"faces":{"north":{"uv":[5,0,11,6],"texture":"#plant"},"south":{"uv":[5,0,11,6],"texture":"#plant"}},"rotation":{"origin":[8,9,8],"axis":"y","angle":45.0}},
-    {"name":"petal cup b","from":[5,9,8],"to":[11,15,8],"shade":false,"faces":{"north":{"uv":[5,0,11,6],"texture":"#plant"},"south":{"uv":[5,0,11,6],"texture":"#plant"}},"rotation":{"origin":[8,9,8],"axis":"y","angle":-45.0}},
-    {"name":"orb","from":[6.75,10.25,6.75],"to":[9.25,12.75,9.25],"faces":{"north":{"uv":[12,4,16,8],"texture":"#parts"},"south":{"uv":[12,4,16,8],"texture":"#parts"},"west":{"uv":[12,4,16,8],"texture":"#parts"},"east":{"uv":[12,4,16,8],"texture":"#parts"},"up":{"uv":[12,4,16,8],"texture":"#parts"},"down":{"uv":[12,4,16,8],"texture":"#parts"}},"shade":false}
+    {"name":"stalk","from":[7.5,0,7.5],"to":[8.5,8,8.5],"faces":{"north":{"uv":[9,0,10,4],"texture":"#parts"},"south":{"uv":[9,0,10,4],"texture":"#parts"},"west":{"uv":[9,0,10,4],"texture":"#parts"},"east":{"uv":[9,0,10,4],"texture":"#parts"},"up":{"uv":[9,0,10,1],"texture":"#parts"},"down":{"uv":[9,0,10,1],"texture":"#parts"}}},
+    {"name":"leaves a","from":[2,0,8],"to":[14,7,8],"shade":false,"faces":{"north":{"uv":[2,9,14,16],"texture":"#plant"},"south":{"uv":[2,9,14,16],"texture":"#plant"}},"rotation":{"origin":[8,0,8],"axis":"y","angle":45.0}},
+    {"name":"leaves b","from":[2,0,8],"to":[14,7,8],"shade":false,"faces":{"north":{"uv":[2,9,14,16],"texture":"#plant"},"south":{"uv":[2,9,14,16],"texture":"#plant"}},"rotation":{"origin":[8,0,8],"axis":"y","angle":-45.0}},
+    {"name":"core","from":[7,8,7],"to":[9,10,9],"faces":{"north":{"uv":[0,0,4,4],"texture":"#parts"},"south":{"uv":[0,0,4,4],"texture":"#parts"},"west":{"uv":[0,0,4,4],"texture":"#parts"},"east":{"uv":[0,0,4,4],"texture":"#parts"},"up":{"uv":[4,0,8,4],"texture":"#parts"},"down":{"uv":[4,0,8,4],"texture":"#parts"}}},
+    {"name":"petal north","from":[6,8,7],"to":[10,12,7],"shade":false,"faces":{"north":{"uv":[0,4,8,12],"texture":"#parts"},"south":{"uv":[0,4,8,12],"texture":"#parts"}},"rotation":{"origin":[8,8,7],"axis":"x","angle":-22.5}},
+    {"name":"petal south","from":[6,8,9],"to":[10,12,9],"shade":false,"faces":{"north":{"uv":[0,4,8,12],"texture":"#parts"},"south":{"uv":[0,4,8,12],"texture":"#parts"}},"rotation":{"origin":[8,8,9],"axis":"x","angle":22.5}},
+    {"name":"petal west","from":[7,8,6],"to":[7,12,10],"shade":false,"faces":{"west":{"uv":[0,4,8,12],"texture":"#parts"},"east":{"uv":[0,4,8,12],"texture":"#parts"}},"rotation":{"origin":[7,8,8],"axis":"z","angle":22.5}},
+    {"name":"petal east","from":[9,8,6],"to":[9,12,10],"shade":false,"faces":{"west":{"uv":[0,4,8,12],"texture":"#parts"},"east":{"uv":[0,4,8,12],"texture":"#parts"}},"rotation":{"origin":[9,8,8],"axis":"z","angle":-22.5}}
   ]
 }
